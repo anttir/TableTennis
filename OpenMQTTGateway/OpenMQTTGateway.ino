@@ -601,11 +601,11 @@ void storeValue(long MQTTvalue) {
   unsigned long now = millis();
   // find oldest value of the buffer
   int o = getMin();
-  Serial << "Min ind: " << String(o);
+  // Serial << "Min ind: " << String(o);
   // replace it by the new one
   ReceivedSignal[o][0] = MQTTvalue;
   ReceivedSignal[o][1] = now;
-  Serial << "store code : " << ReceivedSignal[o][0] << "/" << ReceivedSignal[o][1];
+  Serial << "store code : " << ReceivedSignal[o][0] << "/" << ReceivedSignal[o][1] << endl << endl;
   /*
     trc(F("Col: val/timestamp"));
     for (int i = 0; i < array_size; i++)
@@ -637,7 +637,7 @@ boolean isAduplicate(long value) {
       unsigned long now = millis();
       //Serial << "now:" << now << " ReceivedSignal[i][1]:" << ReceivedSignal[i][1] << " time_avoid_duplicate:" << time_avoid_duplicate << endl ;
       Serial << "now - ReceivedSignal[i][1] = " << now << "-" << ReceivedSignal[i][1] << "=" << (now - ReceivedSignal[i][1]) << " (time_avoid_duplicate:" << time_avoid_duplicate << ")" << endl;
-      if (now - ReceivedSignal[i][1] < time_avoid_duplicate) { 
+      if (now - ReceivedSignal[i][1] < time_avoid_duplicate) {
         Serial << "Duplicate" << endl;
         return true;
       }
