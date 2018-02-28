@@ -24,7 +24,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*----------------------BT topics & parameters-------------------------*/
-#define subjectBTtoMQTT "koti/BTtoMQTT/"
+#define subjectBTtoMQTT "tabletennis/BTtoMQTT/"
 #define TimeBtw_Read 20000 //define the time between 2 scans
 #define Scan_duration 10 //define the time for a scan
 #define HM-10 

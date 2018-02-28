@@ -26,12 +26,12 @@
 
 /*-------------------RF topics & parameters----------------------*/
 //433Mhz MQTT Subjects and keys
-#define subjectMQTTtoRF "koti/commands/MQTTto433"
-#define subjectRFtoMQTT "koti/433toMQTT"
-#define subjectGTWRFtoMQTT "koti/433toMQTT"
-#define subjectRFtoMQTTprotocol "koti/433toMQTT/protocol"
-#define subjectRFtoMQTTbits "koti/433toMQTT/bits"
-#define subjectRFtoMQTTlength "koti/433toMQTT/length"
+#define subjectMQTTtoRF "tabletennis/commands/MQTTto433"
+#define subjectRFtoMQTT "tabletennis/433toMQTT"
+#define subjectGTWRFtoMQTT "tabletennis/433toMQTT"
+#define subjectRFtoMQTTprotocol "tabletennis/433toMQTT/protocol"
+#define subjectRFtoMQTTbits "tabletennis/433toMQTT/bits"
+#define subjectRFtoMQTTlength "tabletennis/433toMQTT/length"
 #define RFprotocolKey "433_" // protocol will be defined if a subject contains RFprotocolKey followed by a value of 1 digit
 #define RFbitsKey "RFBITS_" // bits  will be defined if a subject contains RFbitsKey followed by a value of 2 digits
 #define repeatRFwMQTT false // do we repeat a received signal by using mqtt
@@ -52,8 +52,8 @@ RF supported protocols
 
 /*-------------------RF2 topics & parameters----------------------*/
 //433Mhz newremoteswitch MQTT Subjects and keys
-#define subjectMQTTtoRF2 "koti/commands/MQTTtoRF2"
-#define subjectRF2toMQTT "koti/RF2toMQTT"
+#define subjectMQTTtoRF2 "tabletennis/commands/MQTTtoRF2"
+#define subjectRF2toMQTT "tabletennis/RF2toMQTT"
 #define RF2codeKey "CODE_" // code will be defined if a subject contains RF2codeKey followed by a value of 7 digits
 #define RF2periodKey "PERIOD_" // period  will be defined if a subject contains RF2periodKey followed by a value of 3 digits
 #define RF2unitKey "UNIT_"  // number of your unit value  will be defined if a subject contains RF2unitKey followed by a value of 1-2 digits

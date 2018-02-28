@@ -41,9 +41,9 @@
 
 /*----------------------------USER PARAMETERS-----------------------------*/
 /*-------------DEFINE YOUR MQTT PARAMETERS BELOW----------------*/
-#define LUX   "koti/LIGHTtoMQTT/lux"
-#define FTCD  "koti/LIGHTtoMQTT/ftcd"
-#define WATTSM2  "koti/LIGHTtoMQTT/wattsm2"
+#define LUX   "tabletennis/LIGHTtoMQTT/lux"
+#define FTCD  "tabletennis/LIGHTtoMQTT/ftcd"
+#define WATTSM2  "tabletennis/LIGHTtoMQTT/wattsm2"
 
 //Time used to wait for an interval before resending measured values
 unsigned long timebh1750 = 0;

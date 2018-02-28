@@ -26,7 +26,7 @@
 
 /*----------------------------USER PARAMETERS-----------------------------*/
 /*-------------DEFINE YOUR MQTT PARAMETERS BELOW----------------*/
-#define ADC   "koti/ADCtoMQTT"
+#define ADC   "tabletennis/ADCtoMQTT"
 #define TimeBetweenReadingADC 200 // time between 2 ADC readings, minimum 200 to let the time of the ESP to keep the connection
 #define ThresholdReadingADC 50  //  following the comparison between the previous value and the current one +- the threshold the value will be published or not
 

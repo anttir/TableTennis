@@ -26,9 +26,9 @@
 
 /*----------------------------USER PARAMETERS-----------------------------*/
 /*-------------DEFINE YOUR MQTT PARAMETERS BELOW----------------*/
-#define subjectVolttoMQTT "koti/INA226toMQTT/Volt"
-#define subjectCurrenttoMQTT "koti/INA226toMQTT/Current"        
-#define subjectPowertoMQTT "koti/INA226toMQTT/Power" 
+#define subjectVolttoMQTT "tabletennis/INA226toMQTT/Volt"
+#define subjectCurrenttoMQTT "tabletennis/INA226toMQTT/Current"        
+#define subjectPowertoMQTT "tabletennis/INA226toMQTT/Power" 
 #define TimeBetweenReadingINA226 30000 // time between 2 INA226 readings
 
 

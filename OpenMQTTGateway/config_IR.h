@@ -26,12 +26,12 @@
 
 /*-------------------IR topics & parameters----------------------*/
 //IR MQTT Subjects
-#define subjectGTWIRtoMQTT "koti/IRtoMQTT"
-#define subjectIRtoMQTT "koti/IRtoMQTT"
-#define subjectMQTTtoIR "koti/commands/MQTTtoIR"
-#define subjectIRtoMQTTprotocol "koti/IRtoMQTT/protocol"
-#define subjectIRtoMQTTbits "koti/IRtoMQTT/bits"
-#define subjectIRtoMQTTRaw "koti/IRtoMQTT/raw"
+#define subjectGTWIRtoMQTT "tabletennis/IRtoMQTT"
+#define subjectIRtoMQTT "tabletennis/IRtoMQTT"
+#define subjectMQTTtoIR "tabletennis/commands/MQTTtoIR"
+#define subjectIRtoMQTTprotocol "tabletennis/IRtoMQTT/protocol"
+#define subjectIRtoMQTTbits "tabletennis/IRtoMQTT/bits"
+#define subjectIRtoMQTTRaw "tabletennis/IRtoMQTT/raw"
 // subject monitored to listen traffic processed by other gateways to store data and avoid ntuple
 #define subjectMultiGTWIR "+/IRtoMQTT"
 #define IRbitsKey "IRBITS_" // bits  will be defined if a subject contains IRbitsKey followed by a value of 2 digits

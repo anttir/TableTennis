@@ -63,13 +63,11 @@ boolean RFtoMQTT(){
     MQTTlength = String(mySwitch.getReceivedDelay());
     mySwitch.resetAvailable();
     if (!isAduplicate(MQTTvalue) && MQTTvalue!=0) {// conditions to avoid duplications of RF -->MQTT
-        trc(F("Adv data RFtoMQTT"));
         client.publish(subjectRFtoMQTTprotocol,(char *)MQTTprotocol.c_str());
         client.publish(subjectRFtoMQTTbits,(char *)MQTTbits.c_str());    
         client.publish(subjectRFtoMQTTlength,(char *)MQTTlength.c_str());    
-        trc(F("Sending RFtoMQTT"));
         String value = String(MQTTvalue);
-        trc(value);
+        Serial << "Sending RFtoMQTT: " << value << endl;
         boolean result = client.publish(subjectRFtoMQTT,(char *)value.c_str());
         if (repeatRFwMQTT){
             trc(F("Publish RF for repeat"));

@@ -27,14 +27,14 @@
 
 /*-------------------RF topics & parameters----------------------*/
 //433Mhz MQTT Subjects and keys
-#define subjectMQTTtoSRFB "koti/commands/MQTTtoSRFB"
-#define subjectMQTTtoSRFBRaw "koti/commands/MQTTtoSRFB/Raw"
-#define subjectSRFBtoMQTTTsyn "koti/SRFBtoMQTT/Tsyn"
-#define subjectSRFBtoMQTTTlow "koti/SRFBtoMQTT/Tlow"
-#define subjectSRFBtoMQTTThigh "koti/SRFBtoMQTT/Thigh"
-#define subjectSRFBtoMQTT "koti/SRFBtoMQTT"
-#define subjectGTWSRFBtoMQTT "koti/SRFBtoMQTT"
-#define subjectSRFBtoMQTTRaw "koti/SRFBtoMQTT/Raw"
+#define subjectMQTTtoSRFB "tabletennis/commands/MQTTtoSRFB"
+#define subjectMQTTtoSRFBRaw "tabletennis/commands/MQTTtoSRFB/Raw"
+#define subjectSRFBtoMQTTTsyn "tabletennis/SRFBtoMQTT/Tsyn"
+#define subjectSRFBtoMQTTTlow "tabletennis/SRFBtoMQTT/Tlow"
+#define subjectSRFBtoMQTTThigh "tabletennis/SRFBtoMQTT/Thigh"
+#define subjectSRFBtoMQTT "tabletennis/SRFBtoMQTT"
+#define subjectGTWSRFBtoMQTT "tabletennis/SRFBtoMQTT"
+#define subjectSRFBtoMQTTRaw "tabletennis/SRFBtoMQTT/Raw"
 #define SRFBRptKey "RPT_"
 #define SRFBmaxipulselengthKey "Thigh_"
 #define SRFBminipulselengthKey "Tlow_"

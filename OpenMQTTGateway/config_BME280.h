@@ -41,12 +41,12 @@
 
 /*----------------------------USER PARAMETERS-----------------------------*/
 /*-------------DEFINE YOUR MQTT PARAMETERS BELOW----------------*/
-#define TEMPBMEC  "koti/CLIMAtoMQTT/bme/tempc"
-#define TEMPBMEF  "koti/CLIMAtoMQTT/bme/tempf"
-#define HUMBME   "koti/CLIMAtoMQTT/bme/hum"
-#define PRESSBME   "koti/CLIMAtoMQTT/bme/pa"
-#define ALTIBMEM   "koti/CLIMAtoMQTT/bme/altim"
-#define ALTIBMEFT   "koti/CLIMAtoMQTT/bme/altift"
+#define TEMPBMEC  "tabletennis/CLIMAtoMQTT/bme/tempc"
+#define TEMPBMEF  "tabletennis/CLIMAtoMQTT/bme/tempf"
+#define HUMBME   "tabletennis/CLIMAtoMQTT/bme/hum"
+#define PRESSBME   "tabletennis/CLIMAtoMQTT/bme/pa"
+#define ALTIBMEM   "tabletennis/CLIMAtoMQTT/bme/altim"
+#define ALTIBMEFT   "tabletennis/CLIMAtoMQTT/bme/altift"
 
 //Time used to wait for an interval before resending measured values
 unsigned long timebme280 = 0;

@@ -27,9 +27,9 @@
 */
 
 /*Command example for switching off:
-sudo mosquitto_pub -t koti/commands/MQTTtoRF2/CODE_8233372/UNIT_0/PERIOD_272 -m 0
+sudo mosquitto_pub -t tabletennis/commands/MQTTtoRF2/CODE_8233372/UNIT_0/PERIOD_272 -m 0
 Command example for switching on:
-sudo mosquitto_pub -t koti/commands/MQTTtoRF2/CODE_8233372/UNIT_0/PERIOD_272 -m 1
+sudo mosquitto_pub -t tabletennis/commands/MQTTtoRF2/CODE_8233372/UNIT_0/PERIOD_272 -m 1
 */
 
 #ifdef ZgatewayRF2

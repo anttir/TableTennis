@@ -46,12 +46,13 @@
 #define will_Message "Offline"
 #define Gateway_AnnouncementMsg "Online"
 //#define MDNS_SD //comment if you don't want to use mdns for discovering automatically your ip server, please note that MDNS with ESP32 can cause the BLE to not work
-char mqtt_server[40] = "m23.cloudmqtt.com";
+char mqtt_server[40] = "1.1.1.1";
 char mqtt_port[6] = "18577";
 
 //set minimu quality of signal so it ignores AP's under that quality
 #define MinimumWifiSignalQuality 8
-//#define ESPWifiManualSetup true //uncomment you don't want to use wifimanager for your credential settings on ESP
+// WIFIMANAGER SEKOTTI KOKO HOMMAN, EI SUOSTUNUT YHDISTÄMÄÄN UUDESTAAN, manual = true!
+#define ESPWifiManualSetup true //uncomment you don't want to use wifimanager for your credential settings on ESP
 
 /*-------------DEFINE YOUR NETWORK PARAMETERS BELOW----------------*/
 // Update these with values suitable for your network.
@@ -170,7 +171,7 @@ const byte subnet[] = { 255, 255, 255, 0 }; //ip adress
 #endif
 /*--------------MQTT general topics-----------------*/
 // global MQTT subject listened by the gateway to execute commands (send RF, IR or others)
-#define subjectMQTTtoX "koti/commands/#"
+#define subjectMQTTtoX "tabletennis/commands/#"
 #define subjectMultiGTWKey "toMQTT"
 
 //variables to avoid duplicates
