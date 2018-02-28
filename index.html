@@ -1,9 +1,14 @@
+<!DOCTYPE html>
 <html>
+<meta charset="utf-8">
 
 <head>
     <!-- <script src="mqttws31.js" type="text/javascript"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/locale/fi.js"></script>
     <script type="text/javascript">
         // Create a client instance
         client = new Paho.MQTT.Client("m23.cloudmqtt.com", 38577, "web_" + parseInt(Math.random() * 100, 10));
@@ -27,7 +32,7 @@
         function onConnect() {
             // Once a connection has been made, make a subscription and send a message.
             console.log("onConnect");
-            client.subscribe("tabletennis");
+            client.subscribe("tabletennis/433toMQTT");
             message = new Paho.MQTT.Message("Hello CloudMQTT");
             message.destinationName = "tabletennis";
             client.send(message);
@@ -46,27 +51,109 @@
 
         // called when a message arrives
         function onMessageArrived(message) {
-            console.log("onMessageArrived:" + message.payloadString);
-            $("body").append("<p>" + message.payloadString + "</p>");
+            console.log("onMessageArrived:" + message.destinationName + ":" + message.payloadString);
+            $("body").append("<p>" + message.destinationName + ":" + message.payloadString + "</p>");
         }
-        function sendPoint(name,points){
-            message = new Paho.MQTT.Message(JSON.stringify(
-                {
-                    name: name,
-                    points: points
-                }
-            ));
-            message.destinationName = "tabletennis";
+
+        function sendPoint(name, points) {
+            message = new Paho.MQTT.Message(JSON.stringify({
+                name: name,
+                points: points
+            }));
+            message.destinationName = "tabletennis/";
             client.send(message);
         }
-        $(function(){
-            $(".btnPoint").click(x => 
-            sendPoint($(x.target).data("player"),$(x.target).data("points")));
-        }) 
+        // $(function () {
+        //     $(".btnPoint").click(x =>
+        //         sendPoint($(x.target).data("player"), $(x.target).data("points")));
+        // })
+
+        class Player {
+            constructor(Name, RFID) {
+                this.Name = Name;
+                this.RFID = RFID;
+            }
+        }
+        class Match {
+            constructor(Player1, Player2) {
+                this.StartTime = new Date();
+                this.Players = [Player1, Player2];
+                this.isRunning = false;
+            }
+            addPlayer(player) {
+                // this.Players[this.playerCount] = player;
+                this.Players.splice(0, 1);
+                this.Players.push(player);
+            }
+            get playerCount() {
+                return this.Players.filter(n => n != undefined).length;
+            }
+            get enoughPlayers() {
+                return this.playerCount == 2;
+            }
+        }
     </script>
+    <style>
+        ul.matches {
+            list-style-type: none;
+        }
+    </style>
 </head>
+
 <body>
+    <div id="app">
+        <ul class="matches">
+            <li v-for="match in Matches">
+                <ul class="match">
+                    <li>Date: {{ match.StartTime | moment }}</li>
+                    <li>Players: {{ match.playerCount }}</li>
+                    <li>Enough players : {{match.enoughPlayers ? "Yes" : "No"}}</li>
+                    <li>Players {{ match.Players}}
+                        <ul>
+                            <!-- <li v-for="p in match.joku">{{ p }}</li> -->
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="players">
+            <li v-for="player in Players" v-on:click="addPlayer(player)">
+                Name: {{ player.Name}}
+            </li>
+        </ul>
+        {{ message }}
         <button class="btnPoint" data-player="antti" data-points="1">+1</button>
         <button class="btnPoint" data-player="antti" data-points="-1">-1</button>
-    </body>
+        <button v-on:click="addMatch">Add match</button>
+    </div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            Matches: [],
+            Players: [new Player("Antti", 12890956), new Player("Toinen", 12890948)],
+            message: 'Hello Vue!'
+        },
+        methods: {
+            moment: function () {
+                return moment();
+            },
+            addMatch: function (Name, RFID) {
+                this.Matches.push(
+                    new Match()
+                );
+            },
+            addPlayer: function (player) {
+                this.Matches[0].addPlayer(player);
+            }
+        },
+        filters: {
+            moment: function (date) {
+                return moment(date).format('L, LT');
+            }
+        }
+    })
+</script>
+
 </html>
