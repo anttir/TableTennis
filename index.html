@@ -5,153 +5,381 @@
 <head>
     <!-- <script src="mqttws31.js" type="text/javascript"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/locale/fi.js"></script>
-    <script type="text/javascript">
-        // Create a client instance
-        client = new Paho.MQTT.Client("m23.cloudmqtt.com", 38577, "web_" + parseInt(Math.random() * 100, 10));
-        //Example client = new Paho.MQTT.Client("m11.cloudmqtt.com", 32903, "web_" + parseInt(Math.random() * 100, 10));
-
-        // set callback handlers
-        client.onConnectionLost = onConnectionLost;
-        client.onMessageArrived = onMessageArrived;
-        var options = {
-            useSSL: true,
-            userName: "ezbvjyrv",
-            password: "hS5ElErtR3eD",
-            onSuccess: onConnect,
-            onFailure: doFail
-        }
-
-        // connect the client
-        client.connect(options);
-
-        // called when the client connects
-        function onConnect() {
-            // Once a connection has been made, make a subscription and send a message.
-            console.log("onConnect");
-            client.subscribe("tabletennis/433toMQTT");
-            message = new Paho.MQTT.Message("Hello CloudMQTT");
-            message.destinationName = "tabletennis";
-            client.send(message);
-        }
-
-        function doFail(e) {
-            console.log(e);
-        }
-
-        // called when the client loses its connection
-        function onConnectionLost(responseObject) {
-            if (responseObject.errorCode !== 0) {
-                console.log("onConnectionLost:" + responseObject.errorMessage);
-            }
-        }
-
-        // called when a message arrives
-        function onMessageArrived(message) {
-            console.log("onMessageArrived:" + message.destinationName + ":" + message.payloadString);
-            $("body").append("<p>" + message.destinationName + ":" + message.payloadString + "</p>");
-        }
-
-        function sendPoint(name, points) {
-            message = new Paho.MQTT.Message(JSON.stringify({
-                name: name,
-                points: points
-            }));
-            message.destinationName = "tabletennis/";
-            client.send(message);
-        }
-        // $(function () {
-        //     $(".btnPoint").click(x =>
-        //         sendPoint($(x.target).data("player"), $(x.target).data("points")));
-        // })
-
-        class Player {
-            constructor(Name, RFID) {
-                this.Name = Name;
-                this.RFID = RFID;
-            }
-        }
-        class Match {
-            constructor(Player1, Player2) {
-                this.StartTime = new Date();
-                this.Players = [Player1, Player2];
-                this.isRunning = false;
-            }
-            addPlayer(player) {
-                // this.Players[this.playerCount] = player;
-                this.Players.splice(0, 1);
-                this.Players.push(player);
-            }
-            get playerCount() {
-                return this.Players.filter(n => n != undefined).length;
-            }
-            get enoughPlayers() {
-                return this.playerCount == 2;
-            }
-        }
-    </script>
-    <style>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+    <!-- <script src="charts.js"></script> -->
+    <style id="pageStyles">
         ul.matches {
             list-style-type: none;
+        }
+
+        li.player {
+            cursor: copy;
+        }
+    </style>
+    <style id="chartStyles">
+        .areaChart {
+            height: 200px;
+            width: 50%;
+            border: 1px solid #ddd;
+        }
+        .axis--x path {
+            display: none;
+        }
+
+        .line {
+            fill: none;
+            stroke: steelblue;
+            stroke-width: 1.5px;
+        }
+
+        .area {
+            fill: #76BF8A
         }
     </style>
 </head>
 
 <body>
-    <div id="app">
+    <div ID="app">
         <ul class="matches">
-            <li v-for="match in Matches">
+            <li v-for="match in matches">
                 <ul class="match">
-                    <li>Date: {{ match.StartTime | moment }}</li>
+                    <li>Date: {{ match.startTime | moment }}</li>
                     <li>Players: {{ match.playerCount }}</li>
                     <li>Enough players : {{match.enoughPlayers ? "Yes" : "No"}}</li>
-                    <li>Players {{ match.Players}}
+                    <li>Players {{ match.players}}
                         <ul>
                             <!-- <li v-for="p in match.joku">{{ p }}</li> -->
                         </ul>
+                    </li>
+                    <li>Points {{ match.playerScores}}
+                        <ul>
+                            <!-- <li v-for="p in match.joku">{{ p }}</li> -->
+                        </ul>
+                    </li>
+                    <li>
+                        <areachart :id="'chart_' + match.ID" :data="match.playerScores" :ceil="21"></areachart>
+
+                        <!-- <svg width="960" height="500"></svg> -->
                     </li>
                 </ul>
             </li>
         </ul>
         <ul class="players">
-            <li v-for="player in Players" v-on:click="addPlayer(player)">
-                Name: {{ player.Name}}
+            <li class="player" v-for="player in players" v-on:click="addPlayer(player)">
+                Name: {{ player.name}}
             </li>
         </ul>
         {{ message }}
-        <button class="btnPoint" data-player="antti" data-points="1">+1</button>
-        <button class="btnPoint" data-player="antti" data-points="-1">-1</button>
+        <!-- <button class="btnPoint" data-player="antti" data-points="1">+1</button>
+        <button class="btnPoint" data-player="antti" data-points="-1">-1</button> -->
         <button v-on:click="addMatch">Add match</button>
     </div>
 </body>
+<script type="text/javascript">
+    // Create a client instance
+    client = new Paho.MQTT.Client("m23.cloudmqtt.com", 38577, "web_" + parseInt(Math.random() * 100, 10));
+    //Example client = new Paho.MQTT.Client("m11.cloudmqtt.com", 32903, "web_" + parseInt(Math.random() * 100, 10));
+
+    // set callback handlers
+    client.onConnectionLost = onConnectionLost;
+    client.onMessageArrived = onMessageArrived;
+    var options = {
+        useSSL: true,
+        userName: "ezbvjyrv",
+        password: "hS5ElErtR3eD",
+        onSuccess: onConnect,
+        onFailure: doFail
+    }
+
+    // connect the client
+    client.connect(options);
+
+    // called when the client connects
+    function onConnect() {
+        // Once a connection has been made, make a subscription and send a message.
+        console.log("onConnect");
+        client.subscribe("tabletennis/433toMQTT");
+        message = new Paho.MQTT.Message("Hello CloudMQTT");
+        message.destinationName = "tabletennis";
+        client.send(message);
+    }
+
+    function doFail(e) {
+        console.log(e);
+    }
+
+    // called when the client loses its connection
+    function onConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+            console.log("onConnectionLost:" + responseObject.errorMessage);
+        }
+    }
+
+    // called when a message arrives
+    function onMessageArrived(message) {
+        console.log("onMessageArrived:" + message.destinationName + ":" + message.payloadString);
+        $("body").append("<p>" + message.destinationName + ":" + message.payloadString + "</p>");
+        app.addPoint(message.payloadString);
+    }
+
+    function sendPoint(name, points) {
+        message = new Paho.MQTT.Message(JSON.stringify({
+            name: name,
+            points: points
+        }));
+        message.destinationName = "tabletennis/";
+        client.send(message);
+    }
+    // $(function () {
+    //     $(".btnPoint").click(x =>
+    //         sendPoint($(x.target).data("player"), $(x.target).data("points")));
+    // })
+</script>
+<script name="helpers">
+    function guidGenerator() {
+        var S4 = function () {
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+        };
+        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+    }
+</script>
+<script name="classes">
+    class Point {
+        constructor(timestamp, playerID) {
+            this.timestamp = timestamp;
+            this.playerID = playerID;
+        }
+    }
+    class Player {
+        constructor(ID, name, RFID) {
+            this.ID = ID;
+            this.name = name;
+            this.RFID = RFID;
+        }
+    }
+    class Match {
+        constructor() {
+            this.ID = guidGenerator();
+            this.startTime = new Date();
+            this.players = [];
+            this.isRunning = false;
+            this.points = [];
+        }
+        addPoint(playerID) {
+            this.points.push(new Point(new Date(), playerID));
+        }
+        addPlayer(player) {
+            // this.players[this.playerCount] = player;
+            if (!this.players.filter(n => n.name == player.name).length) {
+                this.players.push(player);
+            }
+        }
+        get playerScores() {
+            return [
+                this.points.filter(n => n.playerID == this.players[0].ID).length,
+                this.points.filter(n => n.playerID == this.players[1].ID).length
+            ]
+        }
+        get playerCount() {
+            return this.players.filter(n => n != undefined).length;
+        }
+        get enoughPlayers() {
+            return this.playerCount == 2;
+        }
+    }
+</script>
+
+<script>
+    Vue.component('areachart', {
+        template: `<div class="areaChart" :id="id">
+<svg @mousemove="mouseover" :width="width" :height="height">
+    <g>
+        <path class="area" :d="paths.area" />
+        <path class="line" :d="paths.line" />
+        <path class="selector" :d="paths.selector" />
+    </g>
+</svg>
+</div>`,
+        props: {
+            data: {
+                type: Array,
+                default: () => [],
+            },
+            margin: {
+                type: Object,
+                default: () => ({
+                    left: 0,
+                    right: 0,
+                    top: 10,
+                    bottom: 10,
+                }),
+            },
+            ceil: {
+                type: Number,
+                default: 100,
+            },
+        },
+        data() {
+            return {
+                id: '',
+                width: 0,
+                height: 0,
+                paths: {
+                    area: '',
+                    line: '',
+                    selector: '',
+                },
+                lastHoverPoint: {},
+                scaled: {
+                    x: null,
+                    y: null,
+                },
+                animatedData: [],
+                points: [],
+            }
+        },
+        computed: {
+            padded() {
+                const width = this.width - this.margin.left - this.margin.right;
+                const height = this.height - this.margin.top - this.margin.bottom;
+                return {
+                    width,
+                    height
+                };
+            },
+        },
+        mounted() {
+            window.addEventListener('resize', this.onResize);
+            this.onResize();
+        },
+        beforeDestroy() {
+            window.removeEventListener('resize', this.onResize);
+        },
+        watch: {
+            data: function dataChanged(newData, oldData) {
+                this.tweenData(newData, oldData);
+            },
+            width: function widthChanged() {
+                this.initialize();
+                this.update();
+            },
+        },
+        methods: {
+            onResize() {
+                this.width = this.$el.offsetWidth;
+                this.height = this.$el.offsetHeight;
+            },
+            createArea: d3.area().x(d => d.x).y0(d => d.max).y1(d => d.y),
+            createLine: d3.line().x(d => d.x).y(d => d.y),
+            createValueSelector: d3.area().x(d => d.x).y0(d => d.max).y1(0),
+            initialize() {
+                this.scaled.x = d3.scaleLinear().range([0, this.padded.width]);
+                this.scaled.y = d3.scaleLinear().range([this.padded.height, 0]);
+                d3.axisLeft().scale(this.scaled.x);
+                d3.axisBottom().scale(this.scaled.y);
+            },
+            tweenData(newData, oldData) {
+                const vm = this;
+
+                function animate(time) {
+                    requestAnimationFrame(animate);
+                    TWEEN.update(time);
+                }
+                new TWEEN.Tween(oldData)
+                    .easing(TWEEN.Easing.Quadratic.Out)
+                    .to(newData, 500)
+                    .onUpdate(function onUpdate() {
+                        vm.animatedData = this;
+                        vm.update();
+                    })
+                    .start();
+                animate();
+            },
+            update() {
+                this.scaled.x.domain(d3.extent(this.data, (d, i) => i));
+                this.scaled.y.domain([0, this.ceil]);
+                this.points = [];
+                for (const [i, d] of this.animatedData.entries()) {
+                    this.points.push({
+                        x: this.scaled.x(i),
+                        y: this.scaled.y(d),
+                        max: this.height,
+                    });
+                }
+                this.paths.area = this.createArea(this.points);
+                this.paths.line = this.createLine(this.points);
+            },
+            mouseover({
+                offsetX
+            }) {
+                if (this.points.length > 0) {
+                    const x = offsetX - this.margin.left;
+                    const closestPoint = this.getClosestPoint(x);
+                    if (this.lastHoverPoint.index !== closestPoint.index) {
+                        const point = this.points[closestPoint.index];
+                        this.paths.selector = this.createValueSelector([point]);
+                        this.$emit('select', this.data[closestPoint.index]);
+                        this.lastHoverPoint = closestPoint;
+                    }
+                }
+            },
+            getClosestPoint(x) {
+                return this.points
+                    .map((point, index) => ({
+                        x: point.x,
+                        diff: Math.abs(point.x - x),
+                        index,
+                    }))
+                    .reduce((memo, val) => (memo.diff < val.diff ? memo : val));
+            },
+        }
+    });
+</script>
 <script>
     var app = new Vue({
         el: '#app',
-        data: {
-            Matches: [],
-            Players: [new Player("Antti", 12890956), new Player("Toinen", 12890948)],
-            message: 'Hello Vue!'
+        data: function () {
+            return {
+                matches: [],
+                players: [new Player(1, "Antti", 12890956), new Player(2, "Toinen", 12890948)],
+                message: 'Hello Vue!',
+                points: [1, 7, 3, 3, 5, 6],
+            }
         },
         methods: {
             moment: function () {
                 return moment();
             },
-            addMatch: function (Name, RFID) {
-                this.Matches.push(
-                    new Match()
-                );
+            guidGenerator: function () {
+                return guidGenerator();
+            },
+            addMatch: function () {
+                this.matches.push(new Match());
             },
             addPlayer: function (player) {
-                this.Matches[0].addPlayer(player);
+                this.matches[0].addPlayer(player);
+            },
+            addPoint: function (RFID) {
+                var tplayer = this.players.filter(x => x.RFID == RFID);
+                if (tplayer.length) {
+                    this.matches[0].addPoint(tplayer[0].ID);
+                }
             }
         },
         filters: {
             moment: function (date) {
                 return moment(date).format('L, LT');
             }
+        },
+        created: function () {
+            this.addMatch();
+            this.addPlayer(this.players[0]);
+            this.addPlayer(this.players[1]);
         }
     })
 </script>
