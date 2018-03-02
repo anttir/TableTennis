@@ -22,11 +22,13 @@
         }
     </style>
     <style id="chartStyles">
-        .areaChart {
+        .areaChart,
+        .linechart {
             height: 200px;
             width: 50%;
             border: 1px solid #ddd;
         }
+
         .axis--x path {
             display: none;
         }
@@ -62,9 +64,8 @@
                         </ul>
                     </li>
                     <li>
-                        <areachart :id="'chart_' + match.ID" :data="match.playerScores" :ceil="3"></areachart>
-
-                        <!-- <svg width="960" height="500"></svg> -->
+                        <linechart :id="'lineChart_' + match.ID" :data="match.points" :ceil="3" :match="match"></linechart>
+                        <!-- <areachart :id="'areaChart_' + match.ID" :data="match.playerScores" :ceil="3"></areachart> -->
                     </li>
                 </ul>
             </li>
@@ -150,16 +151,18 @@
 </script>
 <script name="classes">
     class Point {
-        constructor(timestamp, playerID) {
+        constructor(timestamp, playerID, currPlayerTotal) {
             this.timestamp = timestamp;
             this.playerID = playerID;
+            this.currPlayerTotal = currPlayerTotal;
         }
     }
     class Player {
-        constructor(ID, name, RFID) {
+        constructor(ID, name, RFID, color) {
             this.ID = ID;
             this.name = name;
             this.RFID = RFID;
+            this.color = color;
         }
     }
     class Match {
@@ -171,7 +174,8 @@
             this.points = [];
         }
         addPoint(playerID) {
-            this.points.push(new Point(new Date(), playerID));
+            var i = this.players.map(x => x.ID).indexOf(playerID);
+            this.points.push(new Point(new Date(), playerID, this.playerScores[i] + 1));
         }
         addPlayer(player) {
             // this.players[this.playerCount] = player;
@@ -193,6 +197,184 @@
         }
     }
 </script>
+<script>
+    Vue.component('linechart', {
+        template: `<div class="linechart" :id="id">
+    <svg :width="width" :height="height">
+        <g>
+                <path v-for="(player,i) in match.players" class="line" :d="paths.lines[i]" v-bind:style="{ stroke: player.color}" />
+                <!--<path v-for="paths.lines" class="line" :d="paths.line" />-->
+            <path class="selector" :d="paths.selector" />
+        </g>
+    </svg>
+    </div>`,
+        props: {
+            data: {
+                type: Array,
+                default: () => [],
+            },
+            margin: {
+                type: Object,
+                default: () => ({
+                    left: 0,
+                    right: 0,
+                    top: 10,
+                    bottom: 10,
+                }),
+            },
+            ceil: {
+                type: Number,
+                default: 100,
+            },
+            // players: {
+            //     type: Array,
+            //     default: () => [],
+            // },
+            match: {
+                type: Object,
+                default: () => {},
+            },
+        },
+        data() {
+            return {
+                id: '',
+                width: 0,
+                height: 0,
+                paths: {
+                    area: '',
+                    lines: ['', ''],
+                    selector: '',
+                },
+                lastHoverPoint: {},
+                scaled: {
+                    x: null,
+                    y: null,
+                },
+                animatedData: [],
+                points: [],
+            }
+        },
+        computed: {
+            padded() {
+                const width = this.width - this.margin.left - this.margin.right;
+                const height = this.height - this.margin.top - this.margin.bottom;
+                return {
+                    width,
+                    height
+                };
+            },
+        },
+        mounted() {
+            window.addEventListener('resize', this.onResize);
+            this.onResize();
+        },
+        beforeDestroy() {
+            window.removeEventListener('resize', this.onResize);
+        },
+        watch: {
+            data: function dataChanged(newData, oldData) {
+                // this.tweenData(newData, oldData);
+                this.update();
+            },
+            width: function widthChanged() {
+                this.initialize();
+                this.update();
+            },
+        },
+        methods: {
+            onResize() {
+                this.width = this.$el.offsetWidth;
+                this.height = this.$el.offsetHeight;
+            },
+            //createArea: d3.area().x(d => d.x).y0(d => d.max).y1(d => d.y),
+            createLine: d3.line().x(d => d.x).y(d => d.y),
+            createValueSelector: d3.area().x(d => d.x).y0(d => d.max).y1(0),
+            initialize() {
+                this.scaled.x = d3.scaleTime().range([0, this.padded.width]);
+                this.scaled.y = d3.scaleLinear().range([this.padded.height, 0]);
+                this.scaled.z = d3.scaleOrdinal(d3.schemeCategory10);
+                d3.axisLeft().scale(this.scaled.y);
+                d3.axisBottom().scale(this.scaled.x);
+            },
+            // tweenData(newData, oldData) {
+            //     const vm = this;
+
+            //     function animate(time) {
+            //         requestAnimationFrame(animate);
+            //         TWEEN.update(time);
+            //     }
+            //     new TWEEN.Tween(oldData)
+            //         .easing(TWEEN.Easing.Quadratic.Out)
+            //         .to(newData, 500)
+            //         .onUpdate(function onUpdate() {
+            //             vm.animatedData = this;
+            //             vm.update();
+            //         })
+            //         .start();
+            //     animate();
+            // },
+            update() {
+                this.scaled.x.domain(d3.extent(this.data.concat([{timestamp : this.match.startTime}]), (d, i) => d.timestamp));
+                this.scaled.y.domain([0, Math.max(this.ceil, d3.max(this.data, d => d.currPlayerTotal))]);
+                var origo = {
+                    x: this.scaled.x(this.match.startTime),
+                    y: this.scaled.y(0),
+                    max: this.height,
+                };
+                this.points = [
+                    [],
+                    []
+                ];
+                var playerIDs = d3.map(this.match.players, x => x.ID).keys()
+                for (const [i, d] of this.data.entries()) {
+                    if (i == 0) {
+                        this.points[0].push(origo);
+                        this.points[1].push(origo);
+                    }
+                    var j = playerIDs.indexOf(d.playerID + "");
+                    this.points[j].push({
+                        x: this.scaled.x(d.timestamp),
+                        y: this.scaled.y(d.currPlayerTotal),
+                        max: this.height,
+                    });
+                }
+                this.paths.lines.splice(0, this.paths.lines.length);
+                for (let i = 0; i < 2; i++) {
+                    var t = this.createLine(this.points[i]);
+                    if (t) {
+                        this.paths.lines.push(t);
+                    }
+                }
+            },
+            mouseover({
+                offsetX
+            }) {
+                if (this.points.length > 0) {
+                    const x = offsetX - this.margin.left;
+                    const closestPoint = this.getClosestPoint(x);
+                    if (this.lastHoverPoint.index !== closestPoint.index) {
+                        const point = this.points[closestPoint.index];
+                        this.paths.selector = this.createValueSelector([point]);
+                        this.$emit('select', this.data[closestPoint.index]);
+                        this.lastHoverPoint = closestPoint;
+                    }
+                }
+            },
+            getClosestPoint(x) {
+                return this.points
+                    .map((point, index) => ({
+                        x: point.x,
+                        diff: Math.abs(point.x - x),
+                        index,
+                    }))
+                    .reduce((memo, val) => (memo.diff < val.diff ? memo : val));
+            },
+        }
+    });
+</script>
+
+
+
 
 <script>
     Vue.component('areachart', {
@@ -346,7 +528,7 @@
         data: function () {
             return {
                 matches: [],
-                players: [new Player(1, "Antti", 12890956), new Player(2, "Toinen", 12890948)],
+                players: [new Player(1, "Antti", 12890956, "red"), new Player(2, "Toinen", 12890948, "blue")],
                 message: 'Hello Vue!',
                 points: [1, 7, 3, 3, 5, 6],
             }
