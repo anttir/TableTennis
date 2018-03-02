@@ -62,7 +62,7 @@
                         </ul>
                     </li>
                     <li>
-                        <areachart :id="'chart_' + match.ID" :data="match.playerScores" :ceil="21"></areachart>
+                        <areachart :id="'chart_' + match.ID" :data="match.playerScores" :ceil="3"></areachart>
 
                         <!-- <svg width="960" height="500"></svg> -->
                     </li>
@@ -122,7 +122,7 @@
 
     // called when a message arrives
     function onMessageArrived(message) {
-        console.log("onMessageArrived:" + message.destinationName + ":" + message.payloadString);
+        //console.log("onMessageArrived:" + message.destinationName + ":" + message.payloadString);
         $("body").append("<p>" + message.destinationName + ":" + message.payloadString + "</p>");
         app.addPoint(message.payloadString);
     }
@@ -302,7 +302,7 @@
             },
             update() {
                 this.scaled.x.domain(d3.extent(this.data, (d, i) => i));
-                this.scaled.y.domain([0, this.ceil]);
+                this.scaled.y.domain([0, Math.max(this.ceil, d3.max(this.data, d => d))]);
                 this.points = [];
                 for (const [i, d] of this.animatedData.entries()) {
                     this.points.push({
