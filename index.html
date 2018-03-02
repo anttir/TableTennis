@@ -245,7 +245,6 @@
                     lines: ['', ''],
                     selector: '',
                 },
-                lastHoverPoint: {},
                 scaled: {
                     x: null,
                     y: null,
@@ -286,7 +285,6 @@
                 this.width = this.$el.offsetWidth;
                 this.height = this.$el.offsetHeight;
             },
-            //createArea: d3.area().x(d => d.x).y0(d => d.max).y1(d => d.y),
             createLine: d3.line().x(d => d.x).y(d => d.y),
             createValueSelector: d3.area().x(d => d.x).y0(d => d.max).y1(0),
             initialize() {
@@ -345,29 +343,6 @@
                         this.paths.lines.push(t);
                     }
                 }
-            },
-            mouseover({
-                offsetX
-            }) {
-                if (this.points.length > 0) {
-                    const x = offsetX - this.margin.left;
-                    const closestPoint = this.getClosestPoint(x);
-                    if (this.lastHoverPoint.index !== closestPoint.index) {
-                        const point = this.points[closestPoint.index];
-                        this.paths.selector = this.createValueSelector([point]);
-                        this.$emit('select', this.data[closestPoint.index]);
-                        this.lastHoverPoint = closestPoint;
-                    }
-                }
-            },
-            getClosestPoint(x) {
-                return this.points
-                    .map((point, index) => ({
-                        x: point.x,
-                        diff: Math.abs(point.x - x),
-                        index,
-                    }))
-                    .reduce((memo, val) => (memo.diff < val.diff ? memo : val));
             },
         }
     });
