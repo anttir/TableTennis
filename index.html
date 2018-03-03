@@ -42,6 +42,20 @@
         .area {
             fill: #76BF8A
         }
+
+        #mqttlog {
+            height: 200px;
+            overflow: auto;
+            background-color: beige;
+            border: 1px solid burlywood;
+        }
+
+        #mqttlog p {
+            margin: 0.1em;
+            font-family: monospace;
+            font-size: smaller;
+            color: darkslateblue;
+        }
     </style>
 </head>
 
@@ -53,32 +67,41 @@
                     <li>Date: {{ match.startTime | moment }}</li>
                     <li>Players: {{ match.playerCount }}</li>
                     <li>Enough players : {{match.enoughPlayers ? "Yes" : "No"}}</li>
-                    <li>Players {{ match.players}}
+                    <li>Players
                         <ul>
-                            <!-- <li v-for="p in match.joku">{{ p }}</li> -->
+                            <li v-for="player in match.players">
+                                <div class="person">{{ player.person }}</div>
+                                <div class="remote">{{ player.remote }}</div>
+                                <div class="remote">{{ player.points }}</div>
+                            </li>
                         </ul>
                     </li>
-                    <li>Points {{ match.playerScores}}
-                        <ul>
-                            <!-- <li v-for="p in match.joku">{{ p }}</li> -->
-                        </ul>
-                    </li>
+                    <li>Points {{ match.playerScores }} latest: {{ match.latestPoint }}</li>
                     <li>
-                        <linechart :id="'lineChart_' + match.ID" :data="match.points" :ceil="3" :match="match"></linechart>
+                        <linechart :id="'lineChart_' + match.ID" :match="match" :latestpoint="match.latestPoint" :currpoints="match.playerScores"
+                            :ceil="3"></linechart>
                         <!-- <areachart :id="'areaChart_' + match.ID" :data="match.playerScores" :ceil="3"></areachart> -->
                     </li>
                 </ul>
             </li>
         </ul>
-        <ul class="players">
-            <li class="player" v-for="player in players" v-on:click="addPlayer(player)">
-                Name: {{ player.name}}
-            </li>
-        </ul>
-        {{ message }}
+        <button v-on:click="addMatch">Add match</button>
+        <br>
+        <select class="persons" v-model="selectedPerson">
+            <option v-for="person in persons" :value="person">
+                Name: {{ person.name }}
+            </option>
+        </select>
+        <select class="remotes" v-model="selectedRemote">
+            <option v-for="remote in remotes" :value="remote">
+                ID: {{ remote.buttonIDs[0] }}
+            </option>
+        </select>
+        <button v-on:click="addSelectedPlayerWithRadio()">Add player</button>
+        <br> {{ message }}
         <!-- <button class="btnPoint" data-player="antti" data-points="1">+1</button>
         <button class="btnPoint" data-player="antti" data-points="-1">-1</button> -->
-        <button v-on:click="addMatch">Add match</button>
+        <div id="mqttlog">MQTT log</div>
     </div>
 </body>
 <script type="text/javascript">
@@ -124,7 +147,10 @@
     // called when a message arrives
     function onMessageArrived(message) {
         //console.log("onMessageArrived:" + message.destinationName + ":" + message.payloadString);
-        $("body").append("<p>" + message.destinationName + ":" + message.payloadString + "</p>");
+        $("#mqttlog").append("<p>" + message.destinationName + ":" + message.payloadString + "</p>");
+        $("#mqttlog").animate({
+            scrollTop: $('#mqttlog').prop("scrollHeight")
+        }, 200);
         app.addPoint(message.payloadString);
     }
 
@@ -152,17 +178,32 @@
 <script name="classes">
     class Point {
         constructor(timestamp, playerID, currPlayerTotal) {
-            this.timestamp = timestamp;
+            this.timestamp = timestamp || new Date();
             this.playerID = playerID;
             this.currPlayerTotal = currPlayerTotal;
         }
     }
-    class Player {
-        constructor(ID, name, RFID, color) {
+    class Person {
+        constructor(ID, name, color) {
             this.ID = ID;
             this.name = name;
-            this.RFID = RFID;
-            this.color = color;
+            this.color = color || "black";
+        }
+    }
+    class Player {
+        constructor(person, remote) {
+            this.person = person;
+            this.remote = remote;
+            this.points = [];
+        }
+    }
+    class Remote {
+        constructor(name, buttonIDs) {
+            this.name = name;
+            this.buttonIDs = [];
+            buttonIDs.forEach(button => {
+                this.buttonIDs.push(button);
+            });
         }
     }
     class Match {
@@ -170,24 +211,29 @@
             this.ID = guidGenerator();
             this.startTime = new Date();
             this.players = [];
+            this.remotes = [];
             this.isRunning = false;
-            this.points = [];
+            this.latestPoint = null;
         }
         addPoint(playerID) {
-            var i = this.players.map(x => x.ID).indexOf(playerID);
-            this.points.push(new Point(new Date(), playerID, this.playerScores[i] + 1));
+            var i = this.players.map(x => x.person.ID).indexOf(playerID);
+            var now = new Date();
+            this.players[i].points.push(new Point(now, playerID, this.playerScores[i] + 1));
+            this.latestPoint = now;
         }
         addPlayer(player) {
-            // this.players[this.playerCount] = player;
-            if (!this.players.filter(n => n.name == player.name).length) {
+            if (!this.players.map(x => x.person.ID).filter(n => n == player.person.ID).length) {
+                if (this.enoughPlayers) this.players.splice(0, 1);
                 this.players.push(player);
             }
+            // tässä voisi tarkistaa onko jollain jo samainen remote
         }
         get playerScores() {
-            return [
-                this.points.filter(n => n.playerID == this.players[0].ID).length,
-                this.points.filter(n => n.playerID == this.players[1].ID).length
-            ]
+            return this.players.map(x => x.points.length);
+            // return [
+            //     this.points.filter(n => n.playerID == this.players[0].ID).length,
+            //     this.points.filter(n => n.playerID == this.players[1].ID).length
+            // ]
         }
         get playerCount() {
             return this.players.filter(n => n != undefined).length;
@@ -202,14 +248,18 @@
         template: `<div class="linechart" :id="id">
     <svg :width="width" :height="height">
         <g>
-                <path v-for="(player,i) in match.players" class="line" :d="paths.lines[i]" v-bind:style="{ stroke: player.color}" />
+                <path v-for="(player,i) in match.players" class="line" :d="paths.lines[i]" v-bind:style="{ stroke: player.person.color}" />
                 <!--<path v-for="paths.lines" class="line" :d="paths.line" />-->
             <path class="selector" :d="paths.selector" />
         </g>
     </svg>
     </div>`,
         props: {
-            data: {
+            latestpoint: {
+                type: Date,
+                default: () => null,
+            },
+            currpoints: {
                 type: Array,
                 default: () => [],
             },
@@ -226,10 +276,6 @@
                 type: Number,
                 default: 100,
             },
-            // players: {
-            //     type: Array,
-            //     default: () => [],
-            // },
             match: {
                 type: Object,
                 default: () => {},
@@ -271,9 +317,9 @@
             window.removeEventListener('resize', this.onResize);
         },
         watch: {
-            data: function dataChanged(newData, oldData) {
+            latestpoint: function dataChanged(newData, oldData) {
                 // this.tweenData(newData, oldData);
-                this.update();
+                this.update()
             },
             width: function widthChanged() {
                 this.initialize();
@@ -294,48 +340,33 @@
                 d3.axisLeft().scale(this.scaled.y);
                 d3.axisBottom().scale(this.scaled.x);
             },
-            // tweenData(newData, oldData) {
-            //     const vm = this;
-
-            //     function animate(time) {
-            //         requestAnimationFrame(animate);
-            //         TWEEN.update(time);
-            //     }
-            //     new TWEEN.Tween(oldData)
-            //         .easing(TWEEN.Easing.Quadratic.Out)
-            //         .to(newData, 500)
-            //         .onUpdate(function onUpdate() {
-            //             vm.animatedData = this;
-            //             vm.update();
-            //         })
-            //         .start();
-            //     animate();
-            // },
             update() {
-                this.scaled.x.domain(d3.extent(this.data.concat([{timestamp : this.match.startTime}]), (d, i) => d.timestamp));
-                this.scaled.y.domain([0, Math.max(this.ceil, d3.max(this.data, d => d.currPlayerTotal))]);
-                var origo = {
-                    x: this.scaled.x(this.match.startTime),
-                    y: this.scaled.y(0),
-                    max: this.height,
-                };
+                var allPoints = this.match.players.map(p => p.points).reduce((a, b) => a.concat(b), []);
+                this.scaled.x.domain(d3.extent(allPoints.concat([{
+                    timestamp: this.match.startTime
+                }]), (d, i) => d.timestamp));
+                this.scaled.y.domain([0, Math.max(this.ceil, d3.max(allPoints, d => d.currPlayerTotal))]);
                 this.points = [
                     [],
                     []
                 ];
-                var playerIDs = d3.map(this.match.players, x => x.ID).keys()
-                for (const [i, d] of this.data.entries()) {
-                    if (i == 0) {
-                        this.points[0].push(origo);
-                        this.points[1].push(origo);
+                this.match.players.forEach((player, i) => {
+                    // origo
+                    if (player.points.length) {
+                        this.points[i].push({
+                            x: this.scaled.x(this.match.startTime),
+                            y: this.scaled.y(0),
+                            max: this.height,
+                        });
                     }
-                    var j = playerIDs.indexOf(d.playerID + "");
-                    this.points[j].push({
-                        x: this.scaled.x(d.timestamp),
-                        y: this.scaled.y(d.currPlayerTotal),
-                        max: this.height,
+                    player.points.forEach(point => {
+                        this.points[i].push({
+                            x: this.scaled.x(point.timestamp),
+                            y: this.scaled.y(point.currPlayerTotal),
+                            max: this.height,
+                        });
                     });
-                }
+                });
                 this.paths.lines.splice(0, this.paths.lines.length);
                 for (let i = 0; i < 2; i++) {
                     var t = this.createLine(this.points[i]);
@@ -348,170 +379,34 @@
     });
 </script>
 
-
-
-
-<script>
-    Vue.component('areachart', {
-        template: `<div class="areaChart" :id="id">
-<svg @mousemove="mouseover" :width="width" :height="height">
-    <g>
-        <path class="area" :d="paths.area" />
-        <path class="line" :d="paths.line" />
-        <path class="selector" :d="paths.selector" />
-    </g>
-</svg>
-</div>`,
-        props: {
-            data: {
-                type: Array,
-                default: () => [],
-            },
-            margin: {
-                type: Object,
-                default: () => ({
-                    left: 0,
-                    right: 0,
-                    top: 10,
-                    bottom: 10,
-                }),
-            },
-            ceil: {
-                type: Number,
-                default: 100,
-            },
-        },
-        data() {
-            return {
-                id: '',
-                width: 0,
-                height: 0,
-                paths: {
-                    area: '',
-                    line: '',
-                    selector: '',
-                },
-                lastHoverPoint: {},
-                scaled: {
-                    x: null,
-                    y: null,
-                },
-                animatedData: [],
-                points: [],
-            }
-        },
-        computed: {
-            padded() {
-                const width = this.width - this.margin.left - this.margin.right;
-                const height = this.height - this.margin.top - this.margin.bottom;
-                return {
-                    width,
-                    height
-                };
-            },
-        },
-        mounted() {
-            window.addEventListener('resize', this.onResize);
-            this.onResize();
-        },
-        beforeDestroy() {
-            window.removeEventListener('resize', this.onResize);
-        },
-        watch: {
-            data: function dataChanged(newData, oldData) {
-                this.tweenData(newData, oldData);
-            },
-            width: function widthChanged() {
-                this.initialize();
-                this.update();
-            },
-        },
-        methods: {
-            onResize() {
-                this.width = this.$el.offsetWidth;
-                this.height = this.$el.offsetHeight;
-            },
-            createArea: d3.area().x(d => d.x).y0(d => d.max).y1(d => d.y),
-            createLine: d3.line().x(d => d.x).y(d => d.y),
-            createValueSelector: d3.area().x(d => d.x).y0(d => d.max).y1(0),
-            initialize() {
-                this.scaled.x = d3.scaleLinear().range([0, this.padded.width]);
-                this.scaled.y = d3.scaleLinear().range([this.padded.height, 0]);
-                d3.axisLeft().scale(this.scaled.x);
-                d3.axisBottom().scale(this.scaled.y);
-            },
-            tweenData(newData, oldData) {
-                const vm = this;
-
-                function animate(time) {
-                    requestAnimationFrame(animate);
-                    TWEEN.update(time);
-                }
-                new TWEEN.Tween(oldData)
-                    .easing(TWEEN.Easing.Quadratic.Out)
-                    .to(newData, 500)
-                    .onUpdate(function onUpdate() {
-                        vm.animatedData = this;
-                        vm.update();
-                    })
-                    .start();
-                animate();
-            },
-            update() {
-                this.scaled.x.domain(d3.extent(this.data, (d, i) => i));
-                this.scaled.y.domain([0, Math.max(this.ceil, d3.max(this.data, d => d))]);
-                this.points = [];
-                for (const [i, d] of this.animatedData.entries()) {
-                    this.points.push({
-                        x: this.scaled.x(i),
-                        y: this.scaled.y(d),
-                        max: this.height,
-                    });
-                }
-                this.paths.area = this.createArea(this.points);
-                this.paths.line = this.createLine(this.points);
-            },
-            mouseover({
-                offsetX
-            }) {
-                if (this.points.length > 0) {
-                    const x = offsetX - this.margin.left;
-                    const closestPoint = this.getClosestPoint(x);
-                    if (this.lastHoverPoint.index !== closestPoint.index) {
-                        const point = this.points[closestPoint.index];
-                        this.paths.selector = this.createValueSelector([point]);
-                        this.$emit('select', this.data[closestPoint.index]);
-                        this.lastHoverPoint = closestPoint;
-                    }
-                }
-            },
-            getClosestPoint(x) {
-                return this.points
-                    .map((point, index) => ({
-                        x: point.x,
-                        diff: Math.abs(point.x - x),
-                        index,
-                    }))
-                    .reduce((memo, val) => (memo.diff < val.diff ? memo : val));
-            },
-        }
-    });
-</script>
 <script>
     var app = new Vue({
         el: '#app',
         data: function () {
             return {
                 matches: [],
-                players: [new Player(1, "Antti", 12890956, "red"), new Player(2, "Toinen", 12890948, "blue")],
+                persons: [
+                    new Person(1, "Antti", "red"),
+                    new Person(2, "Toinen", "blue"),
+                    new Person(3, "Kolmas", "green")
+                ],
                 message: 'Hello Vue!',
-                points: [1, 7, 3, 3, 5, 6],
+                remotes: [
+                    new Remote("A", [12890956]),
+                    new Remote("B", [12890948])
+                ],
+                selectedPerson: {}, // uuden henkilön lisäämiseen
+                selectedRemote: {}, // uuden henkilön lisäämiseen,
+                error: ""
             }
         },
-        methods: {
-            moment: function () {
-                return moment();
+        computed: {
+            currentMatch: function () {
+                return this.matches[this.matches.length - 1];
             },
+        },
+        methods: {
+            moment: () => moment(),
             guidGenerator: function () {
                 return guidGenerator();
             },
@@ -519,12 +414,17 @@
                 this.matches.push(new Match());
             },
             addPlayer: function (player) {
-                this.matches[0].addPlayer(player);
+                this.currentMatch.addPlayer(player);
+            },
+            addSelectedPlayerWithRadio: function () {
+                this.currentMatch.addPlayer(new Player(this.selectedPerson, this.selectedRemote));
             },
             addPoint: function (RFID) {
-                var tplayer = this.players.filter(x => x.RFID == RFID);
+                RFID = parseInt(RFID);
+                var tplayer = this.currentMatch.players.filter(p => p.remote.buttonIDs.includes(RFID));
                 if (tplayer.length) {
-                    this.matches[0].addPoint(tplayer[0].ID);
+                    this.currentMatch.addPoint(tplayer[0].person.ID);
+                    this.latestPoint = new Date();
                 }
             }
         },
@@ -535,8 +435,8 @@
         },
         created: function () {
             this.addMatch();
-            this.addPlayer(this.players[0]);
-            this.addPlayer(this.players[1]);
+            this.addPlayer(new Player(this.persons[0], this.remotes[0]));
+            this.addPlayer(new Player(this.persons[1], this.remotes[1]));
         }
     })
 </script>
