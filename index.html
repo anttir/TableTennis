@@ -12,6 +12,11 @@
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
     <!-- <script src="charts.js"></script> -->
+
+    <link rel="stylesheet" href="jquery.bFlipText.css">
+    <script type="text/javascript" src="jquery.bFlipText.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Mina" rel="stylesheet">
     <style id="pageStyles">
         ul.matches {
             list-style-type: none;
@@ -56,11 +61,66 @@
             font-size: smaller;
             color: darkslateblue;
         }
+
+        .currentMatch {
+            border: 1px solid salmon;
+        }
+
+        .currentMatch .players {
+            display: flex;
+        }
+
+        .currentMatch .player {
+            border: 1px solid salmon;
+            flex-grow:1;
+            /* display: inline-block;
+            width: 49%; */
+        }
+        .currentMatch .player .personName .name{
+            font-family: 'Mina', sans-serif;
+            font-weight: bold;
+            font-size: 10vh;
+        }
+        
     </style>
 </head>
 
 <body>
+        <div id="my_flip1"></div>
+
+        <div id="my_flip3" class="my_flip_multi"></div>
+        <input type="text" value="write here" id="mytext">
+        <input type="button" value="Change 1st Text" id="myflip_submit1"/>
+        <script type="text/javascript">
+            //initializing script by id with style
+            var my_style = {'width': '90px', 'font-size': '90px', 'background': '#fff', 'color': '#000'};
+            $('#my_flip1').bFlipText({text: '01', css: my_style});
+            //initializing script by class with no style & with initial text
+            $('#myflip_submit1').click(function () {
+                $('#my_flip1').bFlipTextPlay($('#mytext').val());
+            });
+        </script>
     <div ID="app">
+        <div class="currentMatch match">
+            <div class="startTime">{{currentMatch.startTime | moment}}</div>
+            <div class="players">
+                <div class="player" v-for="player in currentMatch.players">
+                    <div class="personName">
+                        <div>Name:</div>
+                        <div class="name" :style="{ color: player.person.color}">{{player.person.name}}</div>
+                    </div>
+                    <div class="remote">Remote: {{player.remote.name}}</div>
+                    <div class="points" :id="'flipPoints' + player.person.ID">
+                        {{player.points.length}}
+                    </div>
+                </div>
+            </div>
+            <linechart :id="'lineChart_' + currentMatch.ID" :match="currentMatch" :latestpoint="currentMatch.latestPoint" :currpoints="currentMatch.playerScores"
+            :ceil="3"></linechart>
+
+        </div>
+
+        <button click="$('#my_flip').bFlipTextPlay({text: '55'});">add</button>
         <ul class="matches">
             <li v-for="match in matches">
                 <ul class="match">
@@ -248,7 +308,7 @@
         template: `<div class="linechart" :id="id">
     <svg :width="width" :height="height">
         <g>
-                <path v-for="(player,i) in match.players" class="line" :d="paths.lines[i]" v-bind:style="{ stroke: player.person.color}" />
+                <path v-for="(player,i) in match.players" class="line" :d="paths.lines[i]" :style="{ stroke: player.person.color}" />
                 <!--<path v-for="paths.lines" class="line" :d="paths.line" />-->
             <path class="selector" :d="paths.selector" />
         </g>
@@ -415,6 +475,7 @@
             },
             addPlayer: function (player) {
                 this.currentMatch.addPlayer(player);
+                //$('#flipPoints' + player.person.ID).bFlipText({text: '01', css: my_style});
             },
             addSelectedPlayerWithRadio: function () {
                 this.currentMatch.addPlayer(new Player(this.selectedPerson, this.selectedRemote));
