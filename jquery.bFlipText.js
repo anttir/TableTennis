@@ -14,7 +14,7 @@
 
     //if we want public to call it from outside "$.fn.bFlipText.public_aaa" for private just put it without "$.fn.bFlipText."
     $.fn.bFlipTextPlay = function (text) {
-        play_next(this, text);
+        play_next(this, text + '');
     };
     //
     var last_unique_id = null;

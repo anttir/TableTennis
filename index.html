@@ -61,9 +61,17 @@
             font-size: smaller;
             color: darkslateblue;
         }
+    </style>
+    <style name="currentmatch">
+        .currentMatch .legend {
+            font-size: 80%;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            color: lightgray;
+            display: inline;
+        }
 
-        .currentMatch {
-            border: 1px solid salmon;
+        .currentMatch .startTime {
+            display: inline;
         }
 
         .currentMatch .players {
@@ -71,56 +79,41 @@
         }
 
         .currentMatch .player {
-            border: 1px solid salmon;
-            flex-grow:1;
+            flex-grow: 1;
             /* display: inline-block;
             width: 49%; */
         }
-        .currentMatch .player .personName .name{
+
+        .currentMatch .player .personName .name {
             font-family: 'Mina', sans-serif;
             font-weight: bold;
             font-size: 10vh;
         }
-        
     </style>
 </head>
 
 <body>
-        <div id="my_flip1"></div>
-
-        <div id="my_flip3" class="my_flip_multi"></div>
-        <input type="text" value="write here" id="mytext">
-        <input type="button" value="Change 1st Text" id="myflip_submit1"/>
-        <script type="text/javascript">
-            //initializing script by id with style
-            var my_style = {'width': '90px', 'font-size': '90px', 'background': '#fff', 'color': '#000'};
-            $('#my_flip1').bFlipText({text: '01', css: my_style});
-            //initializing script by class with no style & with initial text
-            $('#myflip_submit1').click(function () {
-                $('#my_flip1').bFlipTextPlay($('#mytext').val());
-            });
-        </script>
     <div ID="app">
+        <div id="my_flip"></div>
         <div class="currentMatch match">
+            <div class="legend">Start time:</div>
             <div class="startTime">{{currentMatch.startTime | moment}}</div>
             <div class="players">
                 <div class="player" v-for="player in currentMatch.players">
                     <div class="personName">
-                        <div>Name:</div>
+                            <div class="legend">Name:</div>
                         <div class="name" :style="{ color: player.person.color}">{{player.person.name}}</div>
                     </div>
-                    <div class="remote">Remote: {{player.remote.name}}</div>
-                    <div class="points" :id="'flipPoints' + player.person.ID">
-                        {{player.points.length}}
-                    </div>
+                    <div class="legend">Remote:</div>
+                    <div class="remote">{{player.remote.name}}</div>
+                    <bfliptext :id="'flipPoints' + player.person.ID" :text="player.points.length"></bfliptext>
+                    <button v-on:click="addPoint(player.remote.buttonIDs[0])">+</button>
                 </div>
             </div>
             <linechart :id="'lineChart_' + currentMatch.ID" :match="currentMatch" :latestpoint="currentMatch.latestPoint" :currpoints="currentMatch.playerScores"
-            :ceil="3"></linechart>
+                :ceil="3"></linechart>
 
         </div>
-
-        <button click="$('#my_flip').bFlipTextPlay({text: '55'});">add</button>
         <ul class="matches">
             <li v-for="match in matches">
                 <ul class="match">
@@ -303,6 +296,31 @@
         }
     }
 </script>
+<script name="bFlipText">
+    Vue.component('bfliptext', {
+        template: '<div :id="id"/>',
+        props: ['text', 'id'],
+        mounted: function () {
+            var my_style = {
+                'width': '90px',
+                'font-size': '90px',
+                'background': '#fff',
+                'color': '#000'
+            };
+            $(this.$el).bFlipText({
+                text: this.text + '',
+                css: my_style
+            });
+        },
+        beforeDestroy: function () {},
+        watch: {
+            text: function () {
+                $(this.$el).bFlipTextPlay(this.text);
+            }
+        }
+    });
+</script>
+
 <script>
     Vue.component('linechart', {
         template: `<div class="linechart" :id="id">
