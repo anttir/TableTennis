@@ -57,7 +57,7 @@
             </option>
         </select>
         <button v-on:click="addSelectedPlayerWithRadio()">Add player</button>
-        <br> {{ message }}
+        <br>
         <!-- <button class="btnPoint" data-player="antti" data-points="1">+1</button>
         <button class="btnPoint" data-player="antti" data-points="-1">-1</button> -->
         <div id="mqttlog">MQTT log</div>
@@ -66,6 +66,7 @@
 
 <script>
 import moment from "moment";
+moment.locale('fi');
 import { mapActions } from 'vuex'
 
 import LineChart from "~/components/linechart";
@@ -90,7 +91,6 @@ export default {
         new Person(2, "Toinen", "blue"),
         new Person(3, "Kolmas", "green")
       ],
-      message: "Hello Vue!",
       remotes: [new Remote("A", [12890956]), new Remote("B", [12890948])],
       selectedPerson: {}, // uuden henkilön lisäämiseen
       selectedRemote: {}, // uuden henkilön lisäämiseen,

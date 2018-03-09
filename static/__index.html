@@ -13,79 +13,16 @@
     <link rel="stylesheet" href="jquery.bFlipText.css">
     <script type="text/javascript" src="jquery.bFlipText.js"></script>
 
-    <link href="https://fonts.googleapis.com/css?family=Mina" rel="stylesheet">
+    <link >
     <style id="pageStyles">
-        ul.matches {
-            list-style-type: none;
-        }
-
-        li.player {
-            cursor: copy;
-        }
+       
     </style>
     <style id="chartStyles">
-        .areaChart,
-        .linechart {
-            height: 200px;
-            width: 50%;
-            border: 1px solid #ddd;
-        }
+        
 
-        .axis--x path {
-            display: none;
-        }
-
-        .line {
-            fill: none;
-            stroke: steelblue;
-            stroke-width: 1.5px;
-        }
-
-        .area {
-            fill: #76BF8A
-        }
-
-        #mqttlog {
-            height: 200px;
-            overflow: auto;
-            background-color: beige;
-            border: 1px solid burlywood;
-        }
-
-        #mqttlog p {
-            margin: 0.1em;
-            font-family: monospace;
-            font-size: smaller;
-            color: darkslateblue;
-        }
     </style>
     <style name="currentmatch">
-        .currentMatch .legend {
-            font-size: 80%;
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-            color: lightgray;
-            display: inline;
-        }
-
-        .currentMatch .startTimem, .currentMatch .remote {
-            display: inline;
-        }
-
-        .currentMatch .players {
-            display: flex;
-        }
-
-        .currentMatch .player {
-            flex-grow: 1;
-            /* display: inline-block;
-            width: 49%; */
-        }
-
-        .currentMatch .player .personName .name {
-            font-family: 'Mina', sans-serif;
-            font-weight: bold;
-            font-size: 10vh;
-        }
+        
     </style>
 </head>
 
@@ -93,63 +30,7 @@
     
 </body>
 <script type="text/javascript">
-    // Create a client instance
-    client = new Paho.MQTT.Client("m23.cloudmqtt.com", 38577, "web_" + parseInt(Math.random() * 100, 10));
-    //Example client = new Paho.MQTT.Client("m11.cloudmqtt.com", 32903, "web_" + parseInt(Math.random() * 100, 10));
-
-    // set callback handlers
-    client.onConnectionLost = onConnectionLost;
-    client.onMessageArrived = onMessageArrived;
-    var options = {
-        useSSL: true,
-        userName: "ezbvjyrv",
-        password: "hS5ElErtR3eD",
-        onSuccess: onConnect,
-        onFailure: doFail
-    }
-
-    // connect the client
-    client.connect(options);
-
-    // called when the client connects
-    function onConnect() {
-        // Once a connection has been made, make a subscription and send a message.
-        console.log("onConnect");
-        client.subscribe("tabletennis/433toMQTT");
-        message = new Paho.MQTT.Message("Hello CloudMQTT");
-        message.destinationName = "tabletennis";
-        client.send(message);
-    }
-
-    function doFail(e) {
-        console.log(e);
-    }
-
-    // called when the client loses its connection
-    function onConnectionLost(responseObject) {
-        if (responseObject.errorCode !== 0) {
-            console.log("onConnectionLost:" + responseObject.errorMessage);
-        }
-    }
-
-    // called when a message arrives
-    function onMessageArrived(message) {
-        //console.log("onMessageArrived:" + message.destinationName + ":" + message.payloadString);
-        $("#mqttlog").append("<p>" + message.destinationName + ":" + message.payloadString + "</p>");
-        $("#mqttlog").animate({
-            scrollTop: $('#mqttlog').prop("scrollHeight")
-        }, 200);
-        app.addPoint(message.payloadString);
-    }
-
-    function sendPoint(name, points) {
-        message = new Paho.MQTT.Message(JSON.stringify({
-            name: name,
-            points: points
-        }));
-        message.destinationName = "tabletennis/";
-        client.send(message);
-    }
+    
     // $(function () {
     //     $(".btnPoint").click(x =>
     //         sendPoint($(x.target).data("player"), $(x.target).data("points")));
@@ -163,162 +44,15 @@
 </script>
 <script name="bFlipText">
     Vue.component('bfliptext', {
-        template: '<div :id="id"/>',
-        props: ['text', 'id'],
-        mounted: function () {
-            var my_style = {
-                'width': '90px',
-                'font-size': '90px',
-                'background': '#fff',
-                'color': '#000'
-            };
-            $(this.$el).bFlipText({
-                text: this.text + '',
-                css: my_style
-            });
-        },
-        beforeDestroy: function () {},
-        watch: {
-            text: function () {
-                $(this.$el).bFlipTextPlay(this.text);
-            }
-        }
+        template: '',
+        
     });
 </script>
 
 <script>
     Vue.component('linechart', {
-        template: `<div class="linechart" :id="id">
-    <svg :width="width" :height="height">
-        <g>
-                <path v-for="(player,i) in match.players" class="line" :d="paths.lines[i]" :style="{ stroke: player.person.color}" />
-                <!--<path v-for="paths.lines" class="line" :d="paths.line" />-->
-            <path class="selector" :d="paths.selector" />
-        </g>
-    </svg>
-    </div>`,
-        props: {
-            latestpoint: {
-                type: Date,
-                default: () => null,
-            },
-            currpoints: {
-                type: Array,
-                default: () => [],
-            },
-            margin: {
-                type: Object,
-                default: () => ({
-                    left: 0,
-                    right: 0,
-                    top: 10,
-                    bottom: 10,
-                }),
-            },
-            ceil: {
-                type: Number,
-                default: 100,
-            },
-            match: {
-                type: Object,
-                default: () => {},
-            },
-        },
-        data() {
-            return {
-                id: '',
-                width: 0,
-                height: 0,
-                paths: {
-                    area: '',
-                    lines: ['', ''],
-                    selector: '',
-                },
-                scaled: {
-                    x: null,
-                    y: null,
-                },
-                animatedData: [],
-                points: [],
-            }
-        },
-        computed: {
-            padded() {
-                const width = this.width - this.margin.left - this.margin.right;
-                const height = this.height - this.margin.top - this.margin.bottom;
-                return {
-                    width,
-                    height
-                };
-            },
-        },
-        mounted() {
-            window.addEventListener('resize', this.onResize);
-            this.onResize();
-        },
-        beforeDestroy() {
-            window.removeEventListener('resize', this.onResize);
-        },
-        watch: {
-            latestpoint: function dataChanged(newData, oldData) {
-                // this.tweenData(newData, oldData);
-                this.update()
-            },
-            width: function widthChanged() {
-                this.initialize();
-                this.update();
-            },
-        },
-        methods: {
-            onResize() {
-                this.width = this.$el.offsetWidth;
-                this.height = this.$el.offsetHeight;
-            },
-            createLine: d3.line().x(d => d.x).y(d => d.y),
-            createValueSelector: d3.area().x(d => d.x).y0(d => d.max).y1(0),
-            initialize() {
-                this.scaled.x = d3.scaleTime().range([0, this.padded.width]);
-                this.scaled.y = d3.scaleLinear().range([this.padded.height, 0]);
-                this.scaled.z = d3.scaleOrdinal(d3.schemeCategory10);
-                d3.axisLeft().scale(this.scaled.y);
-                d3.axisBottom().scale(this.scaled.x);
-            },
-            update() {
-                var allPoints = this.match.players.map(p => p.points).reduce((a, b) => a.concat(b), []);
-                this.scaled.x.domain(d3.extent(allPoints.concat([{
-                    timestamp: this.match.startTime
-                }]), (d, i) => d.timestamp));
-                this.scaled.y.domain([0, Math.max(this.ceil, d3.max(allPoints, d => d.currPlayerTotal))]);
-                this.points = [
-                    [],
-                    []
-                ];
-                this.match.players.forEach((player, i) => {
-                    // origo
-                    if (player.points.length) {
-                        this.points[i].push({
-                            x: this.scaled.x(this.match.startTime),
-                            y: this.scaled.y(0),
-                            max: this.height,
-                        });
-                    }
-                    player.points.forEach(point => {
-                        this.points[i].push({
-                            x: this.scaled.x(point.timestamp),
-                            y: this.scaled.y(point.currPlayerTotal),
-                            max: this.height,
-                        });
-                    });
-                });
-                this.paths.lines.splice(0, this.paths.lines.length);
-                for (let i = 0; i < 2; i++) {
-                    var t = this.createLine(this.points[i]);
-                    if (t) {
-                        this.paths.lines.push(t);
-                    }
-                }
-            },
-        }
+        template: ``,
+        
     });
 </script>
 

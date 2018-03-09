@@ -11,13 +11,13 @@ export default {
     return {
       link: [
         { rel: "stylesheet", href: "jquery.bFlipText.css" },
-        { rel: "stylesheet", href: "https://fonts.googleapis.com/css?family=Mina" }
+        { rel: "stylesheet", href: "//fonts.googleapis.com/css?family=Mina" }
         ],
       script: [
         {
           type: "text/javascript",
           src:
-            "https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+            "//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"
         },
         { type: "text/javascript", src: "jquery.bFlipText.js" }
       ]
