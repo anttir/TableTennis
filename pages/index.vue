@@ -60,17 +60,19 @@
         <br>
         <!-- <button class="btnPoint" data-player="antti" data-points="1">+1</button>
         <button class="btnPoint" data-player="antti" data-points="-1">-1</button> -->
-        <div id="mqttlog">MQTT log</div>
+        <logger></logger>
+
     </div>
 </template>
 
 <script>
 import moment from "moment";
-moment.locale('fi');
-import { mapActions } from 'vuex'
+moment.locale("fi");
+import { mapActions } from "vuex";
 
 import LineChart from "~/components/linechart";
 import BFliptext from "~/components/b-fliptext";
+import Logger from "~/components/logger";
 
 import {
   Person,
@@ -82,7 +84,7 @@ import {
 } from "../helpers";
 
 export default {
-  components: { LineChart, BFliptext },
+  components: { LineChart, BFliptext, Logger },
   data: function() {
     return {
       matches: [],
@@ -103,7 +105,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['initClient']),
+    ...mapActions(["initClient"]),
     moment: () => moment(),
     guidGenerator: function() {
       return guidGenerator();
@@ -142,7 +144,7 @@ export default {
     this.addPlayer(new Player(this.persons[1], this.remotes[1]));
   },
   mounted() {
-      this.initClient();
+    this.initClient();
   }
 };
 </script>
@@ -182,18 +184,5 @@ ul.matches {
 
 li.player {
   cursor: copy;
-}
-#mqttlog {
-  height: 200px;
-  overflow: auto;
-  background-color: beige;
-  border: 1px solid burlywood;
-}
-
-#mqttlog p {
-  margin: 0.1em;
-  font-family: monospace;
-  font-size: smaller;
-  color: darkslateblue;
 }
 </style>

@@ -1,5 +1,7 @@
 {
     "include": [
-      "./src/**/*"
+      "./pages/**/*",
+      "./components/**/*",
+      "./layouts/**/*"
     ]
   }
