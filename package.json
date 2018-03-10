@@ -4,6 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "dev-debug": "node --inspect node_modules/.bin/nuxt",
+    "dev-debug-windows-EITOIMI": "node --inspect node_modules/nuxt/bin/nuxt",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,6 +30,7 @@
     "moment": "^2.21.0",
     "nuxt": "^1.4.0",
     "paho-mqtt": "1.0.3",
+    "vue-color": "^2.4.5",
     "vue-notifications": "^0.9.0"
   }
 }
