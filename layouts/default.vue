@@ -10,7 +10,7 @@ export default {
   head() {
     return {
       link: [
-        { rel: "stylesheet", href: "jquery.bFlipText.css" },
+        { rel: "stylesheet", href: "/jquery.bFlipText.css" },
         { rel: "stylesheet", href: "//fonts.googleapis.com/css?family=Mina" }
         ],
       script: [
@@ -19,7 +19,7 @@ export default {
           src:
             "//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"
         },
-        { type: "text/javascript", src: "jquery.bFlipText.js" }
+        { type: "text/javascript", src: "/jquery.bFlipText.js" }
       ]
     };
   }

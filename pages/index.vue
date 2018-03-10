@@ -1,11 +1,14 @@
 <template>
   <div>
+      <button @click="$store.commit('increment')">{{ $store.state.counter }}</button>
+      <a href="todos/">todos</a>
+
         <div id="my_flip"></div>
         <div class="currentMatch match">
             <div class="legend">Start time:</div>
             <div class="startTime">{{currentMatch.startTime | moment}}</div>
             <div class="players">
-                <div class="player" v-for="player in currentMatch.players">
+                <div class="player" v-for="(player, i) in currentMatch.players" :key="i">
                     <div class="personName">
                             <div class="legend">Name:</div>
                         <div class="name" :style="{ color: player.person.color}">{{player.person.name}}</div>
@@ -21,14 +24,14 @@
 
         </div>
         <ul class="matches">
-            <li v-for="match in matches">
+            <li v-for="(match, i) in matches" :key="i">
                 <ul class="match">
                     <li>Date: {{ match.startTime | moment }}</li>
                     <li>Players: {{ match.playerCount }}</li>
                     <li>Enough players : {{match.enoughPlayers ? "Yes" : "No"}}</li>
                     <li>Players
                         <ul>
-                            <li v-for="player in match.players">
+                            <li v-for="(player,i) in match.players" :key="i">
                                 <div class="person">{{ player.person }}</div>
                                 <div class="remote">{{ player.remote }}</div>
                                 <div class="remote">{{ player.points }}</div>
@@ -47,12 +50,12 @@
         <button v-on:click="addMatch">Add match</button>
         <br>
         <select class="persons" v-model="selectedPerson">
-            <option v-for="person in persons" :value="person">
+            <option v-for="(person, i) in persons" :value="person" :key="i">
                 Name: {{ person.name }}
             </option>
         </select>
         <select class="remotes" v-model="selectedRemote">
-            <option v-for="remote in remotes" :value="remote">
+            <option v-for="(remote, i) in remotes" :value="remote" :key="i">
                 ID: {{ remote.buttonIDs[0] }}
             </option>
         </select>
