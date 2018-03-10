@@ -21,6 +21,7 @@ export class Player {
 }
 export class Remote {
     constructor(name, buttonIDs) {
+        this.ID = guidGenerator();
         this.name = name;
         this.buttonIDs = [];
         buttonIDs.forEach(button => {

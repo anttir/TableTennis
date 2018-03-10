@@ -6,7 +6,7 @@
                 <span class="colortab" v-on:click="toggle(person.ID)" :style="{ background: person.color }"></span>
                 <span :style="{color: person.color}">{{ person.name }}</span>
                 <compact-picker v-if="visibleColorpickers.includes(person.ID)" :value="person.color" v-on:input="updateColor(person, $event)"/>
-                <font-awesome-icon class="actionIcon" v-on:click="removePerson(person)" icon="ban"  size="s" />
+                <font-awesome-icon class="actionIcon" v-on:click="removePerson(person)" :icon="['fas', 'trash']" size="sm" />
             </li>
             <li>
                 <input placeholder="Add new person" v-model="newPersonName" @keyup.enter="addPerson">
