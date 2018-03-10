@@ -8,16 +8,23 @@ import {
 } from "../helpers";
 
 export const state = () => ({
-  list: []
+  list: [
+    new Person(1, "Antti", "red"),
+    new Person(2, "Toinen", "blue"),
+    new Person(3, "Kolmas", "green")
+  ]
 })
 
 export const mutations = {
   add(state, person) {
-    state.list.push({
-      ID: person.ID || guidGenerator(),
-      name: person.name,
-      color: person.color || "black"
-    })
+    state.list.push(
+      new Person(person.ID || guidGenerator(),person.name, person.color || "black" )
+      // {
+      // ID: person.ID || guidGenerator(),
+      //   name: person.name,
+      //   color: person.color || "black"
+      // }
+  )
   },
   remove(state, {
     person
