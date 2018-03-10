@@ -1,7 +1,10 @@
 <template>
   <div>
       <button @click="$store.commit('increment')">{{ $store.state.counter }}</button>
-      <a href="people/">people</a>
+      <ul>
+        <li><a href="people/">people</a></li>
+        <li><a href="remotes/">remotes</a></li>
+        </ul>
 
         <div id="my_flip"></div>
         <div class="currentMatch match">
