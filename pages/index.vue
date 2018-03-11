@@ -22,8 +22,7 @@
                     </div>
                     <div class="text-center">
                       <font-awesome-icon icon="minus" class="pointsbutton " size="3x"  v-on:click="addPointToCurrentMatch({rfcode:player.remote.buttonIDs[0], points:-1})" />
-                      <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="    display: inline-block;
-    vertical-align: middle;" />
+                      <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="display: inline-block; vertical-align: middle;" />
                       <font-awesome-icon icon="plus" class="pointsbutton " size="3x" v-on:click="addPointToCurrentMatch({rfcode:player.remote.buttonIDs[0], points:1})" />
                     </div>
                 </div>
