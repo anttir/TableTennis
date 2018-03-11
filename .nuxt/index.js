@@ -12,8 +12,8 @@ import { setContext, getLocation, getRouteData } from './utils'
 import { createStore } from './store.js'
 
 /* Plugins */
+import nuxt_plugin_bootstrapvue_46271bdc from 'nuxt_plugin_bootstrapvue_46271bdc' // Source: ./bootstrap-vue.js
 import nuxt_plugin_pahomqtt_42559cb4 from 'nuxt_plugin_pahomqtt_42559cb4' // Source: ..\\plugins\\paho-mqtt.js (ssr: false)
-import nuxt_plugin_vuenotifications_9509a7aa from 'nuxt_plugin_vuenotifications_9509a7aa' // Source: ..\\plugins\\vue-notifications (ssr: false)
 
 
 // Component: <no-ssr>
@@ -152,10 +152,10 @@ async function createApp (ssrContext) {
 
   // Plugin execution
   
+  if (typeof nuxt_plugin_bootstrapvue_46271bdc === 'function') await nuxt_plugin_bootstrapvue_46271bdc(app.context, inject)
   
   if (process.browser) { 
     if (typeof nuxt_plugin_pahomqtt_42559cb4 === 'function') await nuxt_plugin_pahomqtt_42559cb4(app.context, inject)
-    if (typeof nuxt_plugin_vuenotifications_9509a7aa === 'function') await nuxt_plugin_vuenotifications_9509a7aa(app.context, inject)
   }
 
   // If server-side, wait for async component to be resolved first

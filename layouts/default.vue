@@ -1,5 +1,9 @@
 <template>
-  <nuxt></nuxt>
+  <div class="container">
+    <H1>Table Tennis Scoring</H1>
+    <nuxt/>
+    <div>My footer</div>
+  </div>
 </template>
 
 <script>
@@ -11,7 +15,8 @@ export default {
     return {
       link: [
         { rel: "stylesheet", href: "/jquery.bFlipText.css" },
-        { rel: "stylesheet", href: "//fonts.googleapis.com/css?family=Mina" }
+        { rel: "stylesheet", href: "//fonts.googleapis.com/css?family=Mina" },
+        { rel: "stylesheet", href: "/fixes.css" }
         ],
       script: [
         {

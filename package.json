@@ -26,14 +26,17 @@
     "@fortawesome/fontawesome": "^1.1.4",
     "@fortawesome/fontawesome-free-solid": "^5.0.8",
     "@fortawesome/vue-fontawesome": "^0.0.22",
+    "bootstrap-vue": "^2.0.0-rc.2",
     "d3": "^4.13.0",
     "express": "^4.16.2",
     "jquery": "^3.3.1",
-    "mini-toastr": "^0.7.2",
     "moment": "^2.21.0",
     "nuxt": "^1.4.0",
     "paho-mqtt": "1.0.3",
-    "vue-color": "^2.4.5",
-    "vue-notifications": "^0.9.0"
+    "vue-color": "^2.4.5"
+  },
+  "devDependencies": {
+    "eslint": "^4.18.2",
+    "eslint-plugin-vue": "^4.3.0"
   }
 }

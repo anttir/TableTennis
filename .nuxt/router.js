@@ -4,8 +4,6 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 const _021d94f4 = () => import('..\\pages\\todos.vue' /* webpackChunkName: "pages_todos" */).then(m => m.default || m)
-const _484a8398 = () => import('..\\pages\\people.vue' /* webpackChunkName: "pages_people" */).then(m => m.default || m)
-const _0542c534 = () => import('..\\pages\\remotes.vue' /* webpackChunkName: "pages_remotes" */).then(m => m.default || m)
 const _2a81a259 = () => import('..\\pages\\index.vue' /* webpackChunkName: "pages_index" */).then(m => m.default || m)
 
 
@@ -70,16 +68,6 @@ export function createRouter () {
 			path: "/todos",
 			component: _021d94f4,
 			name: "todos"
-		},
-		{
-			path: "/people",
-			component: _484a8398,
-			name: "people"
-		},
-		{
-			path: "/remotes",
-			component: _0542c534,
-			name: "remotes"
 		},
 		{
 			path: "/",

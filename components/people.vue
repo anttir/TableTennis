@@ -3,14 +3,14 @@
         <span>People</span>
         <ul>
             <li v-for="(person,i) in people" :key="i">
-                <span class="colortab" v-on:click="toggle(person.ID)" :style="{ background: person.color }"></span>
+                <span class="colortab rounded border" v-on:click="toggle(person.ID)" :style="{ background: person.color }"></span>
                 <span :style="{color: person.color}">{{ person.name }}</span>
                 <compact-picker v-if="visibleColorpickers.includes(person.ID)" :value="person.color" v-on:input="updateColor(person, $event)"/>
                 <font-awesome-icon class="actionIcon" v-on:click="removePerson(person)" :icon="['fas', 'trash']" size="sm" />
             </li>
             <li>
                 <input placeholder="Add new person" v-model="newPersonName" @keyup.enter="addPerson">
-                <span class="colortab" v-on:click="toggle('colorpick')" :style="{ background: color.hex }"></span>
+                <span class="colortab rounded border" v-on:click="toggle('colorpick')" :style="{ background: color.hex }"></span>
                 <compact-picker v-if="visibleColorpickers.includes('colorpick')" v-model="color" v-on:input="hidePicker('colorpick')"/>
                 <button @click="addPerson">add</button>
             </li>
@@ -93,7 +93,6 @@ export default {
         width:1em;
         height:1em;
         margin: 0 0.3em ;
-        border-radius: 0.3em;
     }
     .actionIcon {
         margin: 0 0.3em ;
