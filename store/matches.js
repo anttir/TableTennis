@@ -8,7 +8,8 @@ import {
 } from "../helpers";
 
 export const state = () => ({
-  list: []
+  list: [],
+  rfquerycount: 0
 });
 
 export const getters = {
@@ -23,7 +24,17 @@ export const getters = {
   // }
 };
 
+export const actions = {
+  addPoint(context, rfcode) {
+    context.commit("incrementRfCounter");
+    context.commit("addPointToCurrentMatch", rfcode);
+  }
+};
+
 export const mutations = {
+  incrementRfCounter(state, data) {
+    state.rfquerycount++;
+  },
   add(state, data) {
     state.list.push(data);
   },
@@ -46,14 +57,26 @@ export const mutations = {
     });
     data.match.players.push(data.player);
   },
-  addPointToCurrentMatch: function(state, RFID) {
-    RFID = parseInt(RFID);
+  addPointToCurrentMatch(state, data) {
+    var points = 1;
+    var rfcode;
+    if (data.points == null) {
+      rfcode = data;
+    } else {
+      rfcode = data.rfcode;
+      points = data.points;
+    }
+    rfcode = parseInt(rfcode);
     var _currentMatch = state.list[state.list.length - 1];
     var tplayer = _currentMatch.players.filter(p =>
-      p.remote.buttonIDs.includes(RFID)
+      p.remote.buttonIDs.includes(rfcode)
     );
     if (tplayer.length) {
-      _currentMatch.addPoint(tplayer[0].person.ID);
+      if(points > 0) {
+        _currentMatch.addPoint(tplayer[0].person.ID);
+      }else{
+        _currentMatch.removePoint(tplayer[0].person.ID);
+      }
       _currentMatch.latestPoint = new Date();
     }
   },

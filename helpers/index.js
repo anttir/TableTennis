@@ -44,13 +44,16 @@ export class Match {
         this.players[i].points.push(new Point(now, playerID, this.playerScores[i] + 1));
         this.latestPoint = now;
     }
-    // addPlayer(player) {
-    //     if (!this.players.map(x => x.person.ID).filter(n => n == player.person.ID).length) {
-    //         if (this.enoughPlayers) this.players.splice(0, 1);
-    //         this.players.push(player);
-    //     }
-    //     // tässä voisi tarkistaa onko jollain jo samainen remote
-    // }
+    removePoint(playerID) {
+        var i = this.players.map(x => x.person.ID).indexOf(playerID);
+        var points = this.players[i].points;
+        if(points.length) {
+            points.splice(-1,1);
+        }
+        var now = points.length ? points[points.length -1].timestamp : this.startTime;
+        this.latestPoint = now;
+    }
+
     get playerScores() {
         return this.players.map(x => x.points.length);
         // return [

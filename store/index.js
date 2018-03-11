@@ -53,7 +53,7 @@ export const actions = {
     ].forEach(p => {
       this.app.store.commit("matches/addPlayerToMatch", {
         match: match,
-        player: p,
+        player: p
       });
     });
 
@@ -96,6 +96,7 @@ export const actions = {
 
     // called when a message arrives
     function onMessageArrived(message) {
+      window.$nuxt.$store.dispatch("matches/addPoint", message.payloadString);
       console.log(
         "onMessageArrived:" +
           message.destinationName +

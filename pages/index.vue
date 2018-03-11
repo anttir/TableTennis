@@ -1,7 +1,7 @@
 <template>
   <div>
-      <b-tabs>
-        <b-tab title="Logger" disabled>
+      <b-tabs >
+        <b-tab id="topmenu" title="Home" disabled>
           <template slot="title">
             <font-awesome-icon :icon="['fas', 'table-tennis']" style="color:green" size="1x" />
             <span class="title p-3">Table Tennis Scoring</span>
@@ -21,12 +21,16 @@
                         <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
                     </div>
                     <div class="text-center">
-                      <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length"></b-fliptext>
+                      <font-awesome-icon icon="minus" class="pointsbutton " size="3x"  v-on:click="addPointToCurrentMatch({rfcode:player.remote.buttonIDs[0], points:-1})" />
+                      <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="    display: inline-block;
+    vertical-align: middle;" />
+                      <font-awesome-icon icon="plus" class="pointsbutton " size="3x" v-on:click="addPointToCurrentMatch({rfcode:player.remote.buttonIDs[0], points:1})" />
                     </div>
-                    <button v-on:click="addPointToCurrentMatch(player.remote.buttonIDs[0])">+</button>
                 </div>
             </div>
-            <line-chart :id="'lineChart_' + currentMatch.ID" :match="currentMatch" :ceil="3" />
+            <div class="text-center">
+              <line-chart class="chart":id="'lineChart_' + currentMatch.ID" :match="currentMatch" :ceil="3" />
+            </div>
           </div>
           <div v-else>-- No matches -- </div>
         </b-tab>
@@ -86,10 +90,9 @@ export default {
   methods: {
     ...mapActions(["initClient"]),
     ...mapMutations({ addMatch: "matches/add" }),
-    // addPointToCurrentMatch(RFcode) {
-    //   this.$store.commit("matches/addPointToCurrentMatch", RFcode);
-    // }
-    ...mapMutations({ addPointToCurrentMatch: "matches/addPointToCurrentMatch" }),
+    ...mapMutations({
+      addPointToCurrentMatch: "matches/addPointToCurrentMatch"
+    })
   },
   filters: {
     moment: function(date) {
@@ -121,21 +124,11 @@ ul.matches {
 .currentMatch .remote {
   display: inline;
 }
-/*
-.currentMatch .players {
-  display: flex;
-}
-
-.currentMatch .player {
-  flex-grow: 1;
-}
-*/
 .currentMatch .player .personName {
   font-family: "Mina", sans-serif;
   font-weight: bold;
   font-size: 10vh;
 }
-
 .currentMatch .remoteName {
   /* border: 5px solid #f9f9f9; */
   border-radius: 50%;
@@ -151,4 +144,19 @@ ul.matches {
 li.player {
   cursor: copy;
 }
+
+.pointsbutton {
+  background-color: whitesmoke;
+  border-radius: 50%;
+  border: 1px solid lightgrey;
+  padding: 0.2em;
+  margin: 0 0.5em;
+  vertical-align: middle;
+}
+
+.chart {
+  margin:auto;
+}
 </style>
+
+
