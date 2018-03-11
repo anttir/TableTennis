@@ -36,6 +36,10 @@ import { Compact } from "vue-color";
 // import { Photoshop } from "vue-color";
 
 export default {
+  components: {
+    "compact-picker": Compact,
+    FontAwesomeIcon
+  },
   data() {
     return {
       color : {hex:'#F44E3B'},
@@ -80,10 +84,6 @@ export default {
     //   toggle: "people/toggle"
     // })
   },
-  components: {
-    "compact-picker": Compact,
-    FontAwesomeIcon
-  }
 };
 </script>
 

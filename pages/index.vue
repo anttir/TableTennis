@@ -1,18 +1,24 @@
 <template>
   <div>
       <b-tabs>
+        <b-tab title="Logger" disabled>
+          <template slot="title">
+            <font-awesome-icon :icon="['fas', 'table-tennis']" style="color:green" size="1x" />
+            <span class="title p-3">Table Tennis Scoring</span>
+          </template>
+        </b-tab>
         <b-tab title="Current match" active>
           <div class="currentMatch match">
             <div class="row">
-              <div class="col legend">Start time:</div>
-              <div class="col text-right startTime">{{currentMatch.startTime | moment}}</div>
+              <!-- <div class="col legend">Start time:</div> -->
+              <div class="col text-right startTime"><span class="legend">Start time:</span> {{currentMatch.startTime | moment}}</div>
             </div>
             <div class="row players">
                 <div class="col player m-3" v-for="(player, i) in currentMatch.players" :key="i">
                     <div>
                         <div class="legend namelegend">Name:</div>
                         <div class="personName text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
-                        <div class="remoteName">{{player.remote.name}}</div>
+                        <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
                     </div>
                     <div class="text-center">
                       <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length"></b-fliptext>
@@ -81,6 +87,11 @@
 </template>
 
 <script>
+import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+import fontawesome from '@fortawesome/fontawesome'
+import faSolids from '@fortawesome/fontawesome-free-solid'
+fontawesome.library.add(faSolids)
+
 import moment from "moment";
 moment.locale("fi");
 import { mapActions } from "vuex";
@@ -101,7 +112,8 @@ import {
 } from "../helpers";
 
 export default {
-  components: { LineChart, BFliptext, Logger, People, Remotes },
+  components: { LineChart, BFliptext, Logger, People, Remotes, FontAwesomeIcon },
+
   data: function() {
     return {
       matches: [],

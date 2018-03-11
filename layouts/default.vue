@@ -1,8 +1,7 @@
 <template>
   <div class="container">
-    <H1>Table Tennis Scoring</H1>
     <nuxt/>
-    <div>My footer</div>
+    <!-- <div>My footer</div> -->
   </div>
 </template>
 
