@@ -2,8 +2,8 @@
   <div class="linechart" :id="id">
     <svg :width="width" :height="height">
         <g>
-                <path v-for="(player,i) in match.players" :key="i" class="line" :d="paths.lines[i]" :style="{ stroke: player.person.color}" />
-                <!--<path v-for="paths.lines" class="line" :d="paths.line" />-->
+            <path v-for="(player,i) in match.players" :key="i" class="line" :d="paths.lines[i]" :style="{ stroke: player.person.color}" />
+            <!--<path v-for="paths.lines" class="line" :d="paths.line" />-->
             <path class="selector" :d="paths.selector" />
         </g>
     </svg>

@@ -8,11 +8,7 @@ import {
 } from "../helpers";
 
 export const state = () => ({
-  list: [
-    new Person(1, "Antti", "red"),
-    new Person(2, "Toinen", "blue"),
-    new Person(3, "Kolmas", "green")
-  ]
+  list: []
 });
 
 export const mutations = {

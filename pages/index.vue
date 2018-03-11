@@ -23,11 +23,11 @@
                     <div class="text-center">
                       <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length"></b-fliptext>
                     </div>
-                    <button v-on:click="addPoint(player.remote.buttonIDs[0])">+</button>
+                    <button v-on:click="addPointToCurrentMatch(player.remote.buttonIDs[0])">+</button>
                 </div>
             </div>
-            <line-chart :id="'lineChart_' + currentMatch.ID" :match="currentMatch" :latestpoint="currentMatch.latestPoint" :currpoints="currentMatch.playerScores"
-                :ceil="3"></line-chart>
+            <!-- <line-chart :id="'lineChart_' + currentMatch.ID" :match="currentMatch" :latestpoint="currentMatch.latestPoint" :currpoints="currentMatch.playerScores"
+                :ceil="3"></line-chart> -->
           </div>
           <div v-else>-- No matches -- </div>
         </b-tab>
@@ -47,8 +47,7 @@ fontawesome.library.add(faSolids);
 
 import moment from "moment";
 moment.locale("fi");
-import { mapActions } from "vuex";
-import { mapGetters } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 
 import LineChart from "~/components/linechart";
 import BFliptext from "~/components/b-fliptext";
@@ -57,14 +56,7 @@ import People from "~/components/people";
 import Remotes from "~/components/remotes";
 import Matches from "~/components/matches";
 
-import {
-  Person,
-  Remote,
-  Match,
-  Player,
-  Point,
-  guidGenerator
-} from "../helpers";
+import { Person, Remote, Match, Player, Point } from "../helpers";
 
 export default {
   components: {
@@ -78,9 +70,7 @@ export default {
   },
 
   data: function() {
-    return {
-      error: ""
-    };
+    return {};
   },
   computed: {
     matches() {
@@ -92,38 +82,24 @@ export default {
     remotes() {
       return this.$store.state.remotes.list;
     },
-    ...mapGetters(['matches/currentMatch'])
+    ...mapGetters({ currentMatch: "matches/currentMatch" })
   },
   methods: {
-    ...mapActions(["initClient", "matches/add"]),
-    // ...mapActions({addMatch: "matches/add"}),
-    //moment: () => moment(),
-    guidGenerator: function() {
-      return guidGenerator();
-    },
-    addMatch() {
-      this.$store.commit("matches/add", new Match());
-    },
-    addPoint: function(RFID) {
-      RFID = parseInt(RFID);
-      var tplayer = this.currentMatch.players.filter(p =>
-        p.remote.buttonIDs.includes(RFID)
-      );
-      if (tplayer.length) {
-        this.currentMatch.addPoint(tplayer[0].person.ID);
-        this.latestPoint = new Date();
-      }
-    }
+    ...mapActions(["initClient"]),
+    ...mapMutations({ addMatch: "matches/add" }),
+    // addPointToCurrentMatch(RFcode) {
+    //   this.$store.commit("matches/addPointToCurrentMatch", RFcode);
+    // }
+    ...mapMutations({ addPointToCurrentMatch: "matches/addPointToCurrentMatch" }),
   },
   filters: {
     moment: function(date) {
       return moment(date).format("L, LT");
     }
   },
-  created: function() {
-  },
+  created: function() {},
   mounted() {
-    this.initClient(); // käynnistää MQTT:n ja luo kantaan täytettä
+    this.initClient(); // luo kantaan täytettä ja käynnistää MQTT:n
   }
 };
 </script>

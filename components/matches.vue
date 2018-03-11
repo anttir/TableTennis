@@ -18,8 +18,8 @@
                   </li>
                   <li>Points {{ match.playerScores }} latest: {{ match.latestPoint }}</li>
                   <li>
-                      <line-chart :id="'lineChart_' + match.ID" :match="match" :latestpoint="match.latestPoint" :currpoints="match.playerScores"
-                          :ceil="3"></line-chart>
+                      <!-- <line-chart :id="'lineChart_' + match.ID" :match="match" :latestpoint="match.latestPoint" :currpoints="match.playerScores"
+                          :ceil="3"></line-chart> -->
                       <!-- <areachart :id="'areaChart_' + match.ID" :data="match.playerScores" :ceil="3"></areachart> -->
                   </li>
               </ul>
@@ -57,8 +57,11 @@ import { mapGetters } from "vuex";
 
 import { Player, Match } from "../helpers/index";
 
+import LineChart from "~/components/linechart";
+
 export default {
   components: {
+    LineChart,
     FontAwesomeIcon
   },
   data() {

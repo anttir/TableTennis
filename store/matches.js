@@ -37,11 +37,25 @@ export const mutations = {
     });
   },
   addPlayerToMatch(state, data) {
-      if(data.match.players.length > 1) {
-        data.match.players.splice(0,1);
-      }
-    this.commit("matches/removePlayerFromMatch", { match: data.match, personID: data.player.person.ID });
+    if (data.match.players.length > 1) {
+      data.match.players.splice(0, 1);
+    }
+    this.commit("matches/removePlayerFromMatch", {
+      match: data.match,
+      personID: data.player.person.ID
+    });
     data.match.players.push(data.player);
+  },
+  addPointToCurrentMatch: function(state, RFID) {
+    RFID = parseInt(RFID);
+    var _currentMatch = state.list[state.list.length - 1];
+    var tplayer = _currentMatch.players.filter(p =>
+      p.remote.buttonIDs.includes(RFID)
+    );
+    if (tplayer.length) {
+      _currentMatch.addPoint(tplayer[0].person.ID);
+      _currentMatch.latestPoint = new Date();
+    }
   },
   removePlayerFromMatch(state, data) {
     for (var i = data.match.players.length - 1; i >= 0; i--) {
