@@ -14,6 +14,7 @@ import { createStore } from './store.js'
 /* Plugins */
 import nuxt_plugin_bootstrapvue_46271bdc from 'nuxt_plugin_bootstrapvue_46271bdc' // Source: ./bootstrap-vue.js
 import nuxt_plugin_pahomqtt_42559cb4 from 'nuxt_plugin_pahomqtt_42559cb4' // Source: ..\\plugins\\paho-mqtt.js (ssr: false)
+import nuxt_plugin_ga_fb0a2534 from 'nuxt_plugin_ga_fb0a2534' // Source: ..\\plugins\\ga.js (ssr: false)
 
 
 // Component: <no-ssr>
@@ -156,6 +157,7 @@ async function createApp (ssrContext) {
   
   if (process.browser) { 
     if (typeof nuxt_plugin_pahomqtt_42559cb4 === 'function') await nuxt_plugin_pahomqtt_42559cb4(app.context, inject)
+    if (typeof nuxt_plugin_ga_fb0a2534 === 'function') await nuxt_plugin_ga_fb0a2534(app.context, inject)
   }
 
   // If server-side, wait for async component to be resolved first
