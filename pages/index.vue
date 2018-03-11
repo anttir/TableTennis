@@ -8,13 +8,12 @@
               <div class="col text-right startTime">{{currentMatch.startTime | moment}}</div>
             </div>
             <div class="row players">
-                <div class="col player" v-for="(player, i) in currentMatch.players" :key="i">
-                    <div class="personName">
+                <div class="col player m-3" v-for="(player, i) in currentMatch.players" :key="i">
+                    <div>
                         <div class="legend namelegend">Name:</div>
-                        <div class="name text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
+                        <div class="personName text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
+                        <div class="remoteName">{{player.remote.name}}</div>
                     </div>
-                    <div class="legend">Remote:</div>
-                    <div class="remote">{{player.remote.name}}</div>
                     <div class="text-center">
                       <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length"></b-fliptext>
                     </div>
@@ -175,7 +174,7 @@ ul.matches {
 .currentMatch .legend {
   font-size: 80%;
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-  color: lightgray;
+  color: rgb(226, 226, 226);
   display: inline;
 }
 .currentMatch .namelegend{
@@ -194,10 +193,22 @@ ul.matches {
   flex-grow: 1;
 }
 */
-.currentMatch .player .personName .name {
+.currentMatch .player .personName {
   font-family: "Mina", sans-serif;
   font-weight: bold;
   font-size: 10vh;
+}
+
+.currentMatch .remoteName {
+    /* border: 5px solid #f9f9f9; */
+    border-radius: 50%;
+    font-weight: bold;
+    background-color:whitesmoke;
+    padding: 0 0.5em;
+    top: 0;
+    right: 0%;
+    position: absolute;
+    text-align: center;
 }
 
 li.player {
