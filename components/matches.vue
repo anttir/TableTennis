@@ -1,6 +1,6 @@
 <template>
   <div>
-      <button @click="$store.commit('increment')">{{ $store.state.counter }}</button>
+      <!-- <button @click="$store.commit('increment')">{{ $store.state.counter }}</button> -->
       <ul class="matches">
           <li v-for="(match, i) in matches" :key="i">
               <ul class="match">
@@ -18,9 +18,8 @@
                   </li>
                   <li>Points {{ match.playerScores }} latest: {{ match.latestPoint }}</li>
                   <li>
-                      <!-- <line-chart :id="'lineChart_' + match.ID" :match="match" :latestpoint="match.latestPoint" :currpoints="match.playerScores"
-                          :ceil="3"></line-chart> -->
-                      <!-- <areachart :id="'areaChart_' + match.ID" :data="match.playerScores" :ceil="3"></areachart> -->
+                    <span class="text-danger">LINECHART EI TOIMI TÄSSÄ!</span>
+                    <!-- <line-chart :id="'lineChart_' + match.ID" :match="match" :ceil="3" /> -->
                   </li>
               </ul>
           </li>
@@ -39,8 +38,6 @@
       </select>
       <button v-on:click="addSelectedPlayerWithRadio()">Add player</button>
       <br>
-      <!-- <button class="btnPoint" data-player="antti" data-points="1">+1</button>
-      <button class="btnPoint" data-player="antti" data-points="-1">-1</button> -->        
   </div>
 </template>
 <script>

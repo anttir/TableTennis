@@ -26,8 +26,7 @@
                     <button v-on:click="addPointToCurrentMatch(player.remote.buttonIDs[0])">+</button>
                 </div>
             </div>
-            <!-- <line-chart :id="'lineChart_' + currentMatch.ID" :match="currentMatch" :latestpoint="currentMatch.latestPoint" :currpoints="currentMatch.playerScores"
-                :ceil="3"></line-chart> -->
+            <line-chart :id="'lineChart_' + currentMatch.ID" :match="currentMatch" :ceil="3" />
           </div>
           <div v-else>-- No matches -- </div>
         </b-tab>
