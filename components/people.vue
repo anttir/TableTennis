@@ -19,21 +19,14 @@
 </template>
 
 <script>
-import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-import fontawesome from '@fortawesome/fontawesome'
-import faSolids from '@fortawesome/fontawesome-free-solid'
-fontawesome.library.add(faSolids)
+import FontAwesomeIcon from "@fortawesome/vue-fontawesome";
+import fontawesome from "@fortawesome/fontawesome";
+import faSolids from "@fortawesome/fontawesome-free-solid";
+fontawesome.library.add(faSolids);
 
 import { mapMutations } from "vuex";
 
 import { Compact } from "vue-color";
-// import { Grayscale } from "vue-color";
-// import { Material } from "vue-color";
-// import { Swatches } from "vue-color";
-// import { Slider } from "vue-color";
-// import { Sketch } from "vue-color";
-// import { Chrome } from "vue-color";
-// import { Photoshop } from "vue-color";
 
 export default {
   components: {
@@ -42,9 +35,9 @@ export default {
   },
   data() {
     return {
-      color : {hex:'#F44E3B'},
-      visibleColorpickers : [],
-      newPersonName : ""
+      color: { hex: "#F44E3B" },
+      visibleColorpickers: [],
+      newPersonName: ""
     };
   },
   computed: {
@@ -54,48 +47,64 @@ export default {
   },
   methods: {
     updateColor(person, color) {
-        this.$store.commit("people/changeColor", {personID : person.ID, color:color.hex})
-        this.visibleColorpickers.splice(this.visibleColorpickers.indexOf(person.ID), 1)
+      this.$store.commit("people/changeColor", {
+        personID: person.ID,
+        color: color.hex
+      });
+      this.visibleColorpickers.splice(
+        this.visibleColorpickers.indexOf(person.ID),
+        1
+      );
     },
     addPerson(e) {
-        debugger // eslint-disable-line
-      this.$store.commit("people/add", {ID:null, name: this.newPersonName, color: this.color.hex});
+      //debugger; // eslint-disable-line
+      this.$store.commit("people/add", {
+        ID: null,
+        name: this.newPersonName,
+        color: this.color.hex
+      });
       this.newPersonName = "";
-    //   e.target.value = "";
-      this.hidePicker('colorpick')
+      //   e.target.value = "";
+      this.hidePicker("colorpick");
     },
     removePerson(person) {
       this.$store.commit("people/remove", person);
     },
     hidePicker(ID) {
-        if(this.visibleColorpickers.includes(ID)) {
-            this.visibleColorpickers.splice(this.visibleColorpickers.indexOf(ID), 1)
-        }
+      if (this.visibleColorpickers.includes(ID)) {
+        this.visibleColorpickers.splice(
+          this.visibleColorpickers.indexOf(ID),
+          1
+        );
+      }
     },
-    toggle(ID){
-        //debugger // eslint-disable-line
-        if(this.visibleColorpickers.includes(ID)) {
-            this.visibleColorpickers.splice(this.visibleColorpickers.indexOf(ID), 1)
-        } else {
-            this.visibleColorpickers.push(ID)
-        }
+    toggle(ID) {
+      //debugger // eslint-disable-line
+      if (this.visibleColorpickers.includes(ID)) {
+        this.visibleColorpickers.splice(
+          this.visibleColorpickers.indexOf(ID),
+          1
+        );
+      } else {
+        this.visibleColorpickers.push(ID);
+      }
     }
     // ...mapMutations({
     //   toggle: "people/toggle"
     // })
-  },
+  }
 };
 </script>
 
 <style>
-    .colortab {
-        display: inline-block;
-        width:1em;
-        height:1em;
-        margin: 0 0.3em ;
-    }
-    .actionIcon {
-        margin: 0 0.3em ;
-        opacity: 0.5;
-    }
+.colortab {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin: 0 0.3em;
+}
+.actionIcon {
+  margin: 0 0.3em;
+  opacity: 0.5;
+}
 </style>

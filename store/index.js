@@ -7,15 +7,15 @@ import {
     guidGenerator
 } from "../helpers";
 
-import Vuex from 'vuex'
+import Vuex from 'vuex';
 
 export const state = () => ({
     counter: 0
-  })
+  });
   
   export const mutations = {
     increment (state) {
-      state.counter++
+      state.counter++;
     }
   }
   /*
@@ -34,7 +34,12 @@ export const actions = {
     initClient({
         dispatch
     }) {
-        console.log(this.app)
+        /* ---------- Alusta kanta ---------- */
+        this.app.store.commit("matches/add", new Match());
+
+
+        /* ---------- Viritä MQTT kuntoon ---------- */
+        //console.log(this.app)
         // Create a client instance
         const client = new this.app.mqtt.Client(this.app.mqtt.config.broker, this.app.mqtt.config.port, "web_" + parseInt(Math.random() * 100, 10));
 
@@ -58,7 +63,6 @@ export const actions = {
 
         // connect the client
         client.connect(options);
-
 
         // called when the client loses its connection
         function onConnectionLost(responseObject) {

@@ -8,7 +8,7 @@
           </template>
         </b-tab>
         <b-tab title="Current match" active>
-          <div class="currentMatch match">
+          <div v-if="currentMatch" class="currentMatch match">
             <div class="row">
               <!-- <div class="col legend">Start time:</div> -->
               <div class="col text-right startTime"><span class="legend">Start time:</span> {{currentMatch.startTime | moment}}</div>
@@ -29,78 +29,33 @@
             <line-chart :id="'lineChart_' + currentMatch.ID" :match="currentMatch" :latestpoint="currentMatch.latestPoint" :currpoints="currentMatch.playerScores"
                 :ceil="3"></line-chart>
           </div>
+          <div v-else>-- No matches -- </div>
         </b-tab>
-        <b-tab title="Matches" >
-                <button @click="$store.commit('increment')">{{ $store.state.counter }}</button>
-
-          <ul class="matches">
-              <li v-for="(match, i) in matches" :key="i">
-                  <ul class="match">
-                      <li>Date: {{ match.startTime | moment }}</li>
-                      <li>Players: {{ match.playerCount }}</li>
-                      <li>Enough players : {{match.enoughPlayers ? "Yes" : "No"}}</li>
-                      <li>Players
-                          <ul>
-                              <li v-for="(player,i) in match.players" :key="i">
-                                  <div class="person">{{ player.person }}</div>
-                                  <div class="remote">{{ player.remote }}</div>
-                                  <div class="remote">{{ player.points }}</div>
-                              </li>
-                          </ul>
-                      </li>
-                      <li>Points {{ match.playerScores }} latest: {{ match.latestPoint }}</li>
-                      <li>
-                          <line-chart :id="'lineChart_' + match.ID" :match="match" :latestpoint="match.latestPoint" :currpoints="match.playerScores"
-                              :ceil="3"></line-chart>
-                          <!-- <areachart :id="'areaChart_' + match.ID" :data="match.playerScores" :ceil="3"></areachart> -->
-                      </li>
-                  </ul>
-              </li>
-          </ul>
-          <button v-on:click="addMatch">Add match</button>
-          <br>
-          <select class="people" v-model="selectedPerson">
-              <option v-for="(person, i) in people" :value="person" :key="i">
-                  Name: {{ person.name }}
-              </option>
-          </select>
-          <select class="remotes" v-model="selectedRemote">
-              <option v-for="(remote, i) in remotes" :value="remote" :key="i">
-                  ID: {{ remote.buttonIDs[0] }}
-              </option>
-          </select>
-          <button v-on:click="addSelectedPlayerWithRadio()">Add player</button>
-          <br>
-          <!-- <button class="btnPoint" data-player="antti" data-points="1">+1</button>
-          <button class="btnPoint" data-player="antti" data-points="-1">-1</button> -->        </b-tab>
-        <b-tab title="People" >
-          <people />
-        </b-tab>
-        <b-tab title="Remotes" >
-          <remotes />
-        </b-tab>
-        <b-tab title="Logger">
-          <logger/>
-        </b-tab>
+        <b-tab title="Matches" ><matches /></b-tab>
+        <b-tab title="People" ><people /></b-tab>
+        <b-tab title="Remotes" ><remotes /></b-tab>
+        <b-tab title="Logger"><logger/></b-tab>
       </b-tabs>
  </div>
 </template>
 
 <script>
-import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-import fontawesome from '@fortawesome/fontawesome'
-import faSolids from '@fortawesome/fontawesome-free-solid'
-fontawesome.library.add(faSolids)
+import FontAwesomeIcon from "@fortawesome/vue-fontawesome";
+import fontawesome from "@fortawesome/fontawesome";
+import faSolids from "@fortawesome/fontawesome-free-solid";
+fontawesome.library.add(faSolids);
 
 import moment from "moment";
 moment.locale("fi");
 import { mapActions } from "vuex";
+import { mapGetters } from "vuex";
 
 import LineChart from "~/components/linechart";
 import BFliptext from "~/components/b-fliptext";
 import Logger from "~/components/logger";
 import People from "~/components/people";
 import Remotes from "~/components/remotes";
+import Matches from "~/components/matches";
 
 import {
   Person,
@@ -112,44 +67,42 @@ import {
 } from "../helpers";
 
 export default {
-  components: { LineChart, BFliptext, Logger, People, Remotes, FontAwesomeIcon },
+  components: {
+    LineChart,
+    BFliptext,
+    Logger,
+    People,
+    Matches,
+    Remotes,
+    FontAwesomeIcon
+  },
 
   data: function() {
     return {
-      matches: [],
-      selectedPerson: {}, // uuden henkilön lisäämiseen
-      selectedRemote: {}, // uuden henkilön lisäämiseen,
       error: ""
     };
   },
   computed: {
-    currentMatch: function() {
-      return this.matches[this.matches.length - 1];
+    matches() {
+      return this.$store.state.matches.list;
     },
     people() {
       return this.$store.state.people.list;
     },
     remotes() {
       return this.$store.state.remotes.list;
-    }
+    },
+    ...mapGetters(['matches/currentMatch'])
   },
   methods: {
-    ...mapActions(["initClient"]),
-    moment: () => moment(),
+    ...mapActions(["initClient", "matches/add"]),
+    // ...mapActions({addMatch: "matches/add"}),
+    //moment: () => moment(),
     guidGenerator: function() {
       return guidGenerator();
     },
-    addMatch: function() {
-      this.matches.push(new Match());
-    },
-    addPlayer: function(player) {
-      this.currentMatch.addPlayer(player);
-      //$('#flipPoints' + player.person.ID).bFlipText({text: '01', css: my_style});
-    },
-    addSelectedPlayerWithRadio: function() {
-      this.currentMatch.addPlayer(
-        new Player(this.selectedPerson, this.selectedRemote)
-      );
+    addMatch() {
+      this.$store.commit("matches/add", new Match());
     },
     addPoint: function(RFID) {
       RFID = parseInt(RFID);
@@ -168,12 +121,9 @@ export default {
     }
   },
   created: function() {
-    this.addMatch();
-    this.addPlayer(new Player(this.people[0], this.remotes[0]));
-    this.addPlayer(new Player(this.people[1], this.remotes[1]));
   },
   mounted() {
-    this.initClient();
+    this.initClient(); // käynnistää MQTT:n ja luo kantaan täytettä
   }
 };
 </script>
@@ -189,7 +139,7 @@ ul.matches {
   color: rgb(226, 226, 226);
   display: inline;
 }
-.currentMatch .namelegend{
+.currentMatch .namelegend {
   position: absolute;
 }
 .currentMatch .startTime,
@@ -212,15 +162,15 @@ ul.matches {
 }
 
 .currentMatch .remoteName {
-    /* border: 5px solid #f9f9f9; */
-    border-radius: 50%;
-    font-weight: bold;
-    background-color:whitesmoke;
-    padding: 0 0.5em;
-    top: 0;
-    right: 0%;
-    position: absolute;
-    text-align: center;
+  /* border: 5px solid #f9f9f9; */
+  border-radius: 50%;
+  font-weight: bold;
+  background-color: whitesmoke;
+  padding: 0 0.5em;
+  top: 0;
+  right: 0%;
+  position: absolute;
+  text-align: center;
 }
 
 li.player {

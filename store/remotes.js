@@ -37,9 +37,8 @@ export const mutations = {
       r.buttonIDs.push(code)
     }
   },
-  removeCodefromRemote(state, remote, buttonID) {
-
-  },
+  // removeCodefromRemote(state, remote, buttonID) {
+  // },
   remove(state, {
     remote
   }) {
