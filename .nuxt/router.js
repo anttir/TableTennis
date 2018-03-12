@@ -4,6 +4,7 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 const _021d94f4 = () => import('..\\pages\\todos.vue' /* webpackChunkName: "pages_todos" */).then(m => m.default || m)
+const _0ba5c8da = () => import('..\\pages\\testchart.vue' /* webpackChunkName: "pages_testchart" */).then(m => m.default || m)
 const _2a81a259 = () => import('..\\pages\\index.vue' /* webpackChunkName: "pages_index" */).then(m => m.default || m)
 
 
@@ -68,6 +69,11 @@ export function createRouter () {
 			path: "/todos",
 			component: _021d94f4,
 			name: "todos"
+		},
+		{
+			path: "/testchart",
+			component: _0ba5c8da,
+			name: "testchart"
 		},
 		{
 			path: "/",
