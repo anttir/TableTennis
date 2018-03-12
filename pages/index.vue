@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div class="text-center">
-              <line-chart class="chart":id="'lineChart_' + currentMatch.ID" :match="currentMatch" :ceil="3" />
+              <line-chart class="chart" :id="'lineChart_' + currentMatch.ID" :match="currentMatch" :ceil="3" />
             </div>
           </div>
           <div v-else>-- No matches -- </div>
