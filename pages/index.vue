@@ -28,7 +28,10 @@
                 </div>
             </div>
             <div class="text-center">
-              <line-chart class="chart" :id="'lineChart_' + currentMatch.ID" :match="currentMatch" :ceil="3" />
+              <d3__chart
+                :layout="layout"
+                :chartdata="chartData"
+                :axes="axes" />
             </div>
           </div>
           <div v-else>-- No matches -- </div>
@@ -51,7 +54,9 @@ import moment from "moment";
 moment.locale("fi");
 import { mapActions, mapGetters, mapMutations } from "vuex";
 
-import LineChart from "~/components/linechart";
+import * as d3 from "d3";
+import d3__chart from "~/components/d3__chart";
+
 import BFliptext from "~/components/b-fliptext";
 import Logger from "~/components/logger";
 import People from "~/components/people";
@@ -62,7 +67,7 @@ import { Person, Remote, Match, Player, Point } from "../helpers";
 
 export default {
   components: {
-    LineChart,
+    d3__chart,
     BFliptext,
     Logger,
     People,
@@ -71,8 +76,100 @@ export default {
     FontAwesomeIcon
   },
 
-  data: function() {
-    return {};
+  data() {
+    return {
+      layout: {
+        width: 800,
+        height: 250,
+        marginTop: 45,
+        marginRight: 50,
+        marginBottom: 50,
+        marginLeft: 50
+      },
+      axes: ["left", "bottom", "right"],
+      datachart_debug: JSON.parse(`{"players" : [{
+        "person": { "ID": 1, "name": "Antti", "color": "red" },
+        "points": [ { "timestamp": "2018-03-12T21:07:35.352Z", "playerID": 1, "currPlayerTotal": 1 }, { "timestamp": "2018-03-12T21:08:25.838Z", "playerID": 1, "currPlayerTotal": 2 }, { "timestamp": "2018-03-12T21:08:27.733Z", "playerID": 1, "currPlayerTotal": 3 }, { "timestamp": "2018-03-12T21:08:28.632Z", "playerID": 1, "currPlayerTotal": 4 }, { "timestamp": "2018-03-12T21:08:32.482Z", "playerID": 1, "currPlayerTotal": 5 } ]
+        },
+        {
+        "person": { "ID": 2, "name": "Toinen", "color": "blue" },
+        "points": [ { "timestamp": "2018-03-12T21:07:34.346Z", "playerID": 2, "currPlayerTotal": 1 }, { "timestamp": "2018-03-12T21:07:53.344Z", "playerID": 2, "currPlayerTotal": 2 }, { "timestamp": "2018-03-12T21:08:24.973Z", "playerID": 2, "currPlayerTotal": 3 }, { "timestamp": "2018-03-12T21:08:30.184Z", "playerID": 2, "currPlayerTotal": 4 } ]
+      }]}`),
+      chartData_example: [
+        {
+          id: "Previous",
+          values: [
+            { timestamp: 1488319200000, value: 1 },
+            { timestamp: 1488405600000, value: 2 },
+            { timestamp: 1488492000000, value: 2 },
+            { timestamp: 1488578400000, value: 2 },
+            { timestamp: 1488664800000, value: 2 },
+            { timestamp: 1488751200000, value: 4 },
+            { timestamp: 1488837600000, value: 9 },
+            { timestamp: 1488924000000, value: 18 },
+            { timestamp: 1489010400000, value: 23 },
+            { timestamp: 1489096800000, value: 24 },
+            { timestamp: 1489183200000, value: 24 },
+            { timestamp: 1489269600000, value: 24 },
+            { timestamp: 1489356000000, value: 25 },
+            { timestamp: 1489442400000, value: 26 },
+            { timestamp: 1489528800000, value: 30 },
+            { timestamp: 1489615200000, value: 32 },
+            { timestamp: 1489701600000, value: 32 },
+            { timestamp: 1489788000000, value: 32 },
+            { timestamp: 1489874400000, value: 32 },
+            { timestamp: 1489960800000, value: 32 },
+            { timestamp: 1490047200000, value: 32 },
+            { timestamp: 1490133600000, value: 32 },
+            { timestamp: 1490220000000, value: 32 },
+            { timestamp: 1490306400000, value: 32 },
+            { timestamp: 1490392800000, value: 32 },
+            { timestamp: 1490479200000, value: 32 },
+            { timestamp: 1490562000000, value: 32 },
+            { timestamp: 1490648400000, value: 35 },
+            { timestamp: 1490734800000, value: 35 },
+            { timestamp: 1490821200000, value: 35 },
+            { timestamp: 1490907600000, value: 35 }
+          ]
+        },
+        {
+          id: "Current",
+          values: [
+            { timestamp: 1488319200000, value: 3 },
+            { timestamp: 1488405600000, value: 6 },
+            { timestamp: 1488492000000, value: 6 },
+            { timestamp: 1488578400000, value: 6 },
+            { timestamp: 1488664800000, value: 6 },
+            { timestamp: 1488751200000, value: 6 },
+            { timestamp: 1488837600000, value: 7 },
+            { timestamp: 1488924000000, value: 14 },
+            { timestamp: 1489010400000, value: 16 },
+            { timestamp: 1489096800000, value: 16 },
+            { timestamp: 1489183200000, value: 16 },
+            { timestamp: 1489269600000, value: 16 },
+            { timestamp: 1489356000000, value: 18 },
+            { timestamp: 1489442400000, value: 19 },
+            { timestamp: 1489528800000, value: 21 },
+            { timestamp: 1489615200000, value: 23 },
+            { timestamp: 1489701600000, value: 23 },
+            { timestamp: 1489788000000, value: 23 },
+            { timestamp: 1489874400000, value: 23 },
+            { timestamp: 1489960800000, value: 23 },
+            { timestamp: 1490047200000, value: 25 },
+            { timestamp: 1490133600000, value: 26 },
+            { timestamp: 1490220000000, value: 28 },
+            { timestamp: 1490306400000, value: 29 },
+            { timestamp: 1490392800000, value: 29 },
+            { timestamp: 1490479200000, value: 29 },
+            { timestamp: 1490562000000, value: 29 },
+            { timestamp: 1490648400000, value: 29 },
+            { timestamp: 1490734800000, value: 29 },
+            { timestamp: 1490821200000, value: null },
+            { timestamp: 1490907600000, value: null }
+          ]
+        }
+      ]
+    };
   },
   computed: {
     matches() {
@@ -83,6 +180,28 @@ export default {
     },
     remotes() {
       return this.$store.state.remotes.list;
+    },
+    chartData() {
+      // console.log(this.currentMatch);
+      // console.log(this.datachart_debug);
+      return this.currentMatch.players.map(player => {
+        return {
+          id: player.person.name,
+          values: [
+            {
+              timestamp: this.currentMatch.startTime,
+              value: 0
+            }
+          ].concat(
+            player.points.map(point => {
+              return {
+                timestamp: new Date(point.timestamp),
+                value: point.currPlayerTotal
+              };
+            })
+          )
+        };
+      });
     },
     ...mapGetters({ currentMatch: "matches/currentMatch" })
   },
@@ -154,7 +273,7 @@ li.player {
 }
 
 .chart {
-  margin:auto;
+  margin: auto;
 }
 </style>
 

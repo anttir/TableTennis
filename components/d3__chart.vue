@@ -27,7 +27,7 @@ import d3__series from "~/components/d3__series";
 export default {
   components: {
     d3__axis,
-    d3__series,
+    d3__series
   },
   props: [
     "axes", // Chart axes
@@ -64,7 +64,7 @@ export default {
         color: d3
           .scaleOrdinal()
           .range(["#159078", "#999999"])
-          .domain(["Current", "Previous"])
+          .domain(this.chartdata.map(x => x.id))
       }
     };
   },
@@ -78,7 +78,14 @@ export default {
       return d3
         .scaleTime()
         .range([0, this.layout.width])
-        .domain(d3.extent(this.chartdata[0].values, x => x.timestamp));
+        .domain(
+          d3.extent(
+            [].concat.apply(
+              [],
+              this.chartdata.map(x => x.values.map(y => y.timestamp))
+            )
+          )
+        ); // kaikkien sarjojen kaikki valuet
     },
 
     // Get y-axis scale
@@ -104,6 +111,13 @@ export default {
         this.scale.x = this.getScaleX();
         this.scale.y = this.getScaleY();
       }
+    },
+    chartdata: {
+      handler: function(val, oldVal) {
+        this.scale.x = this.getScaleX();
+        this.scale.y = this.getScaleY();
+      },
+      deep: true
     }
   }
 };
