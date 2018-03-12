@@ -39,11 +39,21 @@ export default {
     drawAxis: function() {
       var $axis = d3.select(this.$refs.axis);
       var scale = this.scale;
+      var yscalenumbers = Array.apply(null, {
+        length: d3.max(scale.y.domain()) + 1
+      }).map(Number.call, Number);
+      // .filter(function(d, i) { return !(i % 2); });
       var axisGenerator = {
         top: d3.axisTop(scale.x).tickFormat(d3.timeFormat("%b %d")),
-        right: d3.axisRight(scale.y),
+        right: d3
+          .axisRight(scale.y)
+          .tickValues(yscalenumbers)
+          .tickFormat(d3.format("d")),
         bottom: d3.axisBottom(scale.x).tickFormat(d3.timeFormat("%b %d")),
-        left: d3.axisLeft(scale.y)
+        left: d3
+          .axisLeft(scale.y)
+          .tickValues(yscalenumbers)
+          .tickFormat(d3.format("d"))
       };
 
       $axis.call(axisGenerator[this.axis]);

@@ -84,9 +84,9 @@ export default {
         marginTop: 45,
         marginRight: 50,
         marginBottom: 50,
-        marginLeft: 50
+        marginLeft: 35
       },
-      axes: ["left", "bottom", "right"]
+      axes: ["bottom", "right", "left"]
     };
   },
   computed: {
