@@ -1,7 +1,23 @@
 const express = require('express')
 const app = express()
+const {
+    Nuxt,
+    Builder
+} = require('nuxt');
 const port = process.env.PORT || 3000
 
-//app.get('/', (req, res) => res.send('Hello World!'))
-app.use(express.static("client"));
+const nuxt = new Nuxt(require('./nuxt.config.js'));
+
+app.use(nuxt.render);
+
+const isDev = true;
+// Build only in test mode
+if (isDev) {
+    const builder = new Builder(nuxt);
+    builder.build().then(() => {
+        console.log('Nuxt built')
+    });
+} else {
+    console.log('Nuxt built')
+}
 app.listen(port, () => console.log('Example app listening on port ' + port + "!"))
