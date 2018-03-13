@@ -10,7 +10,7 @@
         <b-tab title="Current match" active>
           <div v-if="currentMatch" class="currentMatch match">
             <div class="row">
-              <!-- <div class="col legend">Start time:</div> -->
+              <div class="col"><span class="legend">Mute: </span><input type="checkbox" id="checkboxMuted" v-model="mute"></div>
               <div class="col text-right startTime"><span class="legend">Start time:</span> {{currentMatch.startTime | moment}}</div>
             </div>
             <div class="row players">
@@ -85,7 +85,8 @@ export default {
         marginBottom: 50,
         marginLeft: 35
       },
-      axes: ["bottom", "right"]
+      axes: ["bottom", "right"],
+      mute: true
     };
   },
   computed: {
@@ -135,7 +136,7 @@ export default {
   },
   watch: {
     latestPoint: function dataChanged(newData, oldData) {
-      if (this.currentMatch.players.length && newData && newData.personID) {
+      if (!this.mute &&  this.currentMatch.players.length && newData && newData.personID) {
         // muuttujia ei välttämättä ole vielä alustettu
         var sound = this.currentMatch.players.filter(x => x.person.ID == newData.personID)[0]
           .person.sound;
