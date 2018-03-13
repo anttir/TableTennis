@@ -18,18 +18,7 @@ export const mutations = {
     state.counter++;
   }
 };
-/*
 
-export const state = () => ({
-    // matches: [],
-    // persons: [
-    //     new Person(1, "Antti", "red"),
-    //     new Person(2, "Toinen", "blue"),
-    //     new Person(3, "Kolmas", "green")
-    // ],
-    // remotes: [new Remote("A", [12890956]), new Remote("B", [12890948])],
-})
-*/
 export const actions = {
   initClient({ dispatch }) {
     /* ---------- Alusta kanta ---------- */
@@ -103,12 +92,6 @@ export const actions = {
           ":" +
           message.payloadString
       );
-      // $("#mqttlog").append("<p>" + message.destinationName + ":" + message.payloadString + "</p>");
-      // $("#mqttlog").animate({
-      //     scrollTop: $('#mqttlog').prop("scrollHeight")
-      // }, 200);
-
-      // dispatch('addPoint', message.payloadString);
     }
 
     function sendPoint(name, points) {
@@ -123,23 +106,4 @@ export const actions = {
       );
     }
   }
-  // addPoint({
-  //     commit, state
-  // }, RFID) {
-  //     RFID = parseInt(RFID);
-  //     var tplayer = state.matches[state.matches.length - 1].players.filter(p =>
-  //         p.remote.buttonIDs.includes(RFID)
-  //     );
-  //     if (tplayer.length) {
-  //         state.matches[state.matches.length - 1].addPoint(tplayer[0].person.ID);
-  //         this.latestPoint = new Date();
-  //     }
-  // },
-  // addMatch({ commit }) {
-  //     state.matches.push(new Match());
-  // },
-  // addPlayer({ commit, state }, player) {
-  //     state.matches[state.matches.length - 1].addPlayer(player);
-  //     //$('#flipPoints' + player.person.ID).bFlipText({text: '01', css: my_style});
-  // },
 };

@@ -14,14 +14,6 @@ import * as d3 from "d3";
 
 export default {
   props: {
-    // latestpoint: {
-    //   type: Date,
-    //   default: () => null
-    // },
-    // currpoints: {
-    //   type: Array,
-    //   default: () => []
-    // },
     margin: {
       type: Object,
       default: () => ({
@@ -79,7 +71,6 @@ export default {
   },
   watch: {
     latestpoint: function dataChanged(newData, oldData) {
-      // this.tweenData(newData, oldData);
       this.update();
     },
     width: function widthChanged() {
