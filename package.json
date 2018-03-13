@@ -4,9 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "nuxt",
     "build": "nuxt build",
-    "start": "nuxt start",
+    "start": "node server.js",
     "heroku-postbuild": "npm run build",
     "dev-debug": "node --inspect node_modules/.bin/nuxt",
     "dev-debug-windows-EITOIMI": "node --inspect node_modules/nuxt/bin/nuxt",
