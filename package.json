@@ -16,7 +16,10 @@
     "type": "git",
     "url": "git+https://github.com/anttir/TableTennis.git"
   },
-  "keywords": ["tabletennis", "scoring"],
+  "keywords": [
+    "tabletennis",
+    "scoring"
+  ],
   "author": "Antti Rasi",
   "license": "ISC",
   "bugs": {
@@ -29,7 +32,7 @@
     "@fortawesome/vue-fontawesome": "^0.0.22",
     "bootstrap-vue": "^2.0.0-rc.2",
     "d3": "^4.13.0",
-    "express": "^4.16.2",
+    "express": "^4.16.3",
     "jquery": "^3.3.1",
     "moment": "^2.21.0",
     "nuxt": "^1.4.0",
