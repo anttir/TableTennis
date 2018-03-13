@@ -13,18 +13,8 @@ export const state = () => ({
 
 export const mutations = {
   add(state, person) {
-    state.list.push(
-      new Person(
-        person.ID || guidGenerator(),
-        person.name,
-        person.color || "black"
-      )
-      // {
-      // ID: person.ID || guidGenerator(),
-      //   name: person.name,
-      //   color: person.color || "black"
-      // }
-    );
+    if(!person.ID) person.ID =  guidGenerator();
+    state.list.push(person);
   },
   remove(state, { person }) {
     state.list.splice(state.list.indexOf(person), 1);

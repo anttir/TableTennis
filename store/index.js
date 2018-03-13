@@ -34,8 +34,8 @@ export const actions = {
   initClient({ dispatch }) {
     /* ---------- Alusta kanta ---------- */
     [
-      new Person(1, "Antti", "red"),
-      new Person(2, "Toinen", "blue"),
+      new Person(1, "Antti", "red", "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"),
+      new Person(2, "Toinen", "blue", "http://soundbible.com/mp3/Elevator Ding-SoundBible.com-685385892.mp3"),
       new Person(3, "Kolmas", "green")
     ].forEach(person => {
       this.app.store.commit("people/add", person);

@@ -21,9 +21,9 @@
                         <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
                     </div>
                     <div class="text-center">
-                      <font-awesome-icon icon="minus" class="pointsbutton " size="3x"  v-on:click="addPointToCurrentMatch({rfcode:player.remote.buttonIDs[0], points:-1})" />
+                      <font-awesome-icon icon="minus" class="pointsbutton " size="3x"  v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:-1})" />
                       <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="display: inline-block; vertical-align: middle;" />
-                      <font-awesome-icon icon="plus" class="pointsbutton " size="3x" v-on:click="addPointToCurrentMatch({rfcode:player.remote.buttonIDs[0], points:1})" />
+                      <font-awesome-icon icon="plus" class="pointsbutton " size="3x" v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:1})" />
                     </div>
                 </div>
             </div>
@@ -75,7 +75,6 @@ export default {
     Remotes,
     FontAwesomeIcon
   },
-
   data() {
     return {
       layout: {
@@ -86,7 +85,7 @@ export default {
         marginBottom: 50,
         marginLeft: 35
       },
-      axes: ["bottom", "right", "left"]
+      axes: ["bottom", "right"]
     };
   },
   computed: {
@@ -100,11 +99,10 @@ export default {
       return this.$store.state.remotes.list;
     },
     chartData() {
-      // console.log(this.currentMatch);
-      // console.log(this.datachart_debug);
       return this.currentMatch.players.map(player => {
         return {
           id: player.person.name,
+          color: player.person.color,
           values: [
             {
               timestamp: this.currentMatch.startTime,
@@ -121,14 +119,31 @@ export default {
         };
       });
     },
-    ...mapGetters({ currentMatch: "matches/currentMatch" })
+    ...mapGetters({ currentMatch: "matches/currentMatch" }),
+    ...mapGetters({ latestPoint: "matches/latestPoint" }),
   },
   methods: {
     ...mapActions(["initClient"]),
+    ...mapActions({ addPoint: "matches/addPoint" }),
     ...mapMutations({ addMatch: "matches/add" }),
-    ...mapMutations({
-      addPointToCurrentMatch: "matches/addPointToCurrentMatch"
-    })
+    playSound(sound) {
+      if (sound) {
+        var audio = new Audio(sound);
+        audio.play();
+      }
+    }
+  },
+  watch: {
+    latestPoint: function dataChanged(newData, oldData) {
+      if (this.currentMatch.players.length && newData && newData.personID) {
+        // muuttujia ei välttämättä ole vielä alustettu
+        var sound = this.currentMatch.players.filter(x => x.person.ID == newData.personID)[0]
+          .person.sound;
+        if (sound) {
+          this.playSound(sound);
+        }
+      }
+    }
   },
   filters: {
     moment: function(date) {

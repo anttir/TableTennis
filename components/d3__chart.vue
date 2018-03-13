@@ -63,7 +63,7 @@ export default {
         y: this.getScaleY(),
         color: d3
           .scaleOrdinal()
-          .range(["#159078", "#999999"])
+          .range(this.chartdata.map(x => x.color))
           .domain(this.chartdata.map(x => x.id))
       }
     };

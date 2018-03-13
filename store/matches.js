@@ -16,12 +16,12 @@ export const getters = {
   currentMatch: state => {
     return state.list[state.list.length - 1];
   },
-  isPlaying(playerID) {
-    return state.list.map(p => p.ID).includes(playerID);
+  isPlaying(state, personID) {
+    return state.list.map(p => p.player.person.ID).includes(personID);
+  },
+  latestPoint: (state, getters) => {
+    return getters.currentMatch ? getters.currentMatch.latestPoint : null;
   }
-  // exampleCurrentLeader: (state, getters) => {
-  //   return getters.currentMatch.players[0] // ...
-  // }
 };
 
 export const actions = {
@@ -77,7 +77,7 @@ export const mutations = {
       }else{
         _currentMatch.removePoint(tplayer[0].person.ID);
       }
-      _currentMatch.latestPoint = new Date();
+      _currentMatch.latestPoint = _currentMatch.latestPoint;
     }
   },
   removePlayerFromMatch(state, data) {
