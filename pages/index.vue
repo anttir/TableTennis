@@ -4,7 +4,7 @@
         <b-tab id="topmenu" title="Home" disabled>
           <template slot="title">
             <font-awesome-icon :icon="['fas', 'table-tennis']" style="color:green" size="1x" />
-            <span class="title p-3">Table Tennis Scoring</span>
+            <span class="title p-3">Table Tennis Scoreboard</span>
           </template>
         </b-tab>
         <b-tab title="Current match" active>
