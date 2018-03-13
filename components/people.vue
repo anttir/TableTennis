@@ -6,7 +6,7 @@
                 <span class="colortab rounded border" v-on:click="toggle(person.ID)" :style="{ background: person.color }"></span>
                 <span :style="{color: person.color}">{{ person.name }}</span>
                 <compact-picker v-if="visibleColorpickers.includes(person.ID)" :value="person.color" v-on:input="updateColor(person, $event)"/>
-                <font-awesome-icon class="actionIcon" v-on:click="removePerson(person)" :icon="['fas', 'trash']" size="sm" />
+                <span v-on:click="removePerson(person)"><i class="fas fa-trash actionIcon"></i></span>
             </li>
             <li>
                 <input placeholder="Add new person" v-model="newPersonName" @keyup.enter="addPerson">
@@ -19,11 +19,6 @@
 </template>
 
 <script>
-import FontAwesomeIcon from "@fortawesome/vue-fontawesome";
-import fontawesome from "@fortawesome/fontawesome";
-import faSolids from "@fortawesome/fontawesome-free-solid";
-fontawesome.library.add(faSolids);
-
 import { mapMutations } from "vuex";
 
 import { Compact } from "vue-color";
@@ -31,7 +26,6 @@ import { Compact } from "vue-color";
 export default {
   components: {
     "compact-picker": Compact,
-    FontAwesomeIcon
   },
   data() {
     return {
@@ -106,5 +100,6 @@ export default {
 .actionIcon {
   margin: 0 0.3em;
   opacity: 0.5;
+  font-size: 80%;
 }
 </style>

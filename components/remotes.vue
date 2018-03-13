@@ -13,7 +13,7 @@
                         <button @click="addCode(remote.ID)">add</button>
                     </li>
                 </ul>
-                <font-awesome-icon class="actionIcon" v-on:click="removeremote(remote)" :icon="['fas', 'trash']" size="sm" />
+                <span v-on:click="removeremote(remote)"><i class="fas fa-trash actionIcon"></i></span>
             </li>
             <li>
                 <input placeholder="Add new remote" v-model="newRemoteName" @keyup.enter="addRemote">
@@ -70,6 +70,7 @@ export default {
     .actionIcon {
         margin: 0 0.3em ;
         opacity: 0.5;
+        size: 80%;
     }
     .buttonids{ display: inline-block; padding-left: 0.5em;}
     .buttonids li{ 

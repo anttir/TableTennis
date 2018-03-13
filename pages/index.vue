@@ -3,14 +3,18 @@
       <b-tabs >
         <b-tab id="topmenu" title="Home" disabled>
           <template slot="title">
-            <font-awesome-icon :icon="['fas', 'table-tennis']" style="color:green" size="1x" />
+            <i style="color:green" class="fas fa-table-tennis"></i>
             <span class="title p-3">Table Tennis Scoreboard</span>
           </template>
         </b-tab>
         <b-tab title="Current match" active>
           <div v-if="currentMatch" class="currentMatch match">
             <div class="row">
-              <div class="col"><span class="legend">Mute: </span><input type="checkbox" id="checkboxMuted" v-model="mute"></div>
+              <div class="col">
+                <span class="legend">Mute: </span><input type="checkbox" id="checkboxMuted" v-model="mute">
+                <span v-if="mute" v-on:click="mute = !mute"><i id="joku" class="fas actionIcon fa-volume-up" ></i></span>
+                <span v-if="!mute" v-on:click="mute = !mute"><i id="toinen" class="fas actionIcon fa-volume-off" ></i></span>
+              </div>
               <div class="col text-right startTime"><span class="legend">Start time:</span> {{currentMatch.startTime | moment}}</div>
             </div>
             <div class="row players">
@@ -21,9 +25,9 @@
                         <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
                     </div>
                     <div class="text-center">
-                      <font-awesome-icon icon="minus" class="pointsbutton " size="3x"  v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:-1})" />
+                      <span v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:-1})"><i class="fas fa-minus pointsbutton " /></span>
                       <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="display: inline-block; vertical-align: middle;" />
-                      <font-awesome-icon icon="plus" class="pointsbutton " size="3x" v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:1})" />
+                      <span v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:1})"><i class="fas fa-plus pointsbutton " /></span>
                     </div>
                 </div>
             </div>
@@ -45,10 +49,6 @@
 </template>
 
 <script>
-import FontAwesomeIcon from "@fortawesome/vue-fontawesome";
-import fontawesome from "@fortawesome/fontawesome";
-import faSolids from "@fortawesome/fontawesome-free-solid";
-fontawesome.library.add(faSolids);
 
 import moment from "moment";
 moment.locale("fi");
@@ -73,7 +73,6 @@ export default {
     People,
     Matches,
     Remotes,
-    FontAwesomeIcon
   },
   data() {
     return {
@@ -121,7 +120,7 @@ export default {
       });
     },
     ...mapGetters({ currentMatch: "matches/currentMatch" }),
-    ...mapGetters({ latestPoint: "matches/latestPoint" }),
+    ...mapGetters({ latestPoint: "matches/latestPoint" })
   },
   methods: {
     ...mapActions(["initClient"]),
@@ -136,10 +135,16 @@ export default {
   },
   watch: {
     latestPoint: function dataChanged(newData, oldData) {
-      if (!this.mute &&  this.currentMatch.players.length && newData && newData.personID) {
+      if (
+        !this.mute &&
+        this.currentMatch.players.length &&
+        newData &&
+        newData.personID
+      ) {
         // muuttujia ei välttämättä ole vielä alustettu
-        var sound = this.currentMatch.players.filter(x => x.person.ID == newData.personID)[0]
-          .person.sound;
+        var sound = this.currentMatch.players.filter(
+          x => x.person.ID == newData.personID
+        )[0].person.sound;
         if (sound) {
           this.playSound(sound);
         }
@@ -204,6 +209,8 @@ li.player {
   padding: 0.2em;
   margin: 0 0.5em;
   vertical-align: middle;
+  color:black; 
+  font-size:3em;
 }
 
 .chart {
