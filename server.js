@@ -10,7 +10,7 @@ const nuxt = new Nuxt(require('./nuxt.config.js'));
 
 app.use(nuxt.render);
 
-const isDev = process.env.NODE_ENV !== 'prodution';
+const isDev = process.env.NODE_ENV !== 'production';
 // Build only in test mode
 if (isDev) {
     const builder = new Builder(nuxt);
