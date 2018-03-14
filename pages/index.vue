@@ -11,9 +11,9 @@
           <div v-if="currentMatch" class="currentMatch match">
             <div class="row">
               <div class="col">
-                <span class="legend">Mute: </span><input type="checkbox" id="checkboxMuted" v-model="mute">
-                <span v-if="mute" v-on:click="mute = !mute"><i id="joku" class="fas actionIcon fa-volume-up" ></i></span>
-                <span v-if="!mute" v-on:click="mute = !mute"><i id="toinen" class="fas actionIcon fa-volume-off" ></i></span>
+                <span class="legend">Sounds: </span>
+                <span v-if="soundsOn" v-on:click="soundsOn = !soundsOn"><i class="fas actionIcon fa-volume-off" ></i></span>
+                <span v-else v-on:click="soundsOn = !soundsOn"><i class="fas actionIcon fa-volume-up" ></i></span>
               </div>
               <div class="col text-right startTime"><span class="legend">Start time:</span> {{currentMatch.startTime | moment}}</div>
             </div>
@@ -85,7 +85,7 @@ export default {
         marginLeft: 35
       },
       axes: ["bottom", "right"],
-      mute: true
+      soundsOn: true
     };
   },
   computed: {
@@ -136,7 +136,7 @@ export default {
   watch: {
     latestPoint: function dataChanged(newData, oldData) {
       if (
-        !this.mute &&
+        !this.soundsOn &&
         this.currentMatch.players.length &&
         newData &&
         newData.personID

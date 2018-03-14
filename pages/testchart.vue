@@ -5,6 +5,7 @@
         <span class="byline">Drawing charts in a purely Vue.js manner, instead of using DOM construction features of d3.js.<br />
         <a href="https://codepen.io/terrymun/full/peQpxJ/">See alternative example</a></span>
         </header>
+            <i style="color:green" class="fas fa-table-tennis"></i>
 
         <section id="chart">
         <d3__chart

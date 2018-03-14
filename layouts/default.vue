@@ -30,7 +30,10 @@ export default {
         { rel: "stylesheet", href: "/jquery.bFlipText.css" },
         { rel: "stylesheet", href: "//fonts.googleapis.com/css?family=Mina" },
         { rel: "stylesheet", href: "/fixes.css" },
-
+        {
+          rel: "stylesheet",
+          href: "//use.fontawesome.com/releases/v5.0.8/css/all.css"
+        },
         {
           rel: "apple-touch-icon",
           sizes: "57x57",
@@ -107,8 +110,7 @@ export default {
           type: "text/javascript",
           src: "//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"
         },
-        { type: "text/javascript", src: "/jquery.bFlipText.js" },
-        { defer:"defer", src: "//use.fontawesome.com/releases/v5.0.8/js/all.js" }
+        { type: "text/javascript", src: "/jquery.bFlipText.js" }
       ]
     };
   }
