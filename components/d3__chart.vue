@@ -19,6 +19,8 @@
   </svg>
 </template>
 <script>
+// FROM https://codepen.io/terrymun/pen/gmBdKq/?editors=0010
+
 import * as d3 from "d3";
 import d3__axis from "~/components/d3__axis";
 import d3__series from "~/components/d3__series";

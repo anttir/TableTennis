@@ -60,8 +60,8 @@ export const actions = {
     client.onMessageArrived = onMessageArrived;
     var options = {
       useSSL: true,
-      userName: "ezbvjyrv",
-      password: "hS5ElErtR3eD",
+      userName: "wbexeixd", //ezbvjyrv
+      password: "7OuQpH3Clkxd", //hS5ElErtR3eD
       onSuccess() {
         // Once a connection has been made, make a subscription and send a message.
         console.log("onSuccess");

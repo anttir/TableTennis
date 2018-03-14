@@ -35,9 +35,9 @@
 //https://api.cloudmqtt.com/console/9767429/details
 //MQTT Parameters definition
 #define mqtt_server_name "m23.cloudmqtt.com" // instead of defining the server by its IP you can define it by its name, uncomment this line and set the correct MQTT server host name
-#define mqtt_user "ezbvjyrv" // not compulsory only if your broker needs authentication
-#define mqtt_pass "hS5ElErtR3eD" // not compulsory only if your broker needs authentication
-#define Gateway_Name "OpenMQTTGateway"
+#define mqtt_user "wbexeixd" // not compulsory only if your broker needs authentication
+#define mqtt_pass "7OuQpH3Clkxd" // not compulsory only if your broker needs authentication
+#define Gateway_Name "TableTennisMQTTGateway"
 #define WifiManager_password "your_password"
 #define version_Topic "tabletennis/" Gateway_Name "/version"
 #define will_Topic "tabletennis/" Gateway_Name "/LWT"
@@ -47,7 +47,7 @@
 #define Gateway_AnnouncementMsg "Online"
 //#define MDNS_SD //comment if you don't want to use mdns for discovering automatically your ip server, please note that MDNS with ESP32 can cause the BLE to not work
 char mqtt_server[40] = "1.1.1.1";
-char mqtt_port[6] = "18577";
+char mqtt_port[6] = "16275"; // alkuperäinen CuteMQTT oli "18577"
 
 //set minimu quality of signal so it ignores AP's under that quality
 #define MinimumWifiSignalQuality 8

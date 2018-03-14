@@ -41,10 +41,6 @@
   </div>
 </template>
 <script>
-import FontAwesomeIcon from "@fortawesome/vue-fontawesome";
-import fontawesome from "@fortawesome/fontawesome";
-import faSolids from "@fortawesome/fontawesome-free-solid";
-fontawesome.library.add(faSolids);
 
 import moment from "moment";
 moment.locale("fi");
@@ -59,7 +55,6 @@ import LineChart from "~/components/linechart";
 export default {
   components: {
     LineChart,
-    FontAwesomeIcon
   },
   data() {
     return {

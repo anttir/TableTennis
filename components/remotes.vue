@@ -24,11 +24,6 @@
 </template>
 
 <script>
-import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-import fontawesome from '@fortawesome/fontawesome'
-import faSolids from '@fortawesome/fontawesome-free-solid'
-fontawesome.library.add(faSolids)
-
 import { mapMutations } from "vuex";
 
 export default {
@@ -61,7 +56,6 @@ export default {
     // })
   },
   components: {
-    FontAwesomeIcon
   }
 };
 </script>

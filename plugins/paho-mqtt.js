@@ -6,7 +6,7 @@ const Paho = window.Paho
 
 const config = {
   broker: "m23.cloudmqtt.com",
-  port: 38577
+  port: 36275
 }
 
 Paho.install = (vue) => {}

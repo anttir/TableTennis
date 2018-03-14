@@ -9,3 +9,6 @@ npm-debug.log
 
 # Nuxt generate
 dist
+
+# herokuEnvronment settings for running it locally
+.env
