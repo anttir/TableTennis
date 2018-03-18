@@ -1,8 +1,9 @@
 export class Point {
-  constructor(timestamp, personID, currPlayerTotal) {
+  constructor(timestamp, personID, currPlayerTotal, currSetTotal) {
     this.timestamp = timestamp || new Date();
     this.personID = personID;
     this.currPlayerTotal = currPlayerTotal;
+    this.currSetTotal = currSetTotal;
   }
 }
 export class Person {
@@ -41,7 +42,8 @@ export class Match {
   }
   addPoint(personID) {
     var i = this.players.map(x => x.person.ID).indexOf(personID);
-    var newPoint = new Point(new Date(), personID, this.playerScores[i] + 1);
+    var currSetTotal = this.playerScores.reduce((x,y) => x+y,1) // laskee pisteet yhteen
+    var newPoint = new Point(new Date(), personID, this.playerScores[i] + 1, currSetTotal);
     this.players[i].points.push(newPoint);
     this.latestPoint = newPoint;
   }

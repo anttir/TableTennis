@@ -24,7 +24,7 @@
                         <div class="personName text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
                         <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center points">
                       <span v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:-1})"><i class="fas fa-minus pointsbutton " /></span>
                       <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="display: inline-block; vertical-align: middle;" />
                       <span v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:1})"><i class="fas fa-plus pointsbutton " /></span>
@@ -35,7 +35,11 @@
               <d3__chart
                 :layout="layout"
                 :chartdata="chartData"
-                :axes="axes" />
+                :axes="axes"
+                :xlinear="xlinear" />
+                Scale: 
+                <a v-on:click="xlinear=true" :style="{fontWeight: xlinear ? 'bold' : 'normal', cursor:  xlinear ? 'default' : 'pointer'}">points</a> / 
+                <a v-on:click="xlinear=false" :style="{fontWeight: !xlinear ? 'bold' : 'normal', cursor: !xlinear ? 'default' : 'pointer'}">time</a>
             </div>
           </div>
           <div v-else>-- No matches -- </div>
@@ -85,7 +89,8 @@ export default {
         marginLeft: 35
       },
       axes: ["bottom", "right"],
-      soundsOn: true
+      soundsOn: true,
+      xlinear: true
     };
   },
   computed: {
@@ -105,13 +110,13 @@ export default {
           color: player.person.color,
           values: [
             {
-              timestamp: this.currentMatch.startTime,
+              x: this.xlinear ? 0 : this.currentMatch.startTime,
               value: 0
             }
           ].concat(
             player.points.map(point => {
               return {
-                timestamp: new Date(point.timestamp),
+                x: this.xlinear ? point.currSetTotal : new Date(point.timestamp),
                 value: point.currPlayerTotal
               };
             })
@@ -197,6 +202,9 @@ ul.matches {
   position: absolute;
   text-align: center;
 }
+.currentMatch .points {
+  white-space:nowrap;
+}
 
 li.player {
   cursor: copy;
@@ -210,7 +218,7 @@ li.player {
   margin: 0 0.5em;
   vertical-align: middle;
   color:black; 
-  font-size:3em;
+  font-size: 3vmax;
 }
 
 .chart {

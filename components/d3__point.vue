@@ -21,7 +21,7 @@ export default {
       $point
         .datum(this.pointdata)
         .attr("cx", function(d) {
-          return scale.x(d.timestamp);
+          return scale.x(d.x);
         })
         .attr("cy", function(d) {
           return scale.y(d.value);

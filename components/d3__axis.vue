@@ -7,7 +7,7 @@ import * as d3 from "d3";
 
 // Component: Chart axes
 export default {
-  props: ["axis", "layout", "scale"],
+  props: ["axis", "layout", "scale", "xlinear"],
   data: function() {
     return {
       classList: ["axis"].concat(this.getAxisClasses())
@@ -41,20 +41,28 @@ export default {
       var scale = this.scale;
       var yscalenumbers = Array.apply(null, {
         length: d3.max(scale.y.domain()) + 1
-      }).map(Number.call, Number);
+      }).map(Number.call, Number); // vain kokonaisluvut käyttöön
+      var xscalenumbers = Array.apply(null, {
+        length: d3.max(scale.x.domain()) + 1
+      }).map(Number.call, Number); // vain kokonaisluvut käyttöön
       // .filter(function(d, i) { return !(i % 2); });
+      var xTickformat = this.xlinear ? d3.format("d") : d3.timeFormat("%b %d");
       var axisGenerator = {
-        top: d3.axisTop(scale.x).tickFormat(d3.timeFormat("%b %d")),
+        top: d3.axisTop(scale.x).tickFormat(xTickformat),
         right: d3
           .axisRight(scale.y)
           .tickValues(yscalenumbers)
           .tickFormat(d3.format("d")),
-        bottom: d3.axisBottom(scale.x).tickFormat(d3.timeFormat("%b %d")),
+        bottom: d3.axisBottom(scale.x).tickFormat(xTickformat),
         left: d3
           .axisLeft(scale.y)
           .tickValues(yscalenumbers)
           .tickFormat(d3.format("d"))
       };
+      if(this.xlinear) {
+        axisGenerator.top.tickValues(xscalenumbers);
+        axisGenerator.bottom.tickValues(xscalenumbers);
+      }
 
       $axis.call(axisGenerator[this.axis]);
     },

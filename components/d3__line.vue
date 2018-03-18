@@ -16,10 +16,11 @@ export default {
       var scale = this.scale;
 
       // Line object
+      
       var line = d3
         .line()
         .x(function(d) {
-          return scale.x(d.timestamp);
+          return scale.x(d.x);
         })
         .y(function(d) {
           return scale.y(d.value);

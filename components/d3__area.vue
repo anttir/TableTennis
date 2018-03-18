@@ -20,7 +20,7 @@ export default {
       var area = d3
         .area()
         .x(function(d) {
-          return scale.x(d.timestamp);
+          return scale.x(d.x);
         })
         .y0(scale.y(0))
         .y1(function(d) {

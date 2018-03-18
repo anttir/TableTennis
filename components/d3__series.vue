@@ -3,17 +3,20 @@
     <d3__area
       :layout="layout"
       :seriesdata="this.seriesdata"
-      :scale="this.scale">
+      :scale="this.scale"
+      >
     </d3__area>
     <d3__line
       :layout="layout"
       :seriesdata="this.seriesdata"
-      :scale="this.scale">
+      :scale="this.scale"
+    >
     </d3__line>
     <d3__scatter
       :layout="layout"
       :seriesdata="this.seriesdata"
-      :scale="this.scale">
+      :scale="this.scale"
+      >
     </d3__scatter>
   </g>
 </template>

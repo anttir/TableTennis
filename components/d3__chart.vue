@@ -7,6 +7,7 @@
         :layout="layout"
         :scale="scale"
         :key="'axis_' + i"
+        :xlinear="xlinear"
         ></d3__axis>
       <d3__series
         v-for="(seriesdata, i) in chartdata"
@@ -34,7 +35,8 @@ export default {
   props: [
     "axes", // Chart axes
     "layout", // Dimensions for the chart and margins
-    "chartdata" // Data for plotting
+    "chartdata", // Data for plotting
+    "xlinear" //
   ],
   computed: {
     // SVG viewbox
@@ -77,17 +79,31 @@ export default {
       });
     },
     getScaleX() {
-      return d3
-        .scaleTime()
-        .range([0, this.layout.width])
-        .domain(
-          d3.extent(
-            [].concat.apply(
-              [],
-              this.chartdata.map(x => x.values.map(y => y.timestamp))
+      if (this.xlinear) {
+        return d3
+          .scaleLinear()
+          .range([0, this.layout.width])
+          .domain(
+            d3.extent(
+              [].concat.apply(
+                [],
+                this.chartdata.map(x => x.values.map(p => p.x))
+              )
             )
-          )
-        ); // kaikkien sarjojen kaikki valuet
+          ); // kaikkien sarjojen kaikki valuet
+      } else {
+        return d3
+          .scaleTime()
+          .range([0, this.layout.width])
+          .domain(
+            d3.extent(
+              [].concat.apply(
+                [],
+                this.chartdata.map(x => x.values.map(p => p.x))
+              )
+            )
+          ); // kaikkien sarjojen kaikki valuet
+      }
     },
 
     // Get y-axis scale
@@ -115,11 +131,18 @@ export default {
       }
     },
     chartdata: {
+      deep: true,
       handler: function(val, oldVal) {
         this.scale.x = this.getScaleX();
         this.scale.y = this.getScaleY();
-      },
-      deep: true
+      }
+    },
+    xlinear: {
+      deep: true,
+      handler: function(val, oldVal) {
+        this.scale.x = this.getScaleX();
+        this.scale.y = this.getScaleY();
+      }
     }
   }
 };
