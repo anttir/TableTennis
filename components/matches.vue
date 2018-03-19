@@ -17,10 +17,13 @@
                       </ul>
                   </li>
                   <li>Points {{ match.playerScores }} latest: {{ match.latestPoint }}</li>
-                  <li>
-                    <span class="text-danger">LINECHART EI TOIMI TÄSSÄ!</span>
-                    <!-- <line-chart :id="'lineChart_' + match.ID" :match="match" :ceil="3" /> -->
-                  </li>
+                  <!-- <li>
+                    <d3__chart
+                      layout="{ width: 800,        height: 250,        marginTop: 45,        marginRight: 50,        marginBottom: 50,        marginLeft: 35      }"
+                      :chartdata="chartData"
+                      axes="['bottom', 'right']"
+                      xlinear="true" /> 
+                  </li> -->
               </ul>
           </li>
       </ul>
@@ -44,16 +47,17 @@
 import moment from "moment";
 moment.locale("fi");
 
+import * as d3 from "d3";
+import d3__chart from "~/components/d3__chart";
+
 import { mapActions } from "vuex";
 import { mapGetters } from "vuex";
 
 import { Player, Match } from "../helpers/index";
 
-import LineChart from "~/components/linechart";
-
 export default {
   components: {
-    LineChart
+    d3__chart
   },
   data() {
     return {

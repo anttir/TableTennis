@@ -61,7 +61,7 @@
         <b-tab title="Matches" ><matches /></b-tab>
         <b-tab title="People" ><people /></b-tab>
         <b-tab title="Remotes" ><remotes /></b-tab>
-        <b-tab title="Logger"><logger/></b-tab>
+        <!-- <b-tab title="Logger"><logger/></b-tab> -->
       </b-tabs>
  </div>
 </template>
