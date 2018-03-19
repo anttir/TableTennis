@@ -6,6 +6,7 @@ import {
   Point,
   guidGenerator
 } from "../helpers";
+import { debug } from "util";
 
 export const state = () => ({
   list: [],
@@ -41,21 +42,37 @@ export const mutations = {
   remove(state, { match }) {
     state.list.splice(state.list.indexOf(match), 1);
   },
-  addPlayerToCurrent(state, player) {
+  addPlayerToCurrent(state, data) {
     this.commit("matches/addPlayerToMatch", {
       match: state.list[state.list.length - 1],
-      player: player
+      player: data.player,
+      playerID: data.playerID
     });
   },
   addPlayerToMatch(state, data) {
-    if (data.match.players.length > 1) {
-      data.match.players.splice(0, 1);
-    }
+    // kumpaan paikkaan halutaan vaihtee
+    var position = data.playerID
+      ? data.match.players.map(x => x.ID).indexOf(data.playerID)
+      : -1;
+    // otetaan tämä pelaaja pois (ei voi olla kahdesti)
     this.commit("matches/removePlayerFromMatch", {
       match: data.match,
       personID: data.player.person.ID
     });
-    data.match.players.push(data.player);
+    // otetaan yksi pelaaja pois, jos vielä kaksi
+    if (data.match.players.length > 1) {
+      if (position == 0 || position == -1) {
+        data.match.players.shift(); // eka pois
+      } else {
+        data.match.players.pop(); // vika pois
+      }
+    }
+    // lisätään joko alkuun tai loppuun
+    if (position == 0) {
+      data.match.players.unshift(data.player);
+    } else {
+      data.match.players.push(data.player);
+    }
   },
   addPointToCurrentMatch(state, data) {
     var points = 1;
@@ -72,9 +89,9 @@ export const mutations = {
       p.remote.buttonIDs.includes(rfcode)
     );
     if (tplayer.length) {
-      if(points > 0) {
+      if (points > 0) {
         _currentMatch.addPoint(tplayer[0].person.ID);
-      }else{
+      } else {
         _currentMatch.removePoint(tplayer[0].person.ID);
       }
       _currentMatch.latestPoint = _currentMatch.latestPoint;

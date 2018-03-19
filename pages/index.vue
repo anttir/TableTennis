@@ -20,9 +20,20 @@
             <div class="row players">
                 <div class="col player m-3" v-for="(player, i) in currentMatch.players" :key="i">
                     <div>
-                        <div class="legend namelegend">Name:</div>
-                        <div class="personName text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
-                        <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
+                      <div class="legend namelegend">Name:</div>
+                      <div class="nameselector p-1 rounded border border-info bg-light" v-if="nameselectorvisible[i]">
+                        <button  @click="toggleselectorvisible(i)" type="button" class="close" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button><br>
+                        <div v-for="person in people" :key="person.ID">
+                          <span v-if="person.ID != player.person.ID" :style="{ color: person.color, cursor:'pointer'}"  @click="changePerson(player.ID, person, player.remote, i)">
+                            {{person.name}}
+                          </span>
+                          <span v-else class="disabled font-italic" :style="{ color: person.color}">{{person.name}}</span>
+                        </div>
+                      </div>
+                      <div v-on:click="toggleselectorvisible(i)" class="personName text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
+                      <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
                     </div>
                     <div class="text-center points">
                       <span v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:-1})"><i class="fas fa-minus pointsbutton " /></span>
@@ -53,7 +64,6 @@
 </template>
 
 <script>
-
 import moment from "moment";
 moment.locale("fi");
 import { mapActions, mapGetters, mapMutations } from "vuex";
@@ -76,7 +86,7 @@ export default {
     Logger,
     People,
     Matches,
-    Remotes,
+    Remotes
   },
   data() {
     return {
@@ -90,7 +100,8 @@ export default {
       },
       axes: ["bottom", "right"],
       soundsOn: true,
-      xlinear: true
+      xlinear: true,
+      nameselectorvisible: [false, false]
     };
   },
   computed: {
@@ -116,7 +127,9 @@ export default {
           ].concat(
             player.points.map(point => {
               return {
-                x: this.xlinear ? point.currSetTotal : new Date(point.timestamp),
+                x: this.xlinear
+                  ? point.currSetTotal
+                  : new Date(point.timestamp),
                 value: point.currPlayerTotal
               };
             })
@@ -131,14 +144,25 @@ export default {
     ...mapActions(["initClient"]),
     ...mapActions({ addPoint: "matches/addPoint" }),
     ...mapMutations({ addMatch: "matches/add" }),
+    toggleselectorvisible(i) {
+      this.nameselectorvisible.splice(i, 1, !this.nameselectorvisible[i])
+    },
     playSound(sound) {
       if (sound) {
         var audio = new Audio(sound);
         audio.play();
       }
+    },
+    changePerson(playerID, person, remote, i) {
+      this.$store.commit("matches/addPlayerToCurrent", {
+        player: new Player(person, remote),
+        playerID: playerID
+      });
+      this.toggleselectorvisible(i);
     }
   },
   watch: {
+    nameselectorvisible() {},
     latestPoint: function dataChanged(newData, oldData) {
       if (
         !this.soundsOn &&
@@ -203,7 +227,18 @@ ul.matches {
   text-align: center;
 }
 .currentMatch .points {
-  white-space:nowrap;
+  white-space: nowrap;
+}
+
+.currentMatch .nameselector {
+  position: absolute;
+  width: 100%;
+  min-height: 12vh;
+  text-align: center;
+  z-index: 99;
+}
+.currentMatch .nameselector .disabled {
+  opacity: 0.5;
 }
 
 li.player {
@@ -217,7 +252,7 @@ li.player {
   padding: 0.2em;
   margin: 0 0.5em;
   vertical-align: middle;
-  color:black; 
+  color: black;
   font-size: 3vmax;
 }
 

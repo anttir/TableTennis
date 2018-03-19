@@ -16,6 +16,7 @@ export class Person {
 }
 export class Player {
   constructor(person, remote) {
+    this.ID = guidGenerator();
     this.person = person;
     this.remote = remote;
     this.points = [];

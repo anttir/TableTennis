@@ -41,7 +41,6 @@
   </div>
 </template>
 <script>
-
 import moment from "moment";
 moment.locale("fi");
 
@@ -54,7 +53,7 @@ import LineChart from "~/components/linechart";
 
 export default {
   components: {
-    LineChart,
+    LineChart
   },
   data() {
     return {
@@ -80,10 +79,9 @@ export default {
       this.$store.commit("matches/add", new Match());
     },
     addSelectedPlayerWithRadio: function() {
-      this.$store.commit(
-        "matches/addPlayerToCurrent",
-        new Player(this.selectedPerson, this.selectedRemote)
-      );
+      this.$store.commit("matches/addPlayerToCurrent", {
+        player: new Player(this.selectedPerson, this.selectedRemote)
+      });
     }
   },
   filters: {
