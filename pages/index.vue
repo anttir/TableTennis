@@ -25,7 +25,7 @@
                         <button  @click="toggleselectorvisible(i)" type="button" class="close" aria-label="Close">
                           <span aria-hidden="true">&times;</span>
                         </button><br>
-                        <div v-for="person in people" :key="person.ID">
+                        <div v-for="person in people" :key="'pe' + person.ID">
                           <span v-if="person.ID != player.person.ID" :style="{ color: person.color, cursor:'pointer'}"  @click="changePerson(player.ID, person, player.remote, i)">
                             {{person.name}}
                           </span>
@@ -145,7 +145,7 @@ export default {
     ...mapActions({ addPoint: "matches/addPoint" }),
     ...mapMutations({ addMatch: "matches/add" }),
     toggleselectorvisible(i) {
-      this.nameselectorvisible.splice(i, 1, !this.nameselectorvisible[i])
+      this.nameselectorvisible.splice(i, 1, !this.nameselectorvisible[i]);
     },
     playSound(sound) {
       if (sound) {
@@ -174,9 +174,17 @@ export default {
         var sound = this.currentMatch.players.filter(
           x => x.person.ID == newData.personID
         )[0].person.sound;
-        if (sound) {
-          this.playSound(sound);
+        if (!sound) {
+          var sounds = [
+            "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3",
+            "http://soundbible.com/mp3/Elevator Ding-SoundBible.com-685385892.mp3"
+          ];
+          var i = this.currentMatch.players
+            .map(x => x.person.ID)
+            .indexOf(newData.personID);
+            sound = sounds[i];
         }
+        this.playSound(sound);
       }
     }
   },
