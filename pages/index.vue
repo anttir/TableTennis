@@ -43,6 +43,9 @@
                 </div>
             </div>
             <div class="text-center">
+              <button class="btn btn-danger" @click="resetPoints()">Reset points</button>
+            </div>
+            <div class="text-center">
               <d3__chart
                 :layout="layout"
                 :chartdata="chartData"
@@ -143,7 +146,7 @@ export default {
   methods: {
     ...mapActions(["initClient"]),
     ...mapActions({ addPoint: "matches/addPoint" }),
-    ...mapMutations({ addMatch: "matches/add" }),
+    ...mapMutations({ addMatch: "matches/add", resetPoints: "matches/resetPoints" }),
     toggleselectorvisible(i) {
       this.nameselectorvisible.splice(i, 1, !this.nameselectorvisible[i]);
     },

@@ -97,6 +97,12 @@ export const mutations = {
       _currentMatch.latestPoint = _currentMatch.latestPoint;
     }
   },
+  resetPoints(state) {
+    var _currentMatch = state.list[state.list.length - 1];
+    _currentMatch.players.forEach(player => {
+      player.points.splice(0, player.points.length);
+    });
+  },
   removePlayerFromMatch(state, data) {
     for (var i = data.match.players.length - 1; i >= 0; i--) {
       if (data.match.players[i].person.ID == data.personID) {
