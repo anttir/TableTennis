@@ -7,11 +7,12 @@ export class Point {
   }
 }
 export class Person {
-  constructor(ID, name, color, sound) {
+  constructor(ID, name, color, sound, languageID) {
     this.ID = ID;
     this.name = name;
     this.color = color || "black";
     this.sound = sound;
+    this.languageID = languageID; // voi olla null
   }
 }
 export class Player {

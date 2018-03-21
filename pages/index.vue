@@ -8,43 +8,47 @@
           </template>
         </b-tab>
         <b-tab title="Current match" active>
+          <speech ref="synth" />
           <div v-if="currentMatch" class="currentMatch match">
             <div class="row">
               <div class="col">
                 <span class="legend">Sounds: </span>
-                <span v-if="soundsOn" v-on:click="soundsOn = !soundsOn"><i class="fas actionIcon fa-volume-off" ></i></span>
+                <span v-if="!soundsOn" v-on:click="soundsOn = !soundsOn"><i class="fas actionIcon fa-volume-off" ></i></span>
                 <span v-else v-on:click="soundsOn = !soundsOn"><i class="fas actionIcon fa-volume-up" ></i></span>
               </div>
               <div class="col text-right startTime"><span class="legend">Start time:</span> {{currentMatch.startTime | moment}}</div>
             </div>
             <div class="row players">
-                <div class="col player m-3" v-for="(player, i) in currentMatch.players" :key="i">
-                    <div>
-                      <div class="legend namelegend">Name:</div>
-                      <div class="nameselector p-1 rounded border border-info bg-light" v-if="nameselectorvisible[i]">
-                        <button  @click="toggleselectorvisible(i)" type="button" class="close" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button><br>
-                        <div v-for="person in people" :key="'pe' + person.ID">
-                          <span v-if="person.ID != player.person.ID" :style="{ color: person.color, cursor:'pointer'}"  @click="changePerson(player.ID, person, player.remote, i)">
-                            {{person.name}}
-                          </span>
-                          <span v-else class="disabled font-italic" :style="{ color: person.color}">{{person.name}}</span>
-                        </div>
-                      </div>
-                      <div v-on:click="toggleselectorvisible(i)" class="personName text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
-                      <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
+              <div class="col player m-3" v-for="(player, i) in currentMatch.players" :key="i">
+                <div>
+                  <div class="legend namelegend">Name:</div>
+                  <div class="nameselector p-1 rounded border border-info bg-light" v-if="nameselectorvisible[i]">
+                    <button  @click="toggleselectorvisible(i)" type="button" class="close" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button><br>
+                    <div v-for="person in people" :key="'pe' + person.ID">
+                      <span v-if="person.ID != player.person.ID" :style="{ color: person.color, cursor:'pointer'}"  @click="changePerson(player.ID, person, player.remote, i)">
+                        {{person.name}}
+                      </span>
+                      <span v-else class="disabled font-italic" :style="{ color: person.color}">{{person.name}}</span>
                     </div>
-                    <div class="text-center points">
-                      <span v-on:click="addPoint(player.remote.buttonIDs[1])"><i class="fas fa-minus pointsbutton " /></span>
-                      <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="display: inline-block; vertical-align: middle;" />
-                      <span v-on:click="addPoint(player.remote.buttonIDs[0])"><i class="fas fa-plus pointsbutton " /></span>
-                    </div>
+                  </div>
+                  <div v-on:click="toggleselectorvisible(i)" class="personName text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
+                  <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
                 </div>
+                <div class="text-center points">
+                  <span v-on:click="addPoint(player.remote.buttonIDs[1])"><i class="fas fa-minus pointsbutton " /></span>
+                  <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="display: inline-block; vertical-align: middle;" />
+                  <span v-on:click="addPoint(player.remote.buttonIDs[0])"><i class="fas fa-plus pointsbutton " /></span>
+                </div>
+              </div>
             </div>
             <div class="text-center">
-              <button class="btn btn-danger" @click="resetPoints()">Reset points</button>
+              <button class="btn btn-info" @click="speak(literalresult)"><input type="checkbox" id="checkbox" v-model="autoSpeech"> Current score <i class="fas actionIcon fa-volume-up" ></i></button>
             </div>
+            <!-- <div class="text-center">
+              <button class="btn btn-danger" @click="resetPoints()">Reset points</button>
+            </div> -->
             <div class="text-center">
               <d3__chart
                 :layout="layout"
@@ -79,6 +83,7 @@ import Logger from "~/components/logger";
 import People from "~/components/people";
 import Remotes from "~/components/remotes";
 import Matches from "~/components/matches";
+import Speech from "~/components/speech";
 
 import { Person, Remote, Match, Player, Point } from "../helpers";
 
@@ -89,7 +94,8 @@ export default {
     Logger,
     People,
     Matches,
-    Remotes
+    Remotes,
+    Speech
   },
   data() {
     return {
@@ -104,10 +110,31 @@ export default {
       axes: ["bottom", "right"],
       soundsOn: true,
       xlinear: true,
-      nameselectorvisible: [false, false]
+      nameselectorvisible: [false, false],
+      autoSpeech : true
     };
   },
   computed: {
+    literalresult() {
+      var cm = this.currentMatch;
+      var languageID = null;
+      if (cm.latestPoint) {
+        var p = cm.players.find(x => x.person.ID == cm.latestPoint.personID)
+          .person;
+        languageID = p.languageID;
+      }
+      return {
+        text:
+          cm.players[0].person.name +
+          " " +
+          cm.players[0].points.length +
+          "..." +
+          cm.players[1].person.name +
+          " " +
+          cm.players[1].points.length,
+        languageID: languageID
+      };
+    },
     matches() {
       return this.$store.state.matches.list;
     },
@@ -159,6 +186,9 @@ export default {
         audio.play();
       }
     },
+    speak(text, languageID) {
+      this.$refs.synth.speak(text, languageID);
+    },
     changePerson(playerID, person, remote, i) {
       this.$store.commit("matches/addPlayerToCurrent", {
         player: new Player(person, remote),
@@ -167,14 +197,13 @@ export default {
       this.toggleselectorvisible(i);
     },
     keyListener(evt) {
-      switch (evt.code + '') {
+      switch (evt.code + "") {
         case "ShiftLeft":
           this.addPoint({ player: this.currentMatch.players[0], points: 1 });
           break;
         case "ShiftRight":
           this.addPoint({ player: this.currentMatch.players[1], points: 1 });
           break;
-
         default:
           break;
       }
@@ -184,7 +213,7 @@ export default {
     nameselectorvisible() {},
     latestPoint: function dataChanged(newData, oldData) {
       if (
-        !this.soundsOn &&
+        this.soundsOn &&
         this.currentMatch.players.length &&
         newData &&
         newData.personID
@@ -204,6 +233,7 @@ export default {
           sound = sounds[i];
         }
         this.playSound(sound);
+        if(this.autoSpeech) this.speak(this.literalresult);
       }
     }
   },
