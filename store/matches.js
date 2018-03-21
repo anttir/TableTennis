@@ -78,10 +78,10 @@ export const mutations = {
     var points = 1;
     var rfcode;
     if (data.points == null) {
+      // jos on annettu vain RF-koodi
       rfcode = data;
     } else {
       rfcode = data.rfcode;
-      points = data.points;
     }
     rfcode = parseInt(rfcode);
     var _currentMatch = state.list[state.list.length - 1];
@@ -89,6 +89,13 @@ export const mutations = {
       p.remote.buttonIDs.includes(rfcode)
     );
     if (tplayer.length) {
+      if (data.points == null) {
+        var butnumber =  tplayer[0].remote.buttonIDs.indexOf(rfcode);
+        if(butnumber == 0) points = 1;
+        if(butnumber == 1) points = -1;
+      } else {
+        points = data.points;
+      }
       if (points > 0) {
         _currentMatch.addPoint(tplayer[0].person.ID);
       } else {

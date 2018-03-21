@@ -32,11 +32,12 @@ export const actions = {
     ].forEach(person => {
       this.app.store.commit("people/add", person);
     });
-    [new Remote("A", [12890956]), new Remote("B", [12890948])].forEach(
-      remote => {
-        this.app.store.commit("remotes/add", remote);
-      }
-    );
+    [
+      new Remote("A", [12890956, 12890948, 12890953]),
+      new Remote("B", [12890954, 12890946, 12890945])
+    ].forEach(remote => {
+      this.app.store.commit("remotes/add", remote);
+    });
     var match = new Match();
     this.app.store.commit("matches/add", match);
     [

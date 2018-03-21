@@ -36,9 +36,9 @@
                       <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
                     </div>
                     <div class="text-center points">
-                      <span v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:-1})"><i class="fas fa-minus pointsbutton " /></span>
+                      <span v-on:click="addPoint(player.remote.buttonIDs[1])"><i class="fas fa-minus pointsbutton " /></span>
                       <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="display: inline-block; vertical-align: middle;" />
-                      <span v-on:click="addPoint({rfcode:player.remote.buttonIDs[0], points:1})"><i class="fas fa-plus pointsbutton " /></span>
+                      <span v-on:click="addPoint(player.remote.buttonIDs[0])"><i class="fas fa-plus pointsbutton " /></span>
                     </div>
                 </div>
             </div>
