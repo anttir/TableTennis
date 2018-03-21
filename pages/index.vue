@@ -111,7 +111,7 @@ export default {
       soundsOn: true,
       xlinear: true,
       nameselectorvisible: [false, false],
-      autoSpeech : true
+      autoSpeech: true
     };
   },
   computed: {
@@ -123,13 +123,16 @@ export default {
           .person;
         languageID = p.languageID;
       }
+      var pointstotal = cm.players[0].points.length + cm.players[1].points.length
+      var readnames = pointstotal == 0 ||
+        (pointstotal) % 3 == 1;
       return {
         text:
-          cm.players[0].person.name +
+          (readnames ? cm.players[0].person.name : "") +
           " " +
           cm.players[0].points.length +
           "..." +
-          cm.players[1].person.name +
+          (readnames ? cm.players[1].person.name : "") +
           " " +
           cm.players[1].points.length,
         languageID: languageID
@@ -233,7 +236,7 @@ export default {
           sound = sounds[i];
         }
         this.playSound(sound);
-        if(this.autoSpeech) this.speak(this.literalresult);
+        if (this.autoSpeech) this.speak(this.literalresult);
       }
     }
   },
