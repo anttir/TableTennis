@@ -26,9 +26,9 @@ export const getters = {
 };
 
 export const actions = {
-  addPoint(context, rfcode) {
+  addPoint(context, data) {
     context.commit("incrementRfCounter");
-    context.commit("addPointToCurrentMatch", rfcode);
+    context.commit("addPointToCurrentMatch", data);
   }
 };
 
@@ -76,32 +76,29 @@ export const mutations = {
   },
   addPointToCurrentMatch(state, data) {
     var points = 1;
+    var tplayer = null;
     var rfcode;
+    var _currentMatch = state.list[state.list.length - 1];
     if (data.points == null) {
       // jos on annettu vain RF-koodi
-      rfcode = data;
+      rfcode = parseInt(data);
+      tplayer = _currentMatch.players.find(p =>
+        p.remote.buttonIDs.includes(rfcode)
+      );
+      var butnumber = tplayer.remote.buttonIDs.indexOf(rfcode);
+      if (butnumber == 0) points = 1;
+      if (butnumber == 1) points = -1;
     } else {
-      rfcode = data.rfcode;
+      tplayer = data.player;
+      points = data.points;
     }
-    rfcode = parseInt(rfcode);
-    var _currentMatch = state.list[state.list.length - 1];
-    var tplayer = _currentMatch.players.filter(p =>
-      p.remote.buttonIDs.includes(rfcode)
-    );
-    if (tplayer.length) {
-      if (data.points == null) {
-        var butnumber =  tplayer[0].remote.buttonIDs.indexOf(rfcode);
-        if(butnumber == 0) points = 1;
-        if(butnumber == 1) points = -1;
-      } else {
-        points = data.points;
-      }
+    if (tplayer) {
       if (points > 0) {
-        _currentMatch.addPoint(tplayer[0].person.ID);
+        _currentMatch.addPoint(tplayer.person.ID);
       } else {
-        _currentMatch.removePoint(tplayer[0].person.ID);
+        _currentMatch.removePoint(tplayer.person.ID);
       }
-      _currentMatch.latestPoint = _currentMatch.latestPoint;
+      _currentMatch.latestPoint = _currentMatch.latestPoint; // jotta huomataan muutos
     }
   },
   resetPoints(state) {

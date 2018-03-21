@@ -146,7 +146,10 @@ export default {
   methods: {
     ...mapActions(["initClient"]),
     ...mapActions({ addPoint: "matches/addPoint" }),
-    ...mapMutations({ addMatch: "matches/add", resetPoints: "matches/resetPoints" }),
+    ...mapMutations({
+      addMatch: "matches/add",
+      resetPoints: "matches/resetPoints"
+    }),
     toggleselectorvisible(i) {
       this.nameselectorvisible.splice(i, 1, !this.nameselectorvisible[i]);
     },
@@ -162,6 +165,19 @@ export default {
         playerID: playerID
       });
       this.toggleselectorvisible(i);
+    },
+    keyListener(evt) {
+      switch (evt.code + '') {
+        case "ShiftLeft":
+          this.addPoint({ player: this.currentMatch.players[0], points: 1 });
+          break;
+        case "ShiftRight":
+          this.addPoint({ player: this.currentMatch.players[1], points: 1 });
+          break;
+
+        default:
+          break;
+      }
     }
   },
   watch: {
@@ -185,7 +201,7 @@ export default {
           var i = this.currentMatch.players
             .map(x => x.person.ID)
             .indexOf(newData.personID);
-            sound = sounds[i];
+          sound = sounds[i];
         }
         this.playSound(sound);
       }
@@ -197,8 +213,12 @@ export default {
     }
   },
   created: function() {},
+  destroyed: function() {
+    document.removeEventListener("keyup", this.escapeKeyListener);
+  },
   mounted() {
     this.initClient(); // luo kantaan täytettä ja käynnistää MQTT:n
+    document.addEventListener("keyup", this.keyListener);
   }
 };
 </script>
