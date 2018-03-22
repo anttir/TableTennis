@@ -28,16 +28,16 @@
                         <span aria-hidden="true">&times;</span>
                       </button><br>
                       <div v-for="person in people" :key="'pe' + person.ID">
-                        <span v-if="person.ID != player.person.ID" :style="{ color: person.color, cursor:'pointer'}"  @click="changePerson(player.ID, person, player.remote, i)">
+                        <span v-if="!player.person || person.ID != player.person.ID" :style="{ color: person.color, cursor:'pointer'}"  @click="changePerson(player.ID, person, player.remote, i)">
                           {{person.name}}
                         </span>
                         <span v-else class="disabled font-italic" :style="{ color: person.color}">{{person.name}}</span>
                       </div>
                     </div>
-                    <div v-on:click="toggleselectorvisible(i)" class="personName text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
+                    <div v-on:click="toggleselectorvisible(i)" class="personName text-center" :style="{ color: player.person ? player.person.color : 'grey'}">{{ player.person ? player.person.name : "select"}}</div>
                     <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
                   </div>
-                  <div class="text-center points">
+                  <div class="text-center points" v-if="player.person && currentMatch.enoughPlayers">
                     <span v-on:click="addPoint(player.remote.buttonIDs[1])"><i class="fas fa-minus pointsbutton " /></span>
                     <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="display: inline-block; vertical-align: middle;" />
                     <span v-on:click="addPoint(player.remote.buttonIDs[0])"><i class="fas fa-plus pointsbutton " /></span>
@@ -48,21 +48,23 @@
                 </div>
               </template>
             </div>
-            <div class="text-center">
-              <button class="btn btn-info" @click="speak(literalresult)"><input type="checkbox" id="checkbox" v-model="autoSpeech"> Current score <i class="fas actionIcon fa-volume-up" ></i></button>
-            </div>
-            <!-- <div class="text-center">
-              <button class="btn btn-danger" @click="resetPoints()">Reset points</button>
-            </div> -->
-            <div class="text-center">
-              <d3__chart
-                :layout="layout"
-                :chartdata="chartData"
-                :axes="axes"
-                :xlinear="xlinear" />
-                Scale: 
-                <a v-on:click="xlinear=true" :style="{fontWeight: xlinear ? 'bold' : 'normal', cursor:  xlinear ? 'default' : 'pointer'}">points</a> / 
-                <a v-on:click="xlinear=false" :style="{fontWeight: !xlinear ? 'bold' : 'normal', cursor: !xlinear ? 'default' : 'pointer'}">time</a>
+            <div v-if="currentMatch.enoughPlayers">
+              <div class="text-center">
+                <button class="btn btn-info" @click="speak(literalresult)"><input type="checkbox" id="checkbox" v-model="autoSpeech"> Current score <i class="fas actionIcon fa-volume-up" ></i></button>
+              </div>
+              <div class="text-center">
+                <d3__chart
+                  :layout="layout"
+                  :chartdata="chartData"
+                  :axes="axes"
+                  :xlinear="xlinear" />
+                  Scale: 
+                  <a v-on:click="xlinear=true" :style="{fontWeight: xlinear ? 'bold' : 'normal', cursor:  xlinear ? 'default' : 'pointer'}">points</a> / 
+                  <a v-on:click="xlinear=false" :style="{fontWeight: !xlinear ? 'bold' : 'normal', cursor: !xlinear ? 'default' : 'pointer'}">time</a>
+              </div>
+              <div class="text-center">
+                <button class="btn btn-danger" @click="startNewMatch()">Start new match</button>
+              </div>
             </div>
           </div>
           <div v-else>-- No matches -- </div>
@@ -106,7 +108,7 @@ export default {
     return {
       layout: {
         width: 800,
-        height: 250,
+        height: 200,
         marginTop: 45,
         marginRight: 50,
         marginBottom: 50,
@@ -155,8 +157,8 @@ export default {
     chartData() {
       return this.currentMatch.players.map(player => {
         return {
-          id: player.person.name,
-          color: player.person.color,
+          id: player.person ? player.person.name : '',
+          color: player.person ? player.person.color : null,
           values: [
             {
               x: this.xlinear ? 0 : this.currentMatch.startTime,
@@ -184,7 +186,8 @@ export default {
     ...mapMutations({
       addMatch: "matches/add",
       resetPoints: "matches/resetPoints",
-      switchPlayers: "matches/switchPlayers"
+      switchPlayers: "matches/switchPlayers", 
+      startNewMatch: "matches/startNewMatch"
     }),
     toggleselectorvisible(i) {
       this.nameselectorvisible.splice(i, 1, !this.nameselectorvisible[i]);

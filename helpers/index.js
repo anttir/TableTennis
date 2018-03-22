@@ -62,7 +62,7 @@ export class Match {
     return this.players.map(x => x.points.length);
   }
   get playerCount() {
-    return this.players.filter(n => n != undefined).length;
+    return this.players.filter(n => n != undefined && n.person != undefined).length;
   }
   get enoughPlayers() {
     return this.playerCount == 2;

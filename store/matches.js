@@ -109,10 +109,27 @@ export const mutations = {
   },
   removePlayerFromMatch(state, data) {
     for (var i = data.match.players.length - 1; i >= 0; i--) {
-      if (data.match.players[i].person.ID == data.personID) {
+      if (data.match.players[i].person && data.match.players[i].person.ID == data.personID) {
         data.match.players.splice(i, 1);
       }
     }
+  },
+  startNewMatch(state) {
+    //debugger
+    var _currentMatch = state.list[state.list.length - 1];
+    var _remotes = [_currentMatch.players[0].remote , _currentMatch.players[1].remote]
+    var winner = _currentMatch.players.map(p => ({
+      player: p,
+      points: p.points.length
+    })).sort((x,y) => y.points - x.points)[0].player;
+    var newMatch = new Match();
+    newMatch.players.push(new Player(winner.person, _remotes[0]));
+    // var loserremote = _currentMatch.players.find(x => x.ID != winner.ID).remote;
+    // var randomperson = $store.people.list
+    //   .filter(p => p.ID != winner.person.ID)
+    //   [Math.floor(Math.random() * $store.state.people.list.length -1)];
+    newMatch.players.push(new Player(null, _remotes[1]));
+    state.list.push(newMatch);
   },
   switchPlayers(state){
     var _currentMatch = state.list[state.list.length - 1];
