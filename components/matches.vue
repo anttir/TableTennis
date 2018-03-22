@@ -4,19 +4,20 @@
       <ul class="matches">
           <li v-for="(match, i) in matches" :key="i">
               <ul class="match">
-                  <li>Date: {{ match.startTime | moment }}</li>
-                  <li>Players: {{ match.playerCount }}</li>
-                  <li>Enough players : {{match.enoughPlayers ? "Yes" : "No"}}</li>
+                  <li>Start time: {{ match.startTime | moment }} <span v-if="match.latestPoint"> - latest point: {{ match.latestPoint.timestamp | moment }}</span></li>
+                  <!-- <li>Players: {{ match.playerCount }}</li>
+                  <li>Enough players : {{match.enoughPlayers ? "Yes" : "No"}}</li> -->
                   <li>Players
                       <ul>
                           <li v-for="(player,i) in match.players" :key="i">
-                              <div class="person">{{ player.person }}</div>
-                              <div class="remote">{{ player.remote }}</div>
-                              <div class="remote">{{ player.points }}</div>
+                              <span class="person">{{ player.person.name }}</span>: 
+                              <span class="points">{{ player.points.length }}</span>
+                              <!-- <div class="remote">{{ player.remote }}</div>
+                              <div class="remote">{{ player.points }}</div> -->
                           </li>
                       </ul>
                   </li>
-                  <li>Points {{ match.playerScores }} latest: {{ match.latestPoint }}</li>
+                  <!-- <li>Points {{ match.playerScores }} latest: {{ match.latestPoint.timestamp | moment }}</li> -->
                   <!-- <li>
                     <d3__chart
                       layout="{ width: 800,        height: 250,        marginTop: 45,        marginRight: 50,        marginBottom: 50,        marginLeft: 35      }"
