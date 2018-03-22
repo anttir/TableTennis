@@ -24,7 +24,8 @@ export default {
           name: "msapplication-TileImage",
           content: "/favicon/ms-icon-144x144.png"
         },
-        { name: "theme-color", content: "#ffffff" }
+        { name: "theme-color", content: "#ffffff" },
+        { name: "robots", content: "noindex, nofollow" }
       ],
       link: [
         { rel: "stylesheet", href: "/jquery.bFlipText.css" },
