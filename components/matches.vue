@@ -5,12 +5,12 @@
           <li v-for="(match, i) in matches" :key="i">
               <ul class="match">
                   <li>Start time: {{ match.startTime | moment }} <span v-if="match.latestPoint"> - latest point: {{ match.latestPoint.timestamp | moment }}</span></li>
-                  <!-- <li>Players: {{ match.playerCount }}</li>
-                  <li>Enough players : {{match.enoughPlayers ? "Yes" : "No"}}</li> -->
+                  <!-- <li>Players: {{ match.playerCount }}</li> -->
+                  <!-- <li>Enough players : {{match.enoughPlayers ? "Yes" : "No"}}</li> -->
                   <li>Players
                       <ul>
                           <li v-for="(player,i) in match.players" :key="i">
-                              <span class="person">{{ player.person.name }}</span>: 
+                              <span class="person">{{ player.person ? player.person.name : "-" }}</span>: 
                               <span class="points">{{ player.points.length }}</span>
                               <!-- <div class="remote">{{ player.remote }}</div>
                               <div class="remote">{{ player.points }}</div> -->
