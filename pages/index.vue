@@ -9,7 +9,7 @@
         </b-tab>
         <b-tab title="Current match" active>
           <speech ref="synth" />
-          <div v-if="currentMatch" class="currentMatch match">
+          <div v-if="currentMatch" class="currentMatch match" v-cloak>
             <div class="row">
               <div class="col">
                 <span class="legend">Sounds: </span>
