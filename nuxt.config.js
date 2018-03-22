@@ -4,7 +4,7 @@ module.exports = {
     { src: "~plugins/ga.js", ssr: false }
   ],
   modules: [
-    "bootstrap-vue/nuxt"
+    { src: "bootstrap-vue/nuxt" },
     // // Or if you have custom bootstrap CSS...
     // ['bootstrap-vue/nuxt', { css: false }],
   ]
