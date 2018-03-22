@@ -6,7 +6,7 @@ import {
   Point,
   guidGenerator
 } from "../helpers";
-import { debug } from "util";
+ import { debug } from "util";
 
 export const state = () => ({
   list: [],
@@ -18,7 +18,7 @@ export const getters = {
     return state.list[state.list.length - 1];
   },
   isPlaying(state, personID) {
-    return state.list.map(p => p.player.person.ID).includes(personID);
+    return state.list[state.list.length - 1].players.map(p => p.person.ID).includes(personID);
   },
   latestPoint: (state, getters) => {
     return getters.currentMatch ? getters.currentMatch.latestPoint : null;
@@ -113,5 +113,12 @@ export const mutations = {
         data.match.players.splice(i, 1);
       }
     }
+  },
+  switchPlayers(state){
+    var _currentMatch = state.list[state.list.length - 1];
+    _currentMatch.players.reverse();
+    var tempremote = _currentMatch.players[0].remote;
+    _currentMatch.players[0].remote = _currentMatch.players[1].remote;
+    _currentMatch.players[1].remote = tempremote;
   }
 };

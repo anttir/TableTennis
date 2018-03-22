@@ -19,29 +19,34 @@
               <div class="col text-right startTime"><span class="legend">Start time:</span> {{currentMatch.startTime | moment}}</div>
             </div>
             <div class="row players">
-              <div class="col player m-3" v-for="(player, i) in currentMatch.players" :key="i">
-                <div>
-                  <div class="legend namelegend">Name:</div>
-                  <div class="nameselector p-1 rounded border border-info bg-light" v-if="nameselectorvisible[i]">
-                    <button  @click="toggleselectorvisible(i)" type="button" class="close" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button><br>
-                    <div v-for="person in people" :key="'pe' + person.ID">
-                      <span v-if="person.ID != player.person.ID" :style="{ color: person.color, cursor:'pointer'}"  @click="changePerson(player.ID, person, player.remote, i)">
-                        {{person.name}}
-                      </span>
-                      <span v-else class="disabled font-italic" :style="{ color: person.color}">{{person.name}}</span>
+              <template v-for="(player, i) in currentMatch.players">
+                <div class="col player m-3" :key="'p-'+i">
+                  <div>
+                    <div class="legend namelegend">Name:</div>
+                    <div class="nameselector p-1 rounded border border-info bg-light" v-if="nameselectorvisible[i]">
+                      <button  @click="toggleselectorvisible(i)" type="button" class="close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button><br>
+                      <div v-for="person in people" :key="'pe' + person.ID">
+                        <span v-if="person.ID != player.person.ID" :style="{ color: person.color, cursor:'pointer'}"  @click="changePerson(player.ID, person, player.remote, i)">
+                          {{person.name}}
+                        </span>
+                        <span v-else class="disabled font-italic" :style="{ color: person.color}">{{person.name}}</span>
+                      </div>
                     </div>
+                    <div v-on:click="toggleselectorvisible(i)" class="personName text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
+                    <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
                   </div>
-                  <div v-on:click="toggleselectorvisible(i)" class="personName text-center" :style="{ color: player.person.color}">{{player.person.name}}</div>
-                  <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
+                  <div class="text-center points">
+                    <span v-on:click="addPoint(player.remote.buttonIDs[1])"><i class="fas fa-minus pointsbutton " /></span>
+                    <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="display: inline-block; vertical-align: middle;" />
+                    <span v-on:click="addPoint(player.remote.buttonIDs[0])"><i class="fas fa-plus pointsbutton " /></span>
+                  </div>
                 </div>
-                <div class="text-center points">
-                  <span v-on:click="addPoint(player.remote.buttonIDs[1])"><i class="fas fa-minus pointsbutton " /></span>
-                  <b-fliptext :id="'flipPoints' + player.person.ID" :text="player.points.length" style="display: inline-block; vertical-align: middle;" />
-                  <span v-on:click="addPoint(player.remote.buttonIDs[0])"><i class="fas fa-plus pointsbutton " /></span>
+                <div v-if="i==0"  class="col col-md-auto"  :key="'separator-'+i" >
+                  <i @click="switchPlayers()" style="color:grey" class="fas fa-exchange-alt"></i>
                 </div>
-              </div>
+              </template>
             </div>
             <div class="text-center">
               <button class="btn btn-info" @click="speak(literalresult)"><input type="checkbox" id="checkbox" v-model="autoSpeech"> Current score <i class="fas actionIcon fa-volume-up" ></i></button>
@@ -178,7 +183,8 @@ export default {
     ...mapActions({ addPoint: "matches/addPoint" }),
     ...mapMutations({
       addMatch: "matches/add",
-      resetPoints: "matches/resetPoints"
+      resetPoints: "matches/resetPoints",
+      switchPlayers: "matches/switchPlayers"
     }),
     toggleselectorvisible(i) {
       this.nameselectorvisible.splice(i, 1, !this.nameselectorvisible[i]);
