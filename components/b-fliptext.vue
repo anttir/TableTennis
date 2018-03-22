@@ -10,8 +10,8 @@ export default {
       const $ = window.$
       if (process.browser) {
           var my_style = {
-            width: "90px",
-            "font-size": "90px",
+            width: "140px",
+            "font-size": "140px",
             background: "#fff",
             color: "#000"
           };
