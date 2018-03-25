@@ -111,7 +111,7 @@ export default {
           type: "text/javascript",
           src: "//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"
         },
-        { type: "text/javascript", src: "/jquery.bFlipText.js" }
+        { type: "text/javascript", src: "/jquery.bFlipText.js" },
       ]
     };
   }

@@ -72,6 +72,7 @@
         <b-tab title="Matches" ><matches /></b-tab>
         <b-tab title="People" ><people /></b-tab>
         <b-tab title="Remotes" ><remotes /></b-tab>
+        <!-- <b-tab title="Timelog" ><timelog /></b-tab> -->
         <!-- <b-tab title="Logger"><logger/></b-tab> -->
       </b-tabs>
  </div>
@@ -91,6 +92,7 @@ import People from "~/components/people";
 import Remotes from "~/components/remotes";
 import Matches from "~/components/matches";
 import Speech from "~/components/speech";
+// import Timelog from "~/components/timelog";
 
 import { Person, Remote, Match, Player, Point } from "../helpers";
 
