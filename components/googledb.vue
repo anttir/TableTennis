@@ -7,7 +7,7 @@
         <div v-if='apiLoaded'>
             <div>
                 <input v-model="textToInsert" type="text" />
-                <button @click="addData">Lisää</button>
+                <button @click="addData([new Date(), '-', textToInsert])">Lisää</button>
             </div>
             <div  v-if='state.saveState === "saving"'>
                 <h4>Saving...</h4>
@@ -38,21 +38,25 @@
         <div v-if='needsAuthentication'>
             <h1>Welcome!</h1>
             <p>
-                hfhddf
+                Reading data from Google Sheets requires sign in
             </p>
             <a class='waves-effect waves-light btn' @click='onSignInClick'>Sign in to Google Sheets</a>
         </div>
         <div>
-            <h2>State</h2>
-            <table>
-            <tr v-for="(value, key) in state" :key="key">
-                <td>{{ key }}</td><td :style="{color: value ? 'green' : 'red'}">{{ value }}</td>
-            </tr>
-            <tr><td>unknown</td><td :style="{color: unknown ? 'green' : 'red'}">{{unknown}}</td></tr>
-            <tr><td>apiLoaded</td><td :style="{color: apiLoaded ? 'green' : 'red'}">{{apiLoaded}}</td></tr>
-            <tr><td>needsAuthentication</td><td :style="{color: needsAuthentication ? 'green' : 'red'}">{{needsAuthentication}}</td></tr>
-            </table>
-        </div>
+          <b-btn v-b-toggle.collapse1 variant="primary">State</b-btn>
+          <b-collapse id="collapse1" class="mt-2">
+            <b-card>
+              <table>
+                <tr v-for="(value, key) in state" :key="key">
+                    <td>{{ key }}</td><td :style="{color: value ? 'green' : 'red'}">{{ value }}</td>
+                </tr>
+                <tr><td>unknown</td><td :style="{color: unknown ? 'green' : 'red'}">{{unknown}}</td></tr>
+                <tr><td>apiLoaded</td><td :style="{color: apiLoaded ? 'green' : 'red'}">{{apiLoaded}}</td></tr>
+                <tr><td>needsAuthentication</td><td :style="{color: needsAuthentication ? 'green' : 'red'}">{{needsAuthentication}}</td></tr>
+              </table>
+            </b-card>
+          </b-collapse>
+        </div>        
     </div>
 </template>
 <script>
@@ -78,7 +82,7 @@ export default {
           mimeType: "application/vnd.google-apps.spreadsheet"
         },
         scopes: "https://www.googleapis.com/auth/spreadsheets", // We need this to read/write time entries to the spreadsheet.
-        DATA_RANGE: "A2:C"
+        DATA_RANGE: "'Points'!A2:E"
       },
       state: {
         saveState: "",
@@ -195,12 +199,24 @@ export default {
         this.state.doingWhat = "Not logged in";
       }
     },
-    addData() {
+    addData(match) {
+      // puretaan peli sopiviin sarakkeisiin
+      var points = match.players
+        .map(p => p.points)
+        .reduce((a, b) => a.concat(b), []);
+      var data = [
+        match.startTime,
+        match.players[0].person.name,
+        match.players[1].person.name,
+        match.playerScores[0],
+        match.playerScores[1],
+        JSON.stringify(points)
+      ];
       this.state.saveState = "saving";
       const start = this.convertDateToSheetsDateString(new Date());
       const end = this.convertDateToSheetsDateString(new Date());
       const spreadsheetId = this.config.sheet.id;
-      this.logTime(spreadsheetId, start, end, this.textToInsert).then(
+      this.saveData(spreadsheetId, data).then(
         () => {
           this.textToInsert = "";
           this.state.saveState = "done";
@@ -214,13 +230,13 @@ export default {
       );
     },
     // Appends log entry to the given spreadsheet.
-    logTime(spreadsheetId, start, end, what) {
+    saveData(spreadsheetId, columns) {
       return gapi.client.sheets.spreadsheets.values
         .append({
           spreadsheetId,
           valueInputOption: "USER_ENTERED",
           range: this.config.DATA_RANGE,
-          values: [[start, end, what]]
+          values: [columns]
         })
         .then(this.id, this.checkError);
     },

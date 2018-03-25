@@ -63,6 +63,7 @@
                   <a v-on:click="xlinear=false" :style="{fontWeight: !xlinear ? 'bold' : 'normal', cursor: !xlinear ? 'default' : 'pointer'}">time</a>
               </div>
               <div class="text-center">
+                <button class="btn btn-danger" @click="saveScore()">Save score</button>
                 <button class="btn btn-danger" @click="startNewMatch()">Start new match</button>
               </div>
             </div>
@@ -72,7 +73,7 @@
         <b-tab title="Matches" ><matches /></b-tab>
         <b-tab title="People" ><people /></b-tab>
         <b-tab title="Remotes" ><remotes /></b-tab>
-        <!-- <b-tab title="Timelog" ><timelog /></b-tab> -->
+        <b-tab title="History" ><googledb ref="history" /></b-tab>
         <!-- <b-tab title="Logger"><logger/></b-tab> -->
       </b-tabs>
  </div>
@@ -92,7 +93,7 @@ import People from "~/components/people";
 import Remotes from "~/components/remotes";
 import Matches from "~/components/matches";
 import Speech from "~/components/speech";
-// import Timelog from "~/components/timelog";
+import Googledb from "~/components/googledb";
 
 import { Person, Remote, Match, Player, Point } from "../helpers";
 
@@ -104,7 +105,8 @@ export default {
     People,
     Matches,
     Remotes,
-    Speech
+    Speech,
+    Googledb
   },
   data() {
     return {
@@ -132,9 +134,9 @@ export default {
           .person;
         languageID = p.languageID;
       }
-      var pointstotal = cm.players[0].points.length + cm.players[1].points.length
-      var readnames = pointstotal == 0 ||
-        (pointstotal) % 3 == 1;
+      var pointstotal =
+        cm.players[0].points.length + cm.players[1].points.length;
+      var readnames = pointstotal == 0 || pointstotal % 3 == 1;
       return {
         text:
           (readnames ? cm.players[0].person.name : "") +
@@ -159,7 +161,7 @@ export default {
     chartData() {
       return this.currentMatch.players.map(player => {
         return {
-          id: player.person ? player.person.name : '',
+          id: player.person ? player.person.name : "",
           color: player.person ? player.person.color : null,
           values: [
             {
@@ -188,7 +190,7 @@ export default {
     ...mapMutations({
       addMatch: "matches/add",
       resetPoints: "matches/resetPoints",
-      switchPlayers: "matches/switchPlayers", 
+      switchPlayers: "matches/switchPlayers",
       startNewMatch: "matches/startNewMatch"
     }),
     toggleselectorvisible(i) {
@@ -202,6 +204,9 @@ export default {
     },
     speak(text, languageID) {
       this.$refs.synth.speak(text, languageID);
+    },
+    saveScore() {
+      this.$refs.history.addData(this.currentMatch);
     },
     changePerson(playerID, person, remote, i) {
       this.$store.commit("matches/addPlayerToCurrent", {
