@@ -22,7 +22,8 @@
                     Refresh the page maybe?
                 </div>
             </div>
-            <button class="btn m-2" @click="refreshRecords">Refresh</button>
+            <button class="float-left btn m-2" @click="refreshRecords">Refresh</button>
+            <a class="float-right btn m-2" target="_blank" :href='editLink'>Edit</a>
             <!-- {{fields}}<br> -->
             <b-table v-if='state.recordsState === "loaded"' striped hover outlined small :items="lastRecords" :fields="fields">
               <template slot="start" slot-scope="data">
@@ -129,7 +130,7 @@ export default {
     },
     // Provides a Google Docs link to edit a spreadsheet
     editLink() {
-      return `https://docs.google.com/spreadsheets/d/${this.sheetId}/edit`;
+      return `https://docs.google.com/spreadsheets/d/${this.config.sheet.id}/edit`;
     },
     // The signed in state is a little bit tricky, since we want to show loader
     // only when visitor is not authenticated.
