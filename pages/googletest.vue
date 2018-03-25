@@ -1,6 +1,6 @@
 <template>
     <div>
-        <button @click="initializeGoogleApi">initializeGoogleApi</button>
+        <button @click="initializeGoogleApi">tarkista kirjautuminen</button>
         <div v-if='unknown'>
             <h3>Checking authentication...</h3>
         </div>        
@@ -22,7 +22,7 @@
                     Refresh the page maybe?
                 </div>
             </div>
-            <button @click="refreshRecords">Lataa</button>
+            <button @click="refreshRecords">Päivitä</button>
             <table v-if='state.recordsState === "loaded"'>
                 <tr v-for="(record, i) in lastRecords" :key="'r'+i">
                     <td v-for="(td, i) in record" :key="'td'+i">{{td}}</td>
@@ -105,6 +105,11 @@ export default {
     },
     needsAuthentication() {
       return this.state.authenticated === false;
+    }
+  },
+  watch: {
+    apiLoaded(val) {
+      if (val) this.refreshRecords();
     }
   },
   methods: {
@@ -277,10 +282,10 @@ export default {
       return moment(date).format("L, LT");
     }
   },
-//   mounted() {
-//     console.info("automaattikirjautuminen");
-//     this.initializeGoogleApi();
-//   },
+  //   mounted() {
+  //     console.info("automaattikirjautuminen");
+  //     this.initializeGoogleApi();
+  //   },
   head() {
     return {
       // title: this.title,
