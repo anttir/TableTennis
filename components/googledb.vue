@@ -114,6 +114,7 @@ export default {
   watch: {
     apiLoaded(val) {
       if (val) this.refreshRecords();
+      this.$emit('ready')
     }
   },
   methods: {

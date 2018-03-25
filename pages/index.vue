@@ -1,13 +1,13 @@
 <template>
   <div>
-      <b-tabs >
+      <b-tabs v-model="tabIndex" >
         <b-tab id="topmenu" title="Home" disabled>
           <template slot="title">
             <i style="color:green" class="fas fa-table-tennis"></i>
             <span class="title p-3">Table Tennis Scoreboard</span>
           </template>
         </b-tab>
-        <b-tab title="Current match" active>
+        <b-tab title="Current match">
           <speech ref="synth" />
           <div v-if="currentMatch" class="currentMatch match" v-cloak>
             <div class="row">
@@ -63,8 +63,9 @@
                   <a v-on:click="xlinear=false" :style="{fontWeight: !xlinear ? 'bold' : 'normal', cursor: !xlinear ? 'default' : 'pointer'}">time</a>
               </div>
               <div class="text-center">
-                <button class="btn btn-danger" @click="saveScore()">Save score</button>
-                <button class="btn btn-danger" @click="startNewMatch()">Start new match</button>
+                <button v-if="!loggedInToGoogle" class="btn btn-info m-2" @click="tabIndex = 5">Log in to Google</button>
+                <button v-if="loggedInToGoogle" class="btn btn-primary m-2" @click="saveScore()">Save score</button>
+                <button class="btn btn-danger m-2" @click="startNewMatch()">Start new match</button>
               </div>
             </div>
           </div>
@@ -73,7 +74,7 @@
         <b-tab title="Matches" ><matches /></b-tab>
         <b-tab title="People" ><people /></b-tab>
         <b-tab title="Remotes" ><remotes /></b-tab>
-        <b-tab title="History" ><googledb ref="history" /></b-tab>
+        <b-tab title="History" ><googledb ref="history" v-on:ready="loggedInToGoogle = true" /></b-tab>
         <!-- <b-tab title="Logger"><logger/></b-tab> -->
       </b-tabs>
  </div>
@@ -122,7 +123,9 @@ export default {
       soundsOn: true,
       xlinear: true,
       nameselectorvisible: [false, false],
-      autoSpeech: true
+      autoSpeech: true,
+      loggedInToGoogle: false,
+      tabIndex: 1,
     };
   },
   computed: {
@@ -207,6 +210,9 @@ export default {
     },
     saveScore() {
       this.$refs.history.addData(this.currentMatch);
+    },
+    loginToGoogle() {
+      this.$refs.history.initializeGoogleApi();
     },
     changePerson(playerID, person, remote, i) {
       this.$store.commit("matches/addPlayerToCurrent", {
