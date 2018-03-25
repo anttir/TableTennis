@@ -259,10 +259,7 @@ export default {
       this.signIn(() => this.refreshRecords());
     },
     onSignOutClick() {
-      // TODO: should I also navigate to root path?
       this.signOut(() => console.log("logged out"));
-      // signOut(() => this.$router.push("loggedout"));
-      // signOut(() => window.location.reload());
     }
     // getLastDate(records) {
     //   if (records.length === 0) return "";
@@ -274,26 +271,16 @@ export default {
     //   if (Number.isNaN(d.getDate())) return "";
     //   return toDateInputStr(d);
     // }
-    // onSignInClick() {
-    //   signIn().then(() => this.refreshRecords());
-    // },
-    // addData() {
-    //   alert("undone");
-    // }
   },
   filters: {
     moment: function(date) {
       return moment(date).format("L, LT");
-    },
-    truefalse: function(value) {
-      if (value === true) return "<span>juu</span>";
-      if (value === false) return "<span>ei</span>";
-      return value;
     }
   },
-  //   mounted() {
-  //     this.initializeGoogleApi();
-  //   },
+//   mounted() {
+//     console.info("automaattikirjautuminen");
+//     this.initializeGoogleApi();
+//   },
   head() {
     return {
       // title: this.title,
