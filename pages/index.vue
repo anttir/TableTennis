@@ -97,7 +97,7 @@ import Matches from "~/components/matches";
 import Speech from "~/components/speech";
 import Googledb from "~/components/googledb";
 
-import { Person, Remote, Match, Player, Point } from "../helpers";
+import { Person, Remote, Match, Player, Point } from "~/helpers/models";
 
 export default {
   components: {

@@ -54,7 +54,7 @@ import d3__chart from "~/components/d3__chart";
 import { mapActions } from "vuex";
 import { mapGetters } from "vuex";
 
-import { Player, Match } from "../helpers/index";
+import { Player, Match } from "~/helpers/models";
 
 export default {
   components: {

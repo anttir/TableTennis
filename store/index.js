@@ -5,7 +5,7 @@ import {
   Player,
   Point,
   guidGenerator
-} from "../helpers";
+} from "~/helpers/models";
 
 import Vuex from "vuex";
 
