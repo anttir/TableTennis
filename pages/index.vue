@@ -58,14 +58,15 @@
                   :chartdata="chartData"
                   :axes="axes"
                   :xlinear="xlinear" />
-                  Scale: 
+                  <!-- Scale: 
                   <a v-on:click="xlinear=true" :style="{fontWeight: xlinear ? 'bold' : 'normal', cursor:  xlinear ? 'default' : 'pointer'}">points</a> / 
-                  <a v-on:click="xlinear=false" :style="{fontWeight: !xlinear ? 'bold' : 'normal', cursor: !xlinear ? 'default' : 'pointer'}">time</a>
+                  <a v-on:click="xlinear=false" :style="{fontWeight: !xlinear ? 'bold' : 'normal', cursor: !xlinear ? 'default' : 'pointer'}">time</a> -->
               </div>
               <div class="text-center">
                 <button v-if="!loggedInToGoogle" class="btn btn-info m-2" @click="tabIndex = 5">Log in to Google</button>
-                <button v-if="loggedInToGoogle" class="btn btn-primary m-2" @click="saveScore()">Save score</button>
-                <button class="btn btn-danger m-2" @click="startNewMatch()">Start new match</button>
+                <!-- <button v-if="loggedInToGoogle" class="btn btn-primary m-2" @click="saveScore()">Save score</button> -->
+                <button v-if="loggedInToGoogle" class="btn m-2 btn-primary"  @click="saveAndstartNewMatch()">Save score and start a new match</button>
+                <button v-else class="btn m-2 btn-danger" @click="startNewMatch(false)">Start new match</button>
               </div>
             </div>
           </div>
@@ -125,7 +126,7 @@ export default {
       nameselectorvisible: [false, false],
       autoSpeech: true,
       loggedInToGoogle: false,
-      tabIndex: 1,
+      tabIndex: 1
     };
   },
   computed: {
@@ -194,7 +195,11 @@ export default {
       addMatch: "matches/add",
       resetPoints: "matches/resetPoints",
       switchPlayers: "matches/switchPlayers",
-      startNewMatch: "matches/startNewMatch"
+      startNewMatch: "matches/startNewMatch",
+      saveAndstartNewMatch() {
+        this.saveScore();
+        this.startNewMatch();
+      }
     }),
     toggleselectorvisible(i) {
       this.nameselectorvisible.splice(i, 1, !this.nameselectorvisible[i]);

@@ -1,14 +1,14 @@
 <template>
     <div>
-        <button @click="initializeGoogleApi">tarkista kirjautuminen</button>
         <div v-if='unknown'>
+            <button class="btn m-2 btn-primary" @click="initializeGoogleApi">tarkista kirjautuminen</button>
             <h3>Checking authentication...</h3>
         </div>        
         <div v-if='apiLoaded'>
-            <div>
+            <!-- <div>
                 <input v-model="textToInsert" type="text" />
                 <button @click="addData([new Date(), '-', textToInsert])">Lisää</button>
-            </div>
+            </div> -->
             <div  v-if='state.saveState === "saving"'>
                 <h4>Saving...</h4>
                 <div class='progress'>
@@ -22,12 +22,23 @@
                     Refresh the page maybe?
                 </div>
             </div>
-            <button @click="refreshRecords">Päivitä</button>
-            <table v-if='state.recordsState === "loaded"'>
-                <tr v-for="(record, i) in lastRecords" :key="'r'+i">
-                    <td v-for="(td, i) in record" :key="'td'+i">{{td}}</td>
-                </tr>
-            </table>
+            <button class="btn m-2" @click="refreshRecords">Refresh</button>
+            <!-- {{fields}}<br> -->
+            <b-table v-if='state.recordsState === "loaded"' striped hover outlined small :items="lastRecords" :fields="fields">
+              <template slot="start" slot-scope="data">
+                 {{data.item.start | momentExcel}}
+              </template>
+              <template slot="player_1" slot-scope="data">
+                <span :class="{'font-weight-bold': data.item.player_1_score > data.item.player_2_score}">
+                  {{data.item.player_1}}
+                </span>
+              </template>
+              <template slot="player_2" slot-scope="data">
+                <span :class="{'font-weight-bold': data.item.player_2_score > data.item.player_1_score}">
+                  {{data.item.player_2}}
+                </span>
+              </template>
+            </b-table>
             <div v-if='state.recordsState === "loading"'>
                 <h4>Loading records...</h4>
                 <div class='progress'>
@@ -42,8 +53,8 @@
             </p>
             <a class='waves-effect waves-light btn' @click='onSignInClick'>Sign in to Google Sheets</a>
         </div>
-        <div>
-          <b-btn v-b-toggle.collapse1 variant="primary">State</b-btn>
+        <!-- <div>
+          <b-btn v-b-toggle.collapse1 variant="primary">Status</b-btn>
           <b-collapse id="collapse1" class="mt-2">
             <b-card>
               <table>
@@ -56,10 +67,12 @@
               </table>
             </b-card>
           </b-collapse>
-        </div>        
+        </div>         -->
     </div>
 </template>
 <script>
+import moment from "moment";
+moment.locale("fi");
 import { convertDateToSheetsDateString, getNow } from "~/helpers/dateUtils";
 
 export default {
@@ -82,7 +95,15 @@ export default {
           mimeType: "application/vnd.google-apps.spreadsheet"
         },
         scopes: "https://www.googleapis.com/auth/spreadsheets", // We need this to read/write time entries to the spreadsheet.
-        DATA_RANGE: "'Points'!A2:E"
+        DATA_RANGE: "'Points'!A2:E",
+        columns: [
+          "Start",
+          "Player 1",
+          "Player 2",
+          "Player 1 Score",
+          "Player 2 Score",
+          // "Points"
+        ]
       },
       state: {
         saveState: "",
@@ -95,6 +116,17 @@ export default {
     };
   },
   computed: {
+    fields() {
+      // return this.config.columns.map(c => c.replace(/ /g, "_").toLowerCase());
+
+      return this.config.columns.map(c => {
+        var o = {};
+        o.key = c.replace(/ /g, "_").toLowerCase()
+        o.label = c;
+        o.sortable = true;
+        return o;
+      })
+    },
     // Provides a Google Docs link to edit a spreadsheet
     editLink() {
       return `https://docs.google.com/spreadsheets/d/${this.sheetId}/edit`;
@@ -114,7 +146,7 @@ export default {
   watch: {
     apiLoaded(val) {
       if (val) this.refreshRecords();
-      this.$emit('ready')
+      this.$emit("ready");
     }
   },
   methods: {
@@ -206,16 +238,14 @@ export default {
         .map(p => p.points)
         .reduce((a, b) => a.concat(b), []);
       var data = [
-        match.startTime,
+        this.convertDateToSheetsDateString(match.startTime),
         match.players[0].person.name,
         match.players[1].person.name,
         match.playerScores[0],
         match.playerScores[1],
-        JSON.stringify(points)
+        JSON.stringify(match)
       ];
       this.state.saveState = "saving";
-      const start = this.convertDateToSheetsDateString(new Date());
-      const end = this.convertDateToSheetsDateString(new Date());
       const spreadsheetId = this.config.sheet.id;
       this.saveData(spreadsheetId, data).then(
         () => {
@@ -242,7 +272,7 @@ export default {
         .then(this.id, this.checkError);
     },
     id(x) {
-      console.info(x);
+      // console.info(x);
       return x;
     },
     checkError(response) {
@@ -261,8 +291,16 @@ export default {
         response => {
           // we've got our data!
           this.state.recordsState = "loaded";
-          const values = response.result.values || [];
-          this.lastRecords = values.reverse().slice(0, 100);
+          var values = response.result.values || [];
+          values = values.reverse().slice(0, 100);
+          values = values.map(r => {
+            var obj = {};
+            r.map((c, i) => {
+              obj[this.config.columns[i].replace(/ /g, "_").toLowerCase()] = c;
+            });
+            return obj;
+          });
+          this.lastRecords = values;
         },
         response => {
           console.error("failed to load range", response);
@@ -272,8 +310,11 @@ export default {
     fetchLastRecords(spreadsheetId) {
       return gapi.client.sheets.spreadsheets.values
         .get({
-          spreadsheetId,
-          range: this.config.DATA_RANGE
+          spreadsheetId: spreadsheetId,
+          range: this.config.DATA_RANGE,
+          dateTimeRenderOption: "SERIAL_NUMBER",
+          majorDimension: "ROWS",
+          valueRenderOption: "UNFORMATTED_VALUE"
         })
         .then(this.id, this.checkError);
     },
@@ -297,7 +338,10 @@ export default {
   filters: {
     moment: function(date) {
       return moment(date).format("L, LT");
-    }
+    },
+    momentExcel: function(date) {
+      return moment(new Date(Math.round((date - 25569)*86400*1000))).utc().format("L, LT");
+    },
   },
   //   mounted() {
   //     console.info("automaattikirjautuminen");

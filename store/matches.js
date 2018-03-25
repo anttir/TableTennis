@@ -17,9 +17,9 @@ export const getters = {
   currentMatch: state => {
     return state.list[state.list.length - 1];
   },
-  isPlaying(state, personID) {
-    return state.list[state.list.length - 1].players.map(p => p.person.ID).includes(personID);
-  },
+  // isPlaying(state, personID) {
+  //   return state.list[state.list.length - 1].players.map(p => p.person.ID).includes(personID);
+  // },
   latestPoint: (state, getters) => {
     return getters.currentMatch ? getters.currentMatch.latestPoint : null;
   }
