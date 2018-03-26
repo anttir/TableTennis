@@ -52,6 +52,7 @@
               <div class="text-center">
                 <button class="btn btn-info" @click="speak(literalresult)"><input type="checkbox" id="checkbox" v-model="autoSpeech"> Current score <i class="fas actionIcon fa-volume-up" ></i></button>
               </div>
+              <button class="btn btn-info" @click="countStats">countStats</button>
               <div class="text-center">
                 <d3__chart
                   :layout="layout"
@@ -218,6 +219,9 @@ export default {
     },
     loginToGoogle() {
       this.$refs.history.initializeGoogleApi();
+    },
+    countStats() {
+      console.log(this.$refs.history.countStats(this.currentMatch));
     },
     changePerson(playerID, person, remote, i) {
       this.$store.commit("matches/addPlayerToCurrent", {

@@ -75,6 +75,7 @@
 import moment from "moment";
 moment.locale("fi");
 import { convertDateToSheetsDateString, getNow } from "~/helpers/dateUtils";
+import { median, countConsecutive } from "~/helpers/statistics";
 
 export default {
   data() {
@@ -102,7 +103,7 @@ export default {
           "Player 1",
           "Player 2",
           "Player 1 Score",
-          "Player 2 Score",
+          "Player 2 Score"
           // "Points"
         ]
       },
@@ -122,15 +123,17 @@ export default {
 
       return this.config.columns.map(c => {
         var o = {};
-        o.key = c.replace(/ /g, "_").toLowerCase()
+        o.key = c.replace(/ /g, "_").toLowerCase();
         o.label = c;
         o.sortable = true;
         return o;
-      })
+      });
     },
     // Provides a Google Docs link to edit a spreadsheet
     editLink() {
-      return `https://docs.google.com/spreadsheets/d/${this.config.sheet.id}/edit`;
+      return `https://docs.google.com/spreadsheets/d/${
+        this.config.sheet.id
+      }/edit`;
     },
     // The signed in state is a little bit tricky, since we want to show loader
     // only when visitor is not authenticated.
@@ -153,6 +156,108 @@ export default {
   methods: {
     convertDateToSheetsDateString(date) {
       return convertDateToSheetsDateString(date);
+    },
+    median(values, func) {
+      return median(values, func);
+    },
+    countConsecutive(array, func) {
+      return countConsecutive(array, func);
+    },
+    pointWinner(points, players) {
+      var pointsWinner = undefined;
+      if (points.length) {
+        var pointsWinners = players.map(
+          pl => points.filter(p => p.personID == pl.person.ID).length
+        );
+        pointsWinner =
+          pointsWinners[0] == pointsWinners[1]
+            ? undefined
+            : pointsWinners[0] > pointsWinners[1]
+              ? [
+                  players[0].person.name,
+                  Math.round(
+                    100 *
+                      pointsWinners[0] /
+                      (pointsWinners[0] + pointsWinners[1])
+                  )
+                ]
+              : [
+                  players[1].person.name,
+                  Math.round(
+                    100 *
+                      pointsWinners[1] /
+                      (pointsWinners[0] + pointsWinners[1])
+                  )
+                ];
+      }
+      return pointsWinner;
+    },
+    countStats(match, points) {
+      if (!points) {
+        points = match.players
+          .map(p => p.points)
+          .reduce((a, b) => a.concat(b), [])
+          .sort((a, b) => a.timestamp - b.timestamp);
+      }
+      if (!points.length) return; // jos ei ollut yhtään pistettä
+      points.forEach((point, i) => {
+        if (i == 0) {
+          point.pointLength = points[0].timestamp - match.startTime;
+        } else {
+          point.pointLength = point.timestamp - points[i - 1].timestamp;
+        }
+      });
+      var tie =
+        match.players[0].points.length == match.players[1].points.length;
+      var medianPointLength = this.median(points, x => x.pointLength);
+      var maxConsecutivePoints = countConsecutive(points, x => x.personID);
+      if (maxConsecutivePoints) { // voi olla myös tasapeli
+        maxConsecutivePoints = [
+          match.players.find(
+            x => x.person.ID + "" == maxConsecutivePoints.key
+          ).person.name,
+          maxConsecutivePoints.count
+        ];
+      }
+      var stats = {
+        tie: tie,
+        winner: this.pointWinner(points, match.players),
+        medianPointLength: medianPointLength,
+        H1Winner: this.pointWinner(
+          points.slice(0, points.length * 0.5),
+          match.players
+        ),
+        H2Winner: this.pointWinner(
+          points.slice(points.length * 0.5, points.length),
+          match.players
+        ),
+        Q1Winner: this.pointWinner(
+          points.slice(0, points.length * 0.25),
+          match.players
+        ),
+        Q2Winner: this.pointWinner(
+          points.slice(points.length * 0.25, points.length * 0.5),
+          match.players
+        ),
+        Q3Winner: this.pointWinner(
+          points.slice(points.length * 0.5, points.length * 0.75),
+          match.players
+        ),
+        Q4Winner: this.pointWinner(
+          points.slice(points.length * 0.75),
+          match.players
+        ),
+        shortPointsWinner: this.pointWinner(
+          points.filter(p => p.pointLength < medianPointLength),
+          match.players
+        ),
+        longPointsWinner: this.pointWinner(
+          points.filter(p => p.pointLength >= medianPointLength),
+          match.players
+        ),
+        maxConsecutivePoints: maxConsecutivePoints
+      };
+      return stats;
     },
     /**
      * Attempts to refresh auth token in background. If Google Client is not loaded
@@ -234,16 +339,21 @@ export default {
       }
     },
     addData(match) {
+      debugger
+      if (!match.latestPoint) return; // ei yhtään pistettä
       // puretaan peli sopiviin sarakkeisiin
       var points = match.players
         .map(p => p.points)
-        .reduce((a, b) => a.concat(b), []);
+        .reduce((a, b) => a.concat(b), [])
+        .sort((a, b) => a.timestamp - b.timestamp);
       var data = [
         this.convertDateToSheetsDateString(match.startTime),
         match.players[0].person.name,
-        match.players[1].person.name,
         match.playerScores[0],
+        match.players[1].person.name,
         match.playerScores[1],
+        this.convertDateToSheetsDateString(new Date(Math.max.apply(Math, points.map(p => p.timestamp)))),
+        JSON.stringify(this.countStats(match, points)),
         JSON.stringify(match)
       ];
       this.state.saveState = "saving";
@@ -341,8 +451,10 @@ export default {
       return moment(date).format("L, LT");
     },
     momentExcel: function(date) {
-      return moment(new Date(Math.round((date - 25569)*86400*1000))).utc().format("L, LT");
-    },
+      return moment(new Date(Math.round((date - 25569) * 86400 * 1000)))
+        .utc()
+        .format("L, LT");
+    }
   },
   //   mounted() {
   //     console.info("automaattikirjautuminen");
