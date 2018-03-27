@@ -281,7 +281,7 @@ export default {
     document.removeEventListener("keyup", this.escapeKeyListener);
   },
   mounted() {
-    this.initClient(); // luo kantaan täytettä ja käynnistää MQTT:n
+    this.initClient(true); // luo kantaan täytettä ja käynnistää MQTT:n
     document.addEventListener("keyup", this.keyListener);
   }
 };

@@ -20,7 +20,7 @@ export const mutations = {
 };
 
 export const actions = {
-  initClient({ dispatch }) {
+  initClient({ dispatch }, initMQTT) {
     /* ---------- Alusta kanta ---------- */
     [
       new Person(1, "Antti", "red", "/sounds/applause4.mp3"),
@@ -49,36 +49,37 @@ export const actions = {
         player: p
       });
     });
+    if (initMQTT) {
+      /* ---------- Viritä MQTT kuntoon ---------- */
+      //console.log(this.app)
+      // Create a client instance
+      const client = new this.app.mqtt.Client(
+        this.app.mqtt.config.broker,
+        this.app.mqtt.config.port,
+        "web_" + parseInt(Math.random() * 100, 10)
+      );
 
-    /* ---------- Viritä MQTT kuntoon ---------- */
-    //console.log(this.app)
-    // Create a client instance
-    const client = new this.app.mqtt.Client(
-      this.app.mqtt.config.broker,
-      this.app.mqtt.config.port,
-      "web_" + parseInt(Math.random() * 100, 10)
-    );
+      // set callback handlers
+      //client.onConnectionLost = onConnectionLost;
+      client.onMessageArrived = onMessageArrived;
+      var options = {
+        useSSL: true,
+        userName: "wbexeixd", //ezbvjyrv
+        password: "7OuQpH3Clkxd", //hS5ElErtR3eD
+        onSuccess() {
+          // Once a connection has been made, make a subscription and send a message.
+          console.log("onSuccess");
+          client.subscribe("tabletennis/433toMQTT");
+          client.send("tabletennis", "Hello CloudMQTT", 0, true);
+        },
+        onFailure(e) {
+          console.log(e);
+        }
+      };
 
-    // set callback handlers
-    //client.onConnectionLost = onConnectionLost;
-    client.onMessageArrived = onMessageArrived;
-    var options = {
-      useSSL: true,
-      userName: "wbexeixd", //ezbvjyrv
-      password: "7OuQpH3Clkxd", //hS5ElErtR3eD
-      onSuccess() {
-        // Once a connection has been made, make a subscription and send a message.
-        console.log("onSuccess");
-        client.subscribe("tabletennis/433toMQTT");
-        client.send("tabletennis", "Hello CloudMQTT", 0, true);
-      },
-      onFailure(e) {
-        console.log(e);
-      }
-    };
-
-    // connect the client
-    client.connect(options);
+      // connect the client
+      client.connect(options);
+    }
 
     // called when the client loses its connection
     function onConnectionLost(responseObject) {
