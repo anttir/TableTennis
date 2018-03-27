@@ -5,10 +5,6 @@
             <h3>Checking authentication...</h3>
         </div>        
         <div v-if='apiLoaded'>
-            <!-- <div>
-                <input v-model="textToInsert" type="text" />
-                <button @click="addData([new Date(), '-', textToInsert])">Lisää</button>
-            </div> -->
             <div  v-if='state.saveState === "saving"'>
                 <h4>Saving...</h4>
                 <div class='progress'>
@@ -54,21 +50,6 @@
             </p>
             <a class='waves-effect waves-light btn' @click='onSignInClick'>Sign in to Google Sheets</a>
         </div>
-        <!-- <div>
-          <b-btn v-b-toggle.collapse1 variant="primary">Status</b-btn>
-          <b-collapse id="collapse1" class="mt-2">
-            <b-card>
-              <table>
-                <tr v-for="(value, key) in state" :key="key">
-                    <td>{{ key }}</td><td :style="{color: value ? 'green' : 'red'}">{{ value }}</td>
-                </tr>
-                <tr><td>unknown</td><td :style="{color: unknown ? 'green' : 'red'}">{{unknown}}</td></tr>
-                <tr><td>apiLoaded</td><td :style="{color: apiLoaded ? 'green' : 'red'}">{{apiLoaded}}</td></tr>
-                <tr><td>needsAuthentication</td><td :style="{color: needsAuthentication ? 'green' : 'red'}">{{needsAuthentication}}</td></tr>
-              </table>
-            </b-card>
-          </b-collapse>
-        </div>         -->
     </div>
 </template>
 <script>
@@ -96,14 +77,15 @@ export default {
           mimeType: "application/vnd.google-apps.spreadsheet"
         },
         scopes: "https://www.googleapis.com/auth/spreadsheets", // We need this to read/write time entries to the spreadsheet.
-        DATA_RANGE: "'Points'!A2:E",
+        DATA_RANGE: "'Points'!A2:F",
         columns: [
           "Start",
           "Player 1",
-          "Player 2",
           "Player 1 Score",
-          "Player 2 Score"
-          // "Points"
+          "Player 2",
+          "Player 2 Score",
+          "Last point",
+          "Stats"
         ]
       },
       state: {
@@ -120,7 +102,9 @@ export default {
     fields() {
       // return this.config.columns.map(c => c.replace(/ /g, "_").toLowerCase());
 
-      return this.config.columns.map(c => {
+      return this.config.columns
+        .filter((x,i) => i < 5)
+        .map(c => {
         var o = {};
         o.key = c.replace(/ /g, "_").toLowerCase();
         o.label = c;
@@ -309,6 +293,7 @@ export default {
             return obj;
           });
           this.lastRecords = values;
+          console.log(JSON.stringify(values))
         },
         response => {
           console.error("failed to load range", response);
