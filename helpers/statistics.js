@@ -15,6 +15,32 @@ export function percentile(values, perc, func) {
   else return func(values[split]);
 }
 
+export function pointWinner(points, players) {
+  var pointsWinner = undefined;
+  if (points.length) {
+    var pointsWinners = players.map(
+      pl => points.filter(p => p.personID == pl.person.ID).length
+    );
+    pointsWinner =
+      pointsWinners[0] == pointsWinners[1]
+        ? undefined
+        : pointsWinners[0] > pointsWinners[1]
+          ? [
+              players[0].person.name,
+              Math.round(
+                100 * pointsWinners[0] / (pointsWinners[0] + pointsWinners[1])
+              )
+            ]
+          : [
+              players[1].person.name,
+              Math.round(
+                100 * pointsWinners[1] / (pointsWinners[0] + pointsWinners[1])
+              )
+            ];
+  }
+  return pointsWinner;
+}
+
 export function countConsecutive(array, func) {
   if (array.length == 1) {
     return {

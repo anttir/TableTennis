@@ -1,3 +1,5 @@
+import { median, countConsecutive, pointWinner } from "~/helpers/statistics";
+
 export class Point {
   constructor(timestamp, personID, currPlayerTotal, currSetTotal) {
     this.timestamp = timestamp || new Date();
@@ -34,6 +36,12 @@ export class Remote {
   }
 }
 export class Match {
+  // median(values, func) {
+  //   return median(values, func);
+  // }
+  // countConsecutive(array, func) {
+  //   return countConsecutive(array, func);
+  // }
   constructor() {
     this.ID = guidGenerator();
     this.startTime = new Date();
@@ -44,8 +52,13 @@ export class Match {
   }
   addPoint(personID) {
     var i = this.players.map(x => x.person.ID).indexOf(personID);
-    var currSetTotal = this.playerScores.reduce((x,y) => x+y,1) // laskee pisteet yhteen
-    var newPoint = new Point(new Date(), personID, this.playerScores[i] + 1, currSetTotal);
+    var currSetTotal = this.playerScores.reduce((x, y) => x + y, 1); // laskee pisteet yhteen
+    var newPoint = new Point(
+      new Date(),
+      personID,
+      this.playerScores[i] + 1,
+      currSetTotal
+    );
     this.players[i].points.push(newPoint);
     this.latestPoint = newPoint;
   }
@@ -62,10 +75,76 @@ export class Match {
     return this.players.map(x => x.points.length);
   }
   get playerCount() {
-    return this.players.filter(n => n != undefined && n.person != undefined).length;
+    return this.players.filter(n => n != undefined && n.person != undefined)
+      .length;
   }
   get enoughPlayers() {
     return this.playerCount == 2;
+  }
+  get stats() {
+    if(!this.players.length) return;
+    var points = this.players
+      .map(p => p.points)
+      .reduce((a, b) => a.concat(b), [])
+      .sort((a, b) => a.timestamp - b.timestamp);
+    if (!points.length) return; // jos ei ollut yhtään pistettä
+    points.forEach((point, i) => {
+      if (i == 0) {
+        point.pointLength = points[0].timestamp - this.startTime;
+      } else {
+        point.pointLength = point.timestamp - points[i - 1].timestamp;
+      }
+    });
+    var tie = this.players[0].points.length == this.players[1].points.length;
+    var medianPointLength = median(points, x => x.pointLength);
+    var maxConsecutivePoints = countConsecutive(points, x => x.personID);
+    if (maxConsecutivePoints) {
+      // voi olla myös tasapeli
+      maxConsecutivePoints = [
+        this.players.find(x => x.person.ID + "" == maxConsecutivePoints.key)
+          .person.name,
+        maxConsecutivePoints.count
+      ];
+    }
+    var stats = {
+      tie: tie,
+      winner: pointWinner(points, this.players),
+      medianPointLength: medianPointLength,
+      H1Winner: pointWinner(
+        points.slice(0, points.length * 0.5),
+        this.players
+      ),
+      H2Winner: pointWinner(
+        points.slice(points.length * 0.5, points.length),
+        this.players
+      ),
+      Q1Winner: pointWinner(
+        points.slice(0, points.length * 0.25),
+        this.players
+      ),
+      Q2Winner: pointWinner(
+        points.slice(points.length * 0.25, points.length * 0.5),
+        this.players
+      ),
+      Q3Winner: pointWinner(
+        points.slice(points.length * 0.5, points.length * 0.75),
+        this.players
+      ),
+      Q4Winner: pointWinner(
+        points.slice(points.length * 0.75),
+        this.players
+      ),
+      shortPointsWinner: pointWinner(
+        points.filter(p => p.pointLength < medianPointLength),
+        this.players
+      ),
+      longPointsWinner: pointWinner(
+        points.filter(p => p.pointLength >= medianPointLength),
+        this.players
+      ),
+      maxConsecutivePoints: maxConsecutivePoints
+    };
+    return stats;
   }
 }
 
