@@ -1,21 +1,21 @@
 <template>
     <g class="d3__series">
-    <d3__area
+    <d3__area v-if="seriestypes.includes('area')"
       :layout="layout"
-      :seriesdata="this.seriesdata"
-      :scale="this.scale"
+      :seriesdata="seriesdata"
+      :scale="scale"
       >
     </d3__area>
-    <d3__line
+    <d3__line v-if="seriestypes.includes('line')"
       :layout="layout"
-      :seriesdata="this.seriesdata"
-      :scale="this.scale"
+      :seriesdata="seriesdata"
+      :scale="scale"
     >
     </d3__line>
-    <d3__scatter
+    <d3__scatter v-if="seriestypes.includes('scatter')"
       :layout="layout"
-      :seriesdata="this.seriesdata"
-      :scale="this.scale"
+      :seriesdata="seriesdata"
+      :scale="scale"
       >
     </d3__scatter>
   </g>
@@ -33,7 +33,7 @@ export default {
     d3__line,
     d3__scatter
   },
-  props: ["layout", "seriesdata", "scale"]
+  props: ["layout", "seriesdata", "scale", "seriestypes"]
 };
 </script>
 <style>

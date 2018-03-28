@@ -39,12 +39,13 @@ export default {
     drawAxis: function() {
       var $axis = d3.select(this.$refs.axis);
       var scale = this.scale;
+      console.log(scale.y.domain());
       var yscalenumbers = Array.apply(null, {
-        length: d3.max(scale.y.domain()) + 1
-      }).map(Number.call, Number); // vain kokonaisluvut käyttöön
+        length: -scale.y.domain()[0] + scale.y.domain()[1] + 1
+      }).map((x,i) => i + scale.y.domain()[0] ); // vain kokonaisluvut käyttöön
       var xscalenumbers = Array.apply(null, {
-        length: d3.max(scale.x.domain()) + 1
-      }).map(Number.call, Number); // vain kokonaisluvut käyttöön
+        length: -scale.x.domain()[0] + scale.x.domain()[1] + 1
+      }).map((x,i) => i + scale.x.domain()[0] ); // vain kokonaisluvut käyttöön
       // .filter(function(d, i) { return !(i % 2); });
       var xTickformat = this.xlinear ? d3.format("d") : d3.timeFormat("%b %d");
       var axisGenerator = {
@@ -59,7 +60,7 @@ export default {
           .tickValues(yscalenumbers)
           .tickFormat(d3.format("d"))
       };
-      if(this.xlinear) {
+      if (this.xlinear) {
         axisGenerator.top.tickValues(xscalenumbers);
         axisGenerator.bottom.tickValues(xscalenumbers);
       }

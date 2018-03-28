@@ -15,6 +15,7 @@
         :layout="layout"
         :scale="scale"
         :key="'series_' + i"
+        :seriestypes="seriestypes"
         ></d3__series>
     </g>
   </svg>
@@ -32,12 +33,38 @@ export default {
     d3__axis,
     d3__series
   },
-  props: [
-    "axes", // Chart axes
-    "layout", // Dimensions for the chart and margins
-    "chartdata", // Data for plotting
-    "xlinear" //
-  ],
+  // props: [
+  //   "axes", // Chart axes
+  //   "layout", // Dimensions for the chart and margins
+  //   "chartdata", // Data for plotting
+  //   "xlinear" //
+  // ],
+  props: {
+    axes: { type: Array, default: () => ["bottom", "right"] }, // Chart axes
+    seriestypes: { type: Array, default: () => ["line", "area", "scatter"] },
+    layout: {
+      type: Object,
+      default: {
+        width: 800,
+        height: 200,
+        marginTop: 45,
+        marginRight: 50,
+        marginBottom: 50,
+        marginLeft: 35
+      }
+    }, // Dimensions for the chart and margins
+    xlinear: { type: Boolean, default: true },
+    chartdata: {
+      type: Array,
+      default: () => [
+        {
+          id: "-",
+          color: null,
+          values: [{ x: 0, value: 0 }]
+        }
+      ]
+    } // Data for plotting
+  },
   computed: {
     // SVG viewbox
     viewBox() {
@@ -112,7 +139,11 @@ export default {
         .scaleLinear()
         .range([this.layout.height, 0])
         .domain([
-          0,
+          d3.min(this.chartdata, function(d) {
+            return d3.min(d.values, function(e) {
+              return e.value;
+            });
+          }),
           d3.max(this.chartdata, function(d) {
             return d3.max(d.values, function(e) {
               return e.value;
