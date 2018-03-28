@@ -3,17 +3,28 @@
         <div v-if="people.length" >
             <button @click="getStats()">stats</button> <br>
             <!-- {{people}}<br> -->
-            {{resulthistory}},
+            <!-- {{resulthistory}}, -->
+            {{chartData}}
             {{counter}}
             {{stats}}
+            <d3__chart
+                :layout="layout"
+                :chartdata="chartData"
+                :axes="axes"
+                :xlinear="xlinear" />
         </div>
     </div>  
 </template>
 <script>
 import { Person, Remote, Match, Player, Point } from "~/helpers/models";
 import { mapActions, mapGetters, mapMutations } from "vuex";
+import d3__chart from "~/components/d3__chart";
+import indexVue from "./index.vue";
 
 export default {
+  components: {
+    d3__chart
+  },
   data() {
     return {
       list: JSON.parse(
@@ -21,13 +32,61 @@ export default {
       ),
       resulthistory: [],
       counter: 0,
-      stats: {}
+      stats: {},
+      settings: {
+        maxMatchesIncluded: 5,
+        matchIcludedPeriod: 1000 * 60 * 60 * 24 * 30 // 1 kuukausi
+      },
+      layout: {
+        width: 800,
+        height: 200,
+        marginTop: 45,
+        marginRight: 50,
+        marginBottom: 50,
+        marginLeft: 35
+      },
+      axes: ["bottom", "right"],
+      xlinear: true,
+      valueToChart: "pairSum"
     };
   },
   methods: {
     ...mapActions(["initClient"]),
     addhistory(value) {
       this.resulthistory.push(value);
+    },
+    updatePair(accumulator, curr, player1, player2, winlose) {
+      if (!accumulator[player1].pairResults[player2])
+        accumulator[player1].pairResults[player2] = {};
+      if (!accumulator[player1].pairResults[player2].array)
+        accumulator[player1].pairResults[player2].array = [];
+      var array = accumulator[player1].pairResults[player2].array;
+      array.push({
+        start: curr.start,
+        winlose: winlose
+      });
+      array = array.slice(-this.settings.maxMatchesIncluded); // vain viimeisimmät mukaan
+      for (let i = array.length - 1; (i = 0); i--) {
+        if (array[i].start < curr.start - this.settings.matchIcludedPeriod) {
+          array.slice(i);
+          break;
+        }
+      }
+      accumulator[player1].pairResults[player2].array = array;
+      accumulator[player1].pairResults[player2].sum = array.reduce(
+        (prev, curr) => prev + curr.winlose,
+        0
+      );
+      return accumulator;
+    },
+    getpairSum(player) {
+      var sumTotal = 0;
+      for (var pair in player.pairResults) {
+        if (player.pairResults.hasOwnProperty(pair)) {
+          sumTotal = sumTotal + player.pairResults[pair].sum;
+        }
+      }
+      return sumTotal;
     },
     getStats() {
       if (!this.people.length) {
@@ -38,8 +97,15 @@ export default {
       var initialValue = {};
       this.people.forEach(p => {
         initialValue[p.name] = {};
+        initialValue[p.name].gamesPlayed = 0;
         initialValue[p.name].winlose = 0;
         initialValue[p.name].score = 100;
+        initialValue[p.name].winCount = 0;
+        initialValue[p.name].looseCount = 0;
+        initialValue[p.name].winPercentage = 0;
+        initialValue[p.name].loosePercentage = 0;
+        initialValue[p.name].pairResults = {};
+        initialValue[p.name].pairSum = 0;
       });
       res = this.list.reduce((accumulator, curr, currentIndex, array) => {
         if (curr.player_1_score != curr.player_2_score) {
@@ -53,11 +119,26 @@ export default {
               : curr.player_1;
           //   console.log({ winner, loser });
           if (accumulator[winner] && accumulator[loser]) {
+            accumulator.time = curr.start;
+            accumulator[winner].gamesPlayed += 1;
+            accumulator[loser].gamesPlayed += 1;
             accumulator[winner].winlose += 1;
             accumulator[loser].winlose -= 1;
+            accumulator[winner].winCount += 1;
+            accumulator[loser].looseCount -= 1;
+            accumulator[winner].winPercentage =
+              accumulator[winner].winCount / accumulator[winner].gamesPlayed;
+            accumulator[loser].loosePercentage =
+              accumulator[loser].looseCount / accumulator[loser].gamesPlayed;
             var scoremoving = accumulator[loser].score * 0.1;
             accumulator[winner].score += scoremoving;
             accumulator[loser].score -= scoremoving;
+
+            accumulator = this.updatePair(accumulator, curr, winner, loser, 1);
+            accumulator = this.updatePair(accumulator, curr, loser, winner, -1);
+            accumulator[winner].pairSum = this.getpairSum(accumulator[winner]);
+            accumulator[loser].pairSum = this.getpairSum(accumulator[loser]);
+
             var currSituation = JSON.parse(JSON.stringify(accumulator));
             console.log(currSituation);
             this.addhistory(currSituation);
@@ -75,6 +156,53 @@ export default {
   computed: {
     people() {
       return this.$store.state.people.list;
+    },
+    chartData() {
+      var peopleresults = this.people.slice(0);
+      if (!this.resulthistory.length)
+        return [
+          {
+            id: "-",
+            color: null,
+            values: [{ x: 0, value: 0 }]
+          }
+        ];
+      for (let i = 0; i < this.resulthistory.length; i++) {
+        const round = this.resulthistory[i];
+        for (var personName in round) {
+          if (round.hasOwnProperty(personName)) {
+            var index = peopleresults.findIndex(x => x.name == personName);
+            if (index >= 0) {
+              // roundilla on muitakin propertyjä kuin henkilöt (esim. time)
+              var person = peopleresults[index];
+              if (!person.results) person.results = [];
+              person.results.push({
+                x: this.xlinear ? i : round.time,
+                value: round[personName][this.valueToChart]
+              });
+            }
+          }
+        }
+      }
+      return peopleresults.map(person => {
+        return {
+          id: person ? person.name : "",
+          color: person ? person.color : null,
+          values: [
+            {
+              x: 0,
+              value: 0
+            }
+          ].concat(
+            person.results.map(r => {
+              return {
+                x: this.xlinear ? r.x : new Date(r.x),
+                value: r.value
+              };
+            })
+          )
+        };
+      });
     }
   },
   mounted() {
