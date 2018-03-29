@@ -33,12 +33,6 @@ export default {
     d3__axis,
     d3__series
   },
-  // props: [
-  //   "axes", // Chart axes
-  //   "layout", // Dimensions for the chart and margins
-  //   "chartdata", // Data for plotting
-  //   "xlinear" //
-  // ],
   props: {
     axes: { type: Array, default: () => ["bottom", "right"] }, // Chart axes
     seriestypes: { type: Array, default: () => ["line", "area", "scatter"] },
@@ -114,10 +108,10 @@ export default {
             d3.extent(
               [].concat.apply(
                 [],
-                this.chartdata.map(x => x.values.map(p => p.x))
+                this.chartdata.map(x => x.values.map(p => p.x)) // kaikkien sarjojen kaikki valuet
               )
             )
-          ); // kaikkien sarjojen kaikki valuet
+          );
       } else {
         return d3
           .scaleTime()
@@ -126,13 +120,12 @@ export default {
             d3.extent(
               [].concat.apply(
                 [],
-                this.chartdata.map(x => x.values.map(p => p.x))
+                this.chartdata.map(x => x.values.map(p => p.x)) // kaikkien sarjojen kaikki valuet
               )
             )
-          ); // kaikkien sarjojen kaikki valuet
+          );
       }
     },
-
     // Get y-axis scale
     getScaleY() {
       return d3
@@ -150,6 +143,14 @@ export default {
             });
           })
         ]);
+    },
+    updateChart() {
+      this.scale.x = this.getScaleX();
+      this.scale.y = this.getScaleY();
+      this.scale.color = d3
+        .scaleOrdinal()
+        .range(this.chartdata.map(x => x.color))
+        .domain(this.chartdata.map(x => x.id));
     }
   },
   watch: {
@@ -157,22 +158,19 @@ export default {
     layout: {
       deep: true,
       handler: function(val, oldVal) {
-        this.scale.x = this.getScaleX();
-        this.scale.y = this.getScaleY();
+        updateChart();
       }
     },
     chartdata: {
       deep: true,
       handler: function(val, oldVal) {
-        this.scale.x = this.getScaleX();
-        this.scale.y = this.getScaleY();
+        updateChart();
       }
     },
     xlinear: {
       deep: true,
       handler: function(val, oldVal) {
-        this.scale.x = this.getScaleX();
-        this.scale.y = this.getScaleY();
+        updateChart();
       }
     }
   }
