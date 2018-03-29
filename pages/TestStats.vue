@@ -1,17 +1,24 @@
 <template>
     <div>
         <div v-if="people.length" >
-            <button @click="getStats()">stats</button> <br>
+            <button @click="update()">stats</button> <br>
             <!-- {{people}}<br> -->
             <!-- {{resulthistory}}, -->
-            {{chartData}}
-            {{counter}}
-            {{stats}}
+            <!-- {{chartData}} -->
+            <!-- {{counter}} -->
             <d3__chart
                 :layout="layout"
                 :chartdata="chartData"
                 :axes="axes"
                 :xlinear="xlinear" />
+            <select v-model="settings.maxMatchesIncluded">
+                <option v-for="i in 10" :key="'s' + i" >{{i}}</option>
+            </select>
+            <select v-model="settings.useMultiplier">
+                <option value="true">true</option>
+                <option value="false">false</option>
+            </select>
+            {{stats}}
         </div>
     </div>  
 </template>
@@ -35,7 +42,8 @@ export default {
       stats: {},
       settings: {
         maxMatchesIncluded: 5,
-        matchIcludedPeriod: 1000 * 60 * 60 * 24 * 30 // 1 kuukausi
+        matchIcludedPeriod: 1000 * 60 * 60 * 24 * 30, // 1 kuukausi
+        useMultiplier: false
       },
       layout: {
         width: 800,
@@ -52,6 +60,10 @@ export default {
   },
   methods: {
     ...mapActions(["initClient"]),
+    update() {
+      this.resulthistory = []; //this.resulthistory.splice(0, this.resulthistory.length);
+      this.getStats();
+    },
     addhistory(value) {
       this.resulthistory.push(value);
     },
@@ -72,11 +84,19 @@ export default {
           break;
         }
       }
+      var multiplierTotal = 0;
       accumulator[player1].pairResults[player2].array = array;
-      accumulator[player1].pairResults[player2].sum = array.reduce(
-        (prev, curr) => prev + curr.winlose,
-        0
-      );
+      var sum = array.reduce((prev, curr, i, array) => {
+        var multiplier =
+          (this.settings.maxMatchesIncluded - array.length + i + 1) /
+          this.settings.maxMatchesIncluded;
+        multiplierTotal = multiplierTotal + multiplier;
+        return (
+          prev + curr.winlose * (this.settings.useMultiplier ? multiplier : 1)
+        );
+      }, 0);
+      accumulator[player1].pairResults[player2].sum =
+        sum / (this.settings.useMultiplier ? multiplierTotal : 1);
       return accumulator;
     },
     getpairSum(player) {
@@ -140,7 +160,7 @@ export default {
             accumulator[loser].pairSum = this.getpairSum(accumulator[loser]);
 
             var currSituation = JSON.parse(JSON.stringify(accumulator));
-            console.log(currSituation);
+            //console.log(currSituation);
             this.addhistory(currSituation);
             this.counter += 1;
           } else {
@@ -203,6 +223,11 @@ export default {
           )
         };
       });
+    }
+  },
+  watch: {
+    settings: () => {
+      this.update();
     }
   },
   mounted() {
