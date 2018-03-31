@@ -158,19 +158,19 @@ export default {
     layout: {
       deep: true,
       handler: function(val, oldVal) {
-        updateChart();
+        this.updateChart();
       }
     },
     chartdata: {
       deep: true,
       handler: function(val, oldVal) {
-        updateChart();
+        this.updateChart();
       }
     },
     xlinear: {
       deep: true,
       handler: function(val, oldVal) {
-        updateChart();
+        this.updateChart();
       }
     }
   }

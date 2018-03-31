@@ -7,7 +7,7 @@ import * as d3 from "d3";
 
 // Component: D3 area
 export default {
-  props: ["layout", "seriesdata", "scale"],
+  props: ["seriesdata", "scale"],
   mounted() {
     this.drawArea();
   },
