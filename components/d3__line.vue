@@ -6,7 +6,7 @@
 import * as d3 from "d3";
 
 export default {
-  props: ["layout", "seriesdata", "scale"],
+  props: ["seriesdata", "scale"],
   mounted: function() {
     this.drawLine();
   },
@@ -16,6 +16,10 @@ export default {
       var scale = this.scale;
 
       // Line object
+      // DOM node for line
+      var $line = d3.select(this.$refs.line);
+      $line.attr("d", '');
+      $line.data([]);
       
       var line = d3
         .line()
@@ -26,8 +30,6 @@ export default {
           return scale.y(d.value);
         });
 
-      // DOM node for line
-      var $line = d3.select(this.$refs.line);
       $line
         .data([
           this.seriesdata.values.filter(function(d) {
@@ -53,6 +55,12 @@ export default {
       handler: function(val, oldVal) {
         this.drawLine();
       }
+    },
+    seriesdata: {
+      deep: true,
+      handler: function(val, oldVal) {
+        this.drawLine();
+      }     
     }
   }
 };

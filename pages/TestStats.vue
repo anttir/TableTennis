@@ -10,7 +10,8 @@
                 :layout="layout"
                 :chartdata="chartData"
                 :axes="axes"
-                :xlinear="xlinear" />
+                :xlinear="xlinear"
+                :seriestypes="seriestypes" />
             <select v-model="settings.maxMatchesIncluded">
                 <option v-for="i in 10" :key="'s' + i" >{{i}}</option>
             </select>
@@ -18,6 +19,9 @@
                 <option value="true">true</option>
                 <option value="false">false</option>
             </select>
+            <ul class="legend">
+                <li v-for="person in people" :style="{color: person.color}" :key="person.id">{{person.name}}</li>
+            </ul>
             {{stats}}
         </div>
     </div>  
@@ -53,6 +57,7 @@ export default {
         marginBottom: 50,
         marginLeft: 35
       },
+      seriestypes: ['line'], // , 'scatter'
       axes: ["bottom", "right"],
       xlinear: true,
       valueToChart: "pairSum"
