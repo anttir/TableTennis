@@ -18,7 +18,7 @@
               </div>
               <div class="col text-right startTime"><span class="legend">Start time:</span> {{currentMatch.startTime | moment}}</div>
             </div>
-            <div class="row players">
+            <div class="row players flex-nowrap">
               <template v-for="(player, i) in currentMatch.players">
                 <div class="col player m-3" :key="'p-'+i">
                   <div>
