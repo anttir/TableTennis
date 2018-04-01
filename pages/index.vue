@@ -13,8 +13,9 @@
             <div class="row">
               <div class="col">
                 <span class="legend">Sounds: </span>
-                <span v-if="!soundsOn" v-on:click="soundsOn = !soundsOn"><i class="fas actionIcon fa-volume-off" ></i></span>
-                <span v-else v-on:click="soundsOn = !soundsOn"><i class="fas actionIcon fa-volume-up" ></i></span>
+                <span v-if="!soundsOn" v-on:click="soundsOn = !soundsOn"><i class="fas fa-volume-off" ></i></span>
+                <span v-else v-on:click="soundsOn = !soundsOn"><i class="fas fa-volume-up" ></i></span>
+                &nbsp;<span :v-if="!soundsOn"><label for="chkAutoSpeech" class="legend" @click="speak(literalresult)"> read current score: </label><input type="checkbox" id="chkAutoSpeech" v-model="autoSpeech"></span>
               </div>
               <div class="col text-right startTime"><span class="legend">Start time:</span> {{currentMatch.startTime | moment}}</div>
             </div>
@@ -49,9 +50,6 @@
               </template>
             </div>
             <div v-if="currentMatch.enoughPlayers">
-              <div class="text-center">
-                <button class="btn btn-info" @click="speak(literalresult)"><input type="checkbox" id="checkbox" v-model="autoSpeech"> Current score <i class="fas actionIcon fa-volume-up" ></i></button>
-              </div>
               <!-- <button class="btn btn-info" @click="countStats">countStats</button> -->
               <div class="text-center">
                 <d3__chart
@@ -64,7 +62,7 @@
                   <a v-on:click="xlinear=false" :style="{fontWeight: !xlinear ? 'bold' : 'normal', cursor: !xlinear ? 'default' : 'pointer'}">time</a> -->
               </div>
               <div class="text-center">
-                <button v-if="!loggedInToGoogle" class="btn btn-info m-2" @click="tabIndex = 5">Log in to Google</button>
+                <button v-if="!loggedInToGoogle" class="btn btn-info mr-5" @click="tabIndex = 5">Log in to Google</button>
                 <input type="checkbox" id="keepThePlayers" v-model="keepThePlayers">
                 <label for="keepThePlayers"> keep the players</label>
                 <!-- <button v-if="loggedInToGoogle" class="btn btn-primary m-2" @click="saveScore()">Save score</button> -->
