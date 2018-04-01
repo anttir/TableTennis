@@ -25,7 +25,7 @@ export const actions = {
     [
       new Person(1, "Antti", "red", "/sounds/applause4.mp3"),
       new Person(2, "Aapo", "blue", null, "es-ES"),
-      new Person(3, "Severi", "green"),
+      new Person(3, "Severi", "green", "/sounds/Crowd Boo.mp3"),
       new Person(4, "Niklas", "fuchsia"),
       new Person(5, "Miro", "orange"),
       new Person(6, "Miikka", "brown")
