@@ -215,7 +215,7 @@ export default {
       this.$refs.synth.speak(text, languageID);
     },
     saveScore() {
-      this.$refs.history.addData(this.currentMatch);
+      this.$refs.history.addMatch(this.currentMatch);
     },
     loginToGoogle() {
       this.$refs.history.initializeGoogleApi();

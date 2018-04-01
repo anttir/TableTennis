@@ -77,16 +77,20 @@ export default {
           mimeType: "application/vnd.google-apps.spreadsheet"
         },
         scopes: "https://www.googleapis.com/auth/spreadsheets", // We need this to read/write time entries to the spreadsheet.
-        DATA_RANGE: "'Points'!A2:F",
-        columns: [
-          "Start",
-          "Player 1",
-          "Player 1 Score",
-          "Player 2",
-          "Player 2 Score",
-          "Last point",
-          "Stats"
-        ]
+        tabs: {
+          matches: {
+            datarange: "'Matches'!A2:F",
+            columns: [
+              "Start",
+              "Player 1",
+              "Player 1 Score",
+              "Player 2",
+              "Player 2 Score",
+              "Last point",
+              "Stats"
+            ]
+          }
+        }
       },
       state: {
         saveState: "",
@@ -102,9 +106,7 @@ export default {
     fields() {
       // return this.config.columns.map(c => c.replace(/ /g, "_").toLowerCase());
 
-      return this.config.columns
-        .filter((x,i) => i < 5)
-        .map(c => {
+      return this.config.tabs.matches.columns.filter((x, i) => i < 5).map(c => {
         var o = {};
         o.key = c.replace(/ /g, "_").toLowerCase();
         o.label = c;
@@ -211,7 +213,11 @@ export default {
     refreshRecords() {
       if (this.apiLoaded) {
         this.state.doingWhat = "Loading data...";
-        this.getLastRecordsForComponent(this).then(() => {
+        var tab = this.config.tabs.matches;
+        this.getLastRecordsForComponent(this, tab).then(data => {
+          this.lastRecords = data;
+          console.log(JSON.stringify(data));
+          //console.log(data);
           this.state.doingWhat = "Results";
           this.state.recordsState = "loaded";
         });
@@ -219,8 +225,7 @@ export default {
         this.state.doingWhat = "Not logged in";
       }
     },
-    addData(match) {
-      debugger
+    addMatch(match) {
       if (!match.latestPoint) return; // ei yhtään pistettä
       // puretaan peli sopiviin sarakkeisiin
       var points = match.players
@@ -233,13 +238,18 @@ export default {
         match.playerScores[0],
         match.players[1].person.name,
         match.playerScores[1],
-        this.convertDateToSheetsDateString(new Date(Math.max.apply(Math, points.map(p => p.timestamp)))),
+        this.convertDateToSheetsDateString(
+          new Date(Math.max.apply(Math, points.map(p => p.timestamp)))
+        ),
         JSON.stringify(match.stats),
         JSON.stringify(match)
       ];
+      this.addData(this.config.tabs.matches, data);
+    },
+    addData(tab, data) {
       this.state.saveState = "saving";
       const spreadsheetId = this.config.sheet.id;
-      this.saveData(spreadsheetId, data).then(
+      this.saveData(spreadsheetId, tab, data).then(
         () => {
           this.textToInsert = "";
           this.state.saveState = "done";
@@ -253,12 +263,12 @@ export default {
       );
     },
     // Appends log entry to the given spreadsheet.
-    saveData(spreadsheetId, columns) {
+    saveData(spreadsheetId, tab, columns) {
       return gapi.client.sheets.spreadsheets.values
         .append({
           spreadsheetId,
           valueInputOption: "USER_ENTERED",
-          range: this.config.DATA_RANGE,
+          range: tab.datarange,
           values: [columns]
         })
         .then(this.id, this.checkError);
@@ -275,11 +285,11 @@ export default {
       }
       return response;
     },
-    getLastRecordsForComponent(target) {
+    getLastRecordsForComponent(target, tab) {
       // immediately before loading, switch to progress mode:
       this.state.recordsState = "loading";
       const spreadsheetId = this.config.sheet.id;
-      return this.fetchLastRecords(spreadsheetId).then(
+      return this.fetchLastRecords(spreadsheetId, tab).then(
         response => {
           // we've got our data!
           this.state.recordsState = "loaded";
@@ -288,23 +298,22 @@ export default {
           values = values.map(r => {
             var obj = {};
             r.map((c, i) => {
-              obj[this.config.columns[i].replace(/ /g, "_").toLowerCase()] = c;
+              obj[tab.columns[i].replace(/ /g, "_").toLowerCase()] = c;
             });
             return obj;
           });
-          this.lastRecords = values;
-          console.log(JSON.stringify(values))
+          return values;
         },
         response => {
           console.error("failed to load range", response);
         }
       );
     },
-    fetchLastRecords(spreadsheetId) {
+    fetchLastRecords(spreadsheetId, tab) {
       return gapi.client.sheets.spreadsheets.values
         .get({
           spreadsheetId: spreadsheetId,
-          range: this.config.DATA_RANGE,
+          range: tab.datarange,
           dateTimeRenderOption: "SERIAL_NUMBER",
           majorDimension: "ROWS",
           valueRenderOption: "UNFORMATTED_VALUE"
