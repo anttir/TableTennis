@@ -39,7 +39,6 @@ export default {
     drawAxis: function() {
       var $axis = d3.select(this.$refs.axis);
       var scale = this.scale;
-      console.log(scale.y.domain());
       var yscalenumbers = Array.apply(null, {
         length: -scale.y.domain()[0] + scale.y.domain()[1] + 1
       }).map((x,i) => i + scale.y.domain()[0] ); // vain kokonaisluvut käyttöön
