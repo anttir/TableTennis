@@ -42,6 +42,9 @@ export const mutations = {
   remove(state, { match }) {
     state.list.splice(state.list.indexOf(match), 1);
   },
+  clear(state) {
+    state.list = [];
+  },
   addPlayerToCurrent(state, data) {
     this.commit("matches/addPlayerToMatch", {
       match: state.list[state.list.length - 1],

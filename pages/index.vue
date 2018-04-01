@@ -76,7 +76,11 @@
         <b-tab title="Matches" ><matches /></b-tab>
         <b-tab title="People" ><people /></b-tab>
         <b-tab title="Remotes" ><remotes /></b-tab>
-        <b-tab title="History" ><googledb ref="history" v-on:ready="loggedInToGoogle = true" /></b-tab>
+        <b-tab title="History" >
+          recordsState: {{recordsState}}
+          <googledb ref="history" v-on:ready="loggedInToGoogle = true" v-on:recordsStateChange="recordsStateChange" />
+          <statistics :matches="matches" :recordsState="recordsState" />
+        </b-tab>
         <!-- <b-tab title="Logger"><logger/></b-tab> -->
       </b-tabs>
  </div>
@@ -96,6 +100,7 @@ import People from "~/components/people";
 import Remotes from "~/components/remotes";
 import Matches from "~/components/matches";
 import Speech from "~/components/speech";
+import Statistics from "~/components/statistics";
 import Googledb from "~/components/googledb";
 
 import { Person, Remote, Match, Player, Point } from "~/helpers/models";
@@ -109,6 +114,7 @@ export default {
     Matches,
     Remotes,
     Speech,
+    Statistics,
     Googledb
   },
   data() {
@@ -128,7 +134,8 @@ export default {
       autoSpeech: true,
       loggedInToGoogle: false,
       tabIndex: 1,
-      keepThePlayers: false
+      keepThePlayers: false,
+      recordsState: null
     };
   },
   computed: {
@@ -203,6 +210,9 @@ export default {
         this.startNewMatch(this.keepThePlayers);
       }
     }),
+    recordsStateChange(newState) {
+      this.recordsState = newState;
+    },
     toggleselectorvisible(i) {
       this.nameselectorvisible.splice(i, 1, !this.nameselectorvisible[i]);
     },

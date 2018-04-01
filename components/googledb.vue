@@ -1,11 +1,9 @@
 <template>
     <div>
         <div v-if='unknown'>
-            <button class="btn m-2 btn-primary" @click="initializeGoogleApi">tarkista kirjautuminen</button>
-            <h3>Checking authentication...</h3>
+            <button class="btn m-2 btn-primary" @click="initializeGoogleApi">Kirjaudu sisään</button>
+            <!-- <h3>Checking authentication...</h3> -->
         </div>        
-        recordsState: {{recordsState}}<br>
-        recordStates: {{state.recordStates}}
         <div v-if='apiLoaded'>
             <div  v-if='state.saveState === "saving"'>
                 <h4>Saving...</h4>
@@ -22,21 +20,6 @@
             </div>
             <button class="float-left btn m-2" @click="refreshRecords">Refresh</button>
             <a class="float-right btn m-2" target="_blank" :href='editLink'>Edit</a>
-            <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="matches" :fields="fields(config.tabs.matches, 5)">
-              <template slot="start" slot-scope="data">
-                 {{data.item.start | momentExcel}}
-              </template>
-              <template slot="player_1" slot-scope="data">
-                <span :class="{'font-weight-bold': data.item.player_1_score > data.item.player_2_score}">
-                  {{data.item.player_1}}
-                </span>
-              </template>
-              <template slot="player_2" slot-scope="data">
-                <span :class="{'font-weight-bold': data.item.player_2_score > data.item.player_1_score}">
-                  {{data.item.player_2}}
-                </span>
-              </template>
-            </b-table>
             <div v-if='recordsState === "loading"'>
                 <h4>Loading records...</h4>
                 <div class='progress'>
@@ -54,9 +37,11 @@
     </div>
 </template>
 <script>
-import moment from "moment";
-moment.locale("fi");
-import { convertDateToSheetsDateString, getNow } from "~/helpers/dateUtils";
+import {
+  convertDateToSheetsDateString,
+  getNow,
+  ExcelSerialToDate
+} from "~/helpers/dateUtils";
 import {
   Person,
   Remote,
@@ -69,7 +54,6 @@ import {
 export default {
   data() {
     return {
-      matches: [],
       textToInsert: "testing - " + new Date(),
       config: {
         // This API is whitelisted only for the following domains
@@ -85,38 +69,21 @@ export default {
           name: "Table Tennis Scoreboard",
           mimeType: "application/vnd.google-apps.spreadsheet"
         },
-        scopes: "https://www.googleapis.com/auth/spreadsheets", // We need this to read/write time entries to the spreadsheet.
-        tabs: {
-          matches: {
-            datarange: "'Matches'!A2:F",
-            columns: [
-              "Start",
-              "Player 1",
-              "Player 1 Score",
-              "Player 2",
-              "Player 2 Score",
-              "Last point",
-              "Stats"
-            ]
-          },
-          players: {
-            datarange: "'Players'!A2:F",
-            columns: ["ID", "Name", "Color", "Sound", "Language"]
-          }
-        }
+        scopes: "https://www.googleapis.com/auth/spreadsheets" // We need this to read/write time entries to the spreadsheet.
       },
       state: {
         saveState: "",
-        // recordsState: "",
         recordStates: [],
         authenticated: undefined,
         sheetsAPIReady: false,
         apiInitialized: false
-        // doingWhat: ""
       }
     };
   },
   computed: {
+    googleTabs() {
+      return this.$store.state.google.tabs;
+    },
     // Provides a Google Docs link to edit a spreadsheet
     editLink() {
       return `https://docs.google.com/spreadsheets/d/${
@@ -139,8 +106,10 @@ export default {
         this.state.recordStates.filter(x => x == true).length ==
         this.state.recordStates.length
       ) {
+        this.$emit("recordsStateChange", "loaded");
         return "loaded";
       } else {
+        this.$emit("recordsStateChange", "loading");
         return this.state.recordStates.length ? "loading" : "-";
       }
     }
@@ -152,21 +121,11 @@ export default {
     }
   },
   methods: {
-    fields(tab, count) {
-      var cols = tab.columns;
-      if (count) {
-        cols = cols.filter((x, i) => i < count);
-      }
-      return cols.map(c => {
-        return {
-          key: c.replace(/ /g, "_").toLowerCase(),
-          label: c,
-          sortable: true
-        };
-      });
-    },
     convertDateToSheetsDateString(date) {
       return convertDateToSheetsDateString(date);
+    },
+    ExcelSerialToDate(serial) {
+      return ExcelSerialToDate(serial);
     },
     /**
      * Attempts to refresh auth token in background. If Google Client is not loaded
@@ -241,11 +200,35 @@ export default {
         this.state.recordStates = []; //.slice(0, this.state.recordStates.length);
         this.state.recordStates.push(false);
         this.state.recordStates.push(false);
-        this.getRecordsFromTab(this, this.config.tabs.matches, null, true).then(data => {
-          this.matches = data;
-          this.$set(this.state.recordStates, 0, true);
-        });
-        this.getRecordsFromTab(this, this.config.tabs.players).then(data => {
+        this.getRecordsFromTab(this, this.googleTabs.matches, null, true).then(
+          data => {
+            this.$store.commit("matches/clear");
+            data.forEach(p => {
+              if (p.data) {
+                this.$store.commit("matches/add", JSON.parse(p.data));
+              } else {
+                // vanhimmista peleistä ei ole kaikkea dataa
+                var tMatch = new Match(p.ID);
+                tMatch.startTime = this.ExcelSerialToDate(p.start);
+                var player1 = new Player(new Person(null, p.player_1));
+                for (let i = 0; i < p.player_1_score; i++) {
+                  player1.points.push(new Point());
+                }
+                player1.remote = this.$store.state.remotes.list[0];
+                var player2 = new Player(new Person(null, p.player_2));
+                for (let i = 0; i < p.player_2_score; i++) {
+                  player2.points.push(new Point());
+                }
+                player2.remote = this.$store.state.remotes.list[1];
+                tMatch.players.push(player1);
+                tMatch.players.push(player2);
+                this.$store.commit("matches/add", tMatch);
+              }
+            });
+            this.$set(this.state.recordStates, 0, true);
+          }
+        );
+        this.getRecordsFromTab(this, this.googleTabs.players).then(data => {
           this.$store.commit("people/clear");
           data.forEach(p => {
             this.$store.commit(
@@ -278,7 +261,7 @@ export default {
         JSON.stringify(match.stats),
         JSON.stringify(match)
       ];
-      this.addData(this.config.tabs.matches, data);
+      this.addData(this.googleTabs.matches, data);
     },
     addData(tab, data) {
       this.state.saveState = "saving";
@@ -374,16 +357,6 @@ export default {
     //   if (Number.isNaN(d.getDate())) return "";
     //   return toDateInputStr(d);
     // }
-  },
-  filters: {
-    moment: function(date) {
-      return moment(date).format("L, LT");
-    },
-    momentExcel: function(date) {
-      return moment(new Date(Math.round((date - 25569) * 86400 * 1000)))
-        .utc()
-        .format("L, LT");
-    }
   },
   //   mounted() {
   //     console.info("automaattikirjautuminen");

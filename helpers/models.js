@@ -36,14 +36,8 @@ export class Remote {
   }
 }
 export class Match {
-  // median(values, func) {
-  //   return median(values, func);
-  // }
-  // countConsecutive(array, func) {
-  //   return countConsecutive(array, func);
-  // }
-  constructor() {
-    this.ID = guidGenerator();
+  constructor(ID) {
+    this.ID = ID || guidGenerator();
     this.startTime = new Date();
     this.players = [];
     this.remotes = [];
