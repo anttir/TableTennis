@@ -22,33 +22,39 @@ export const mutations = {
 export const actions = {
   initClient({ dispatch }, initMQTT) {
     /* ---------- Alusta kanta ---------- */
-    [
-      new Person(1, "Antti", "red", "/sounds/applause4.mp3"),
-      new Person(2, "Aapo", "blue", null, "es-ES"),
-      new Person(3, "Severi", "green", "/sounds/Crowd Boo.mp3"),
-      new Person(4, "Niklas", "fuchsia"),
-      new Person(5, "Miro", "orange"),
-      new Person(6, "Miikka", "brown")
-    ].forEach(person => {
-      this.app.store.commit("people/add", person);
-    });
-    [
-      new Remote("A", [12890956, 12890948, 12890953]),
-      new Remote("B", [12890954, 12890946, 12890945])
-    ].forEach(remote => {
-      this.app.store.commit("remotes/add", remote);
-    });
-    var match = new Match();
-    this.app.store.commit("matches/add", match);
-    [
-      new Player(this.state.people.list[0], this.state.remotes.list[0]),
-      new Player(this.state.people.list[1], this.state.remotes.list[1])
-    ].forEach(p => {
-      this.app.store.commit("matches/addPlayerToMatch", {
-        match: match,
-        player: p
+    if (
+      this.state.people &&
+      this.state.people.list &&
+      this.state.people.list.length == 0
+    ) {
+      [
+        new Person(1, "Antti", "red", "/sounds/applause4.mp3"),
+        new Person(2, "Aapo", "blue", null, "es-ES"),
+        new Person(3, "Severi", "green", "/sounds/Crowd Boo.mp3"),
+        new Person(4, "Niklas", "fuchsia"),
+        new Person(5, "Miro", "orange"),
+        new Person(6, "Miikka", "brown")
+      ].forEach(person => {
+        this.app.store.commit("people/add", person);
       });
-    });
+      [
+        new Remote("A", [12890956, 12890948, 12890953]),
+        new Remote("B", [12890954, 12890946, 12890945])
+      ].forEach(remote => {
+        this.app.store.commit("remotes/add", remote);
+      });
+      var match = new Match();
+      this.app.store.commit("matches/add", match);
+      [
+        new Player(this.state.people.list[0], this.state.remotes.list[0]),
+        new Player(this.state.people.list[1], this.state.remotes.list[1])
+      ].forEach(p => {
+        this.app.store.commit("matches/addPlayerToMatch", {
+          match: match,
+          player: p
+        });
+      });
+    }
     if (initMQTT) {
       /* ---------- Viritä MQTT kuntoon ---------- */
       //console.log(this.app)

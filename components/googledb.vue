@@ -4,6 +4,8 @@
             <button class="btn m-2 btn-primary" @click="initializeGoogleApi">tarkista kirjautuminen</button>
             <h3>Checking authentication...</h3>
         </div>        
+        recordsState: {{recordsState}}<br>
+        recordStates: {{state.recordStates}}
         <div v-if='apiLoaded'>
             <div  v-if='state.saveState === "saving"'>
                 <h4>Saving...</h4>
@@ -20,8 +22,8 @@
             </div>
             <button class="float-left btn m-2" @click="refreshRecords">Refresh</button>
             <a class="float-right btn m-2" target="_blank" :href='editLink'>Edit</a>
-            <!-- {{fields}}<br> -->
-            <b-table v-if='state.recordsState === "loaded"' striped hover outlined small :items="matches" :fields="fields">
+            <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="players" :fields="fields(config.tabs.players)" />
+            <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="matches" :fields="fields(config.tabs.matches, 5)">
               <template slot="start" slot-scope="data">
                  {{data.item.start | momentExcel}}
               </template>
@@ -36,7 +38,7 @@
                 </span>
               </template>
             </b-table>
-            <div v-if='state.recordsState === "loading"'>
+            <div v-if='recordsState === "loading"'>
                 <h4>Loading records...</h4>
                 <div class='progress'>
                     <div class='indeterminate'></div>
@@ -60,6 +62,7 @@ import { convertDateToSheetsDateString, getNow } from "~/helpers/dateUtils";
 export default {
   data() {
     return {
+      players: [],
       matches: [],
       textToInsert: "testing - " + new Date(),
       config: {
@@ -92,38 +95,22 @@ export default {
           },
           players: {
             datarange: "'Players'!A2:F",
-            columns: [
-              "ID",
-              "Name",
-              "Color",
-              "sound",
-              "Language"
-            ]
+            columns: ["ID", "Name", "Color", "sound", "Language"]
           }
         }
       },
       state: {
         saveState: "",
-        recordsState: "",
+        // recordsState: "",
+        recordStates: [],
         authenticated: undefined,
         sheetsAPIReady: false,
-        apiInitialized: false,
-        doingWhat: ""
+        apiInitialized: false
+        // doingWhat: ""
       }
     };
   },
   computed: {
-    fields() {
-      // return this.config.columns.map(c => c.replace(/ /g, "_").toLowerCase());
-
-      return this.config.tabs.matches.columns.filter((x, i) => i < 5).map(c => {
-        var o = {};
-        o.key = c.replace(/ /g, "_").toLowerCase();
-        o.label = c;
-        o.sortable = true;
-        return o;
-      });
-    },
     // Provides a Google Docs link to edit a spreadsheet
     editLink() {
       return `https://docs.google.com/spreadsheets/d/${
@@ -140,6 +127,16 @@ export default {
     },
     needsAuthentication() {
       return this.state.authenticated === false;
+    },
+    recordsState() {
+      if (
+        this.state.recordStates.filter(x => x == true).length ==
+        this.state.recordStates.length
+      ) {
+        return "loaded";
+      } else {
+        return this.state.recordStates.length ? "loading" : "-";
+      }
     }
   },
   watch: {
@@ -149,6 +146,19 @@ export default {
     }
   },
   methods: {
+    fields(tab, count) {
+      var cols = tab.columns;
+      if (count) {
+        cols = cols.filter((x, i) => i < count);
+      }
+      return cols.map(c => {
+        return {
+          key: c.replace(/ /g, "_").toLowerCase(),
+          label: c,
+          sortable: true
+        };
+      });
+    },
     convertDateToSheetsDateString(date) {
       return convertDateToSheetsDateString(date);
     },
@@ -222,17 +232,19 @@ export default {
     },
     refreshRecords() {
       if (this.apiLoaded) {
-        this.state.doingWhat = "Loading data...";
-        var tab = this.config.tabs.matches;
-        this.getLastRecordsForComponent(this, tab).then(data => {
+        this.state.recordStates = []; //.slice(0, this.state.recordStates.length);
+        this.state.recordStates.push(false);
+        this.state.recordStates.push(false);
+        this.getRecordsFromTab(this, this.config.tabs.matches).then(data => {
           this.matches = data;
-          // console.log(JSON.stringify(data));
-          // console.log(data);
-          this.state.doingWhat = "Results";
-          this.state.recordsState = "loaded";
+          this.$set(this.state.recordStates, 0, true);
+        });
+        this.getRecordsFromTab(this, this.config.tabs.players).then(data => {
+          this.players = data;
+          this.$set(this.state.recordStates, 1, true);
         });
       } else {
-        this.state.doingWhat = "Not logged in";
+        // this.state.doingWhat = "Not logged in";
       }
     },
     addMatch(match) {
@@ -295,16 +307,17 @@ export default {
       }
       return response;
     },
-    getLastRecordsForComponent(target, tab) {
+    getRecordsFromTab(target, tab, maxRows) {
       // immediately before loading, switch to progress mode:
-      this.state.recordsState = "loading";
+      // this.state.recordsState = "loading";
       const spreadsheetId = this.config.sheet.id;
       return this.fetchLastRecords(spreadsheetId, tab).then(
         response => {
           // we've got our data!
-          this.state.recordsState = "loaded";
+          // this.state.recordsState = "loaded";
           var values = response.result.values || [];
-          values = values.reverse().slice(0, 100);
+          maxRows = maxRows || 100;
+          values = values.reverse().slice(0, maxRows);
           values = values.map(r => {
             var obj = {};
             r.map((c, i) => {
