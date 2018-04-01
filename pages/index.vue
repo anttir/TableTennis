@@ -65,9 +65,11 @@
               </div>
               <div class="text-center">
                 <button v-if="!loggedInToGoogle" class="btn btn-info m-2" @click="tabIndex = 5">Log in to Google</button>
+                <input type="checkbox" id="keepThePlayers" v-model="keepThePlayers">
+                <label for="keepThePlayers"> keep the players</label>
                 <!-- <button v-if="loggedInToGoogle" class="btn btn-primary m-2" @click="saveScore()">Save score</button> -->
                 <button v-if="loggedInToGoogle" class="btn m-2 btn-primary"  @click="saveAndstartNewMatch()">Save score and start a new match</button>
-                <button v-else class="btn m-2 btn-danger" @click="startNewMatch(false)">Start new match</button>
+                <button v-else class="btn m-2 btn-danger" @click="startNewMatch(keepThePlayers)">Start new match</button>
               </div>
             </div>
           </div>
@@ -127,7 +129,8 @@ export default {
       nameselectorvisible: [false, false],
       autoSpeech: true,
       loggedInToGoogle: false,
-      tabIndex: 1
+      tabIndex: 1,
+      keepThePlayers: false
     };
   },
   computed: {
@@ -199,7 +202,7 @@ export default {
       startNewMatch: "matches/startNewMatch",
       saveAndstartNewMatch() {
         this.saveScore();
-        this.startNewMatch();
+        this.startNewMatch(this.keepThePlayers);
       }
     }),
     toggleselectorvisible(i) {

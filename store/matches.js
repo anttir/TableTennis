@@ -6,7 +6,7 @@ import {
   Point,
   guidGenerator
 } from "~/helpers/models";
- import { debug } from "util";
+import { debug } from "util";
 
 export const state = () => ({
   list: [],
@@ -109,29 +109,45 @@ export const mutations = {
   },
   removePlayerFromMatch(state, data) {
     for (var i = data.match.players.length - 1; i >= 0; i--) {
-      if (data.match.players[i].person && data.match.players[i].person.ID == data.personID) {
+      if (
+        data.match.players[i].person &&
+        data.match.players[i].person.ID == data.personID
+      ) {
         data.match.players.splice(i, 1);
       }
     }
   },
-  startNewMatch(state) {
-    //debugger
+  startNewMatch(state, keepThePlayers) {
     var _currentMatch = state.list[state.list.length - 1];
-    var _remotes = [_currentMatch.players[0].remote , _currentMatch.players[1].remote]
-    var winner = _currentMatch.players.map(p => ({
-      player: p,
-      points: p.points.length
-    })).sort((x,y) => y.points - x.points)[0].player;
+    var _remotes = [
+      _currentMatch.players[0].remote,
+      _currentMatch.players[1].remote
+    ];
+    var playersInOrder = _currentMatch.players
+      .map(p => ({
+        player: p,
+        points: p.points.length
+      }))
+      .sort((x, y) => y.points - x.points);
+    var winner = playersInOrder[0].player;
+    var loser = playersInOrder[1].player;
+    var winnerPosition = _currentMatch.players.findIndex(
+      x => x.ID == winner.ID
+    );
+
     var newMatch = new Match();
-    newMatch.players.push(new Player(winner.person, _remotes[0]));
-    // var loserremote = _currentMatch.players.find(x => x.ID != winner.ID).remote;
-    // var randomperson = $store.people.list
-    //   .filter(p => p.ID != winner.person.ID)
-    //   [Math.floor(Math.random() * $store.state.people.list.length -1)];
-    newMatch.players.push(new Player(null, _remotes[1]));
+    if (winnerPosition == 0) {
+      newMatch.players.push(new Player(winner.person, _remotes[0]));
+    }
+    newMatch.players.push(
+      new Player(keepThePlayers ? loser.person : null, _remotes[1])
+    );
+    if (winnerPosition == 1) {
+      newMatch.players.push(new Player(winner.person, _remotes[0]));
+    }
     state.list.push(newMatch);
   },
-  switchPlayers(state){
+  switchPlayers(state) {
     var _currentMatch = state.list[state.list.length - 1];
     _currentMatch.players.reverse();
     var tempremote = _currentMatch.players[0].remote;
