@@ -21,7 +21,7 @@
             <button class="float-left btn m-2" @click="refreshRecords">Refresh</button>
             <a class="float-right btn m-2" target="_blank" :href='editLink'>Edit</a>
             <!-- {{fields}}<br> -->
-            <b-table v-if='state.recordsState === "loaded"' striped hover outlined small :items="lastRecords" :fields="fields">
+            <b-table v-if='state.recordsState === "loaded"' striped hover outlined small :items="matches" :fields="fields">
               <template slot="start" slot-scope="data">
                  {{data.item.start | momentExcel}}
               </template>
@@ -60,7 +60,7 @@ import { convertDateToSheetsDateString, getNow } from "~/helpers/dateUtils";
 export default {
   data() {
     return {
-      lastRecords: [],
+      matches: [],
       textToInsert: "testing - " + new Date(),
       config: {
         // This API is whitelisted only for the following domains
@@ -88,6 +88,16 @@ export default {
               "Player 2 Score",
               "Last point",
               "Stats"
+            ]
+          },
+          players: {
+            datarange: "'Players'!A2:F",
+            columns: [
+              "ID",
+              "Name",
+              "Color",
+              "sound",
+              "Language"
             ]
           }
         }
@@ -215,9 +225,9 @@ export default {
         this.state.doingWhat = "Loading data...";
         var tab = this.config.tabs.matches;
         this.getLastRecordsForComponent(this, tab).then(data => {
-          this.lastRecords = data;
-          console.log(JSON.stringify(data));
-          //console.log(data);
+          this.matches = data;
+          // console.log(JSON.stringify(data));
+          // console.log(data);
           this.state.doingWhat = "Results";
           this.state.recordsState = "loaded";
         });
