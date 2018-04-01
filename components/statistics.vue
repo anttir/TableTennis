@@ -22,9 +22,8 @@
             <ul class="legend">
                 <li v-for="person in people" :style="{color: person.color}" :key="person.id">{{person.name}}</li>
             </ul>
-            <!-- {{stats}} -->
         </div>
-        <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="matches"  :fields="fields(columns, 5)">
+        <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="matches"  :fields="fields(columns, 5)" @row-clicked="showStats">
           <template slot="start_time" slot-scope="data">
               {{data.item.startTime | moment}}
           </template>
@@ -75,9 +74,9 @@ export default {
       counter: 0,
       stats: {},
       settings: {
-        maxMatchesIncluded: 5,
+        maxMatchesIncluded: 10,
         matchIcludedPeriod: 1000 * 60 * 60 * 24 * 30, // 1 kuukausi
-        useMultiplier: false
+        useMultiplier: true
       },
       layout: {
         width: 800,
@@ -91,10 +90,19 @@ export default {
       axes: ["bottom", "right"],
       xlinear: true,
       valueToChart: "pairSum",
-      columns: ['Start Time', 'Player 1', 'Player 1 Score', 'Player 2', 'Player 2 Score']
+      columns: [
+        "Start Time",
+        "Player 1",
+        "Player 1 Score",
+        "Player 2",
+        "Player 2 Score"
+      ]
     };
   },
   methods: {
+    showStats(row, index) {
+      console.log(row);
+    },
     fields(columns, count) {
       if (count) {
         columns = columns.filter((x, i) => i < count);
@@ -176,18 +184,20 @@ export default {
         initialValue[p.name].pairSum = 0;
       });
       res = this.matches.reduce((accumulator, curr, currentIndex, array) => {
-        if (curr.player_1_score != curr.player_2_score) {
+        var player_1_score = curr.players[0].points.length
+        var player_2_score = curr.players[1].points.length
+        if (player_1_score != player_2_score) {
           var winner =
-            curr.player_1_score > curr.player_2_score
-              ? curr.player_1
-              : curr.player_2;
+            player_1_score > player_2_score
+              ? curr.players[0].person.name
+              : curr.players[1].person.name;
           var loser =
-            curr.player_1_score > curr.player_2_score
-              ? curr.player_2
-              : curr.player_1;
+            player_1_score > player_2_score
+              ? curr.players[1].person.name
+              : curr.players[0].person.name;
           //   console.log({ winner, loser });
           if (accumulator[winner] && accumulator[loser]) {
-            accumulator.time = curr.start;
+            accumulator.time = curr.startTime;
             accumulator[winner].gamesPlayed += 1;
             accumulator[loser].gamesPlayed += 1;
             accumulator[winner].winlose += 1;
