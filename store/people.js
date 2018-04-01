@@ -13,7 +13,7 @@ export const state = () => ({
 
 export const mutations = {
   add(state, person) {
-    if(!person.ID) person.ID =  guidGenerator();
+    if (!person.ID) person.ID = guidGenerator();
     state.list.push(person);
   },
   remove(state, { person }) {
@@ -22,6 +22,9 @@ export const mutations = {
   changeColor(state, data) {
     var p = state.list[state.list.map(x => x.ID).indexOf(data.personID)];
     p.color = data.color;
+  },
+  clear(state) {
+    state.list = [];
   },
   toggle(state, person) {
     var p = state.list[state.list.indexOf(person)];

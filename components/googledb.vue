@@ -22,7 +22,6 @@
             </div>
             <button class="float-left btn m-2" @click="refreshRecords">Refresh</button>
             <a class="float-right btn m-2" target="_blank" :href='editLink'>Edit</a>
-            <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="players" :fields="fields(config.tabs.players)" />
             <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="matches" :fields="fields(config.tabs.matches, 5)">
               <template slot="start" slot-scope="data">
                  {{data.item.start | momentExcel}}
@@ -58,11 +57,18 @@
 import moment from "moment";
 moment.locale("fi");
 import { convertDateToSheetsDateString, getNow } from "~/helpers/dateUtils";
+import {
+  Person,
+  Remote,
+  Match,
+  Player,
+  Point,
+  guidGenerator
+} from "~/helpers/models";
 
 export default {
   data() {
     return {
-      players: [],
       matches: [],
       textToInsert: "testing - " + new Date(),
       config: {
@@ -95,7 +101,7 @@ export default {
           },
           players: {
             datarange: "'Players'!A2:F",
-            columns: ["ID", "Name", "Color", "sound", "Language"]
+            columns: ["ID", "Name", "Color", "Sound", "Language"]
           }
         }
       },
@@ -235,12 +241,18 @@ export default {
         this.state.recordStates = []; //.slice(0, this.state.recordStates.length);
         this.state.recordStates.push(false);
         this.state.recordStates.push(false);
-        this.getRecordsFromTab(this, this.config.tabs.matches).then(data => {
+        this.getRecordsFromTab(this, this.config.tabs.matches, null, true).then(data => {
           this.matches = data;
           this.$set(this.state.recordStates, 0, true);
         });
         this.getRecordsFromTab(this, this.config.tabs.players).then(data => {
-          this.players = data;
+          this.$store.commit("people/clear");
+          data.forEach(p => {
+            this.$store.commit(
+              "people/add",
+              new Person(p.id, p.name, p.color, p.sound, p.language)
+            );
+          });
           this.$set(this.state.recordStates, 1, true);
         });
       } else {
@@ -307,7 +319,7 @@ export default {
       }
       return response;
     },
-    getRecordsFromTab(target, tab, maxRows) {
+    getRecordsFromTab(target, tab, maxRows, reverse) {
       // immediately before loading, switch to progress mode:
       // this.state.recordsState = "loading";
       const spreadsheetId = this.config.sheet.id;
@@ -317,7 +329,10 @@ export default {
           // this.state.recordsState = "loaded";
           var values = response.result.values || [];
           maxRows = maxRows || 100;
-          values = values.reverse().slice(0, maxRows);
+          if (reverse) {
+            values = values.reverse();
+          }
+          values = values.slice(0, maxRows);
           values = values.map(r => {
             var obj = {};
             r.map((c, i) => {
