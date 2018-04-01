@@ -29,22 +29,22 @@
               {{data.item.startTime | moment}}
           </template>
           <template slot="player_1" slot-scope="data">
-            <span :class="{'font-weight-bold': data.item.player_1_score > data.item.player_2_score}">
+            <span :class="{'font-weight-bold': data.item.players[0].points.length > data.item.players[1].points.length}">
               {{data.item.players[0].person.name}}
             </span>
           </template>
           <template slot="player_1_score" slot-scope="data">
-            <span :class="{'font-weight-bold': data.item.player_1_score > data.item.player_2_score}">
+            <span :class="{'font-weight-bold': data.item.players[0].points.length > data.item.players[1].points.length}">
               {{data.item.players[0].points.length}}
             </span>
           </template>
           <template slot="player_2" slot-scope="data">
-            <span :class="{'font-weight-bold': data.item.player_2_score > data.item.player_1_score}">
+            <span :class="{'font-weight-bold': data.item.players[1].points.length > data.item.players[0].points.length}">
               {{data.item.players[1].person.name}}
             </span>
           </template>
           <template slot="player_2_score" slot-scope="data">
-            <span :class="{'font-weight-bold': data.item.player_1_score > data.item.player_2_score}">
+            <span :class="{'font-weight-bold': data.item.players[1].points.length > data.item.players[0].points.length}">
               {{data.item.players[1].points.length}}
             </span>
           </template>
