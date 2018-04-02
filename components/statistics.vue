@@ -2,6 +2,7 @@
     <div>
         <div v-if="people.length" >
             <button @click="update()">stats</button> <br>
+            <statistics_pairs :data="stats" :people="people" />
             <!-- {{people}}<br> -->
             <!-- {{resulthistory}}, -->
             <!-- {{chartData}} -->
@@ -53,13 +54,15 @@
 <script>
 import { Person, Remote, Match, Player, Point } from "~/helpers/models";
 import { mapActions, mapGetters, mapMutations } from "vuex";
+import statistics_pairs from "~/components/statistics_pairs";
 import d3__chart from "~/components/d3__chart";
 import moment from "moment";
 moment.locale("fi");
 
 export default {
   components: {
-    d3__chart
+    d3__chart,
+    statistics_pairs
   },
   props: {
     matches: { type: Array, default: () => [] },
@@ -184,8 +187,8 @@ export default {
         initialValue[p.name].pairSum = 0;
       });
       res = this.matches.reduce((accumulator, curr, currentIndex, array) => {
-        var player_1_score = curr.players[0].points.length
-        var player_2_score = curr.players[1].points.length
+        var player_1_score = curr.players[0].points.length;
+        var player_2_score = curr.players[1].points.length;
         if (player_1_score != player_2_score) {
           var winner =
             player_1_score > player_2_score
