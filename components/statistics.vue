@@ -83,7 +83,7 @@ export default {
       settings: {
         maxMatchesIncluded: 10,
         matchIcludedPeriod: 1000 * 60 * 60 * 24 * 30, // 1 kuukausi
-        useMultiplier: true
+        useMultiplier: "true"
       },
       layout: {
         width: 800,
