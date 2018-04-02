@@ -2,26 +2,32 @@
     <div>
         <div v-if='recordsState === "loaded"' >
           <div>
-            <label>Value for score</label>
+            <label>Formula for score:</label>
             <select v-model="valueToChart">
               <option value="gamesPlayed">gamesPlayed</option>
               <option value="winlose">winlose</option>
-              <option value="score">score</option>
+              <option value="stealFromLoser">stealFromLoser</option>
               <option value="winCount">winCount</option>
               <option value="looseCount">looseCount</option>
               <option value="winPercentage">winPercentage</option>
               <option value="loosePercentage">loosePercentage</option>
               <option value="pairSum">pairSum</option>
             </select>
-            <label>Max matches included for scoring: </label>
-            <select v-model="settings.maxMatchesIncluded">
-                <option v-for="i in 10" :key="'s' + i" >{{i}}</option>
-            </select>&nbsp;
-            <label>Old matches with lower weight: </label>
-            <select v-model="settings.useMultiplier">
-                <option value="true">true</option>
-                <option value="false">false</option>
-            </select>
+            <span v-if="valueToChart == 'stealFromLoser'" class="m-2">
+              <label>Part of points to steal: </label>
+              <input type="number" v-model="settings.percentageTakenFromLoser" size=2 min="0" max="1" step="0.05"  />
+            </span>
+            <span v-if="valueToChart == 'pairSum'"  class="m-2">
+              <label>Max matches included for scoring: </label>
+              <select v-model="settings.maxMatchesIncluded">
+                  <option v-for="i in 10" :key="'s' + i" >{{i}}</option>
+              </select>
+              <label>Old matches with lower weight: </label>
+              <select v-model="settings.useMultiplier">
+                  <option value="true">true</option>
+                  <option value="false">false</option>
+              </select>
+            </span>
             <!-- <button @click="updateStats()" class="m-2">Update</button> <br> -->
           </div>
           <statistics_pairs :data="stats" :people="people" />
@@ -94,16 +100,14 @@ export default {
   },
   data() {
     return {
-      // list: JSON.parse(
-      //   '[{"start":43185.96969907408,"player_1":"Antti","player_1_score":3,"player_2":"Aapo","player_2_score":3,"last_point":43185.97064814815},{"start":43182.74166666667,"player_1":"Antti","player_1_score":11,"player_2":"Niklas","player_2_score":6,"last_point":43182.743055555555},{"start":43182.739583333336,"player_1":"Severi","player_1_score":6,"player_2":"Antti","player_2_score":11,"last_point":43182.74166666667},{"start":43182.73819444444,"player_1":"Severi","player_1_score":11,"player_2":"Niklas","player_2_score":4,"last_point":43182.739583333336},{"start":43182.736805555556,"player_1":"Antti","player_1_score":11,"player_2":"Niklas","player_2_score":4,"last_point":43182.73819444444},{"start":43182.73402777778,"player_1":"Antti","player_1_score":11,"player_2":"Severi","player_2_score":6,"last_point":43182.73611111111},{"start":43182.731944444444,"player_1":"Antti","player_1_score":11,"player_2":"Niklas","player_2_score":8,"last_point":43182.73402777778},{"start":43182.728472222225,"player_1":"Antti","player_1_score":11,"player_2":"Miikka","player_2_score":8,"last_point":43182.73125},{"start":43182.725694444445,"player_1":"Antti","player_1_score":11,"player_2":"Severi","player_2_score":6,"last_point":43182.72777777778},{"start":43180.79305555556,"player_1":"Antti","player_1_score":11,"player_2":"Aapo","player_2_score":6,"last_point":43180.79513888889},{"start":43180.790972222225,"player_1":"Antti","player_1_score":11,"player_2":"Niklas","player_2_score":7,"last_point":43180.79305555556},{"start":43180.78680555556,"player_1":"Severi","player_1_score":12,"player_2":"Niklas","player_2_score":10,"last_point":43180.790972222225},{"start":43180.78680555556,"player_1":"Severi","player_1_score":11,"player_2":"Niklas","player_2_score":8,"last_point":43180.78680555556},{"start":43180.78333333333,"player_1":"Severi","player_1_score":16,"player_2":"Antti","player_2_score":14,"last_point":43180.78680555556},{"start":43180.76597222222,"player_1":"Severi","player_1_score":11,"player_2":"Aapo","player_2_score":9,"last_point":43180.78333333333},{"start":43180.77847222222,"player_1":"Niklas","player_1_score":10,"player_2":"Aapo","player_2_score":12,"last_point":43180.76597222222},{"start":43180.777083333334,"player_1":"Antti","player_1_score":5,"player_2":"Aapo","player_2_score":11,"last_point":43180.77847222222},{"start":43180.774305555555,"player_1":"Antti","player_1_score":11,"player_2":"Severi","player_2_score":8,"last_point":43180.777083333334},{"start":43180.77291666667,"player_1":"Antti","player_1_score":11,"player_2":"Niklas","player_2_score":4,"last_point":43180.774305555555},{"start":43180.770833333336,"player_1":"Antti","player_1_score":11,"player_2":"Aapo","player_2_score":8,"last_point":43180.77291666667},{"start":43180.76944444444,"player_1":"Antti","player_1_score":6,"player_2":"Severi","player_2_score":0,"last_point":43180.770833333336},{"start":43180.76736111111,"player_1":"Niklas","player_1_score":5,"player_2":"Antti","player_2_score":11,"last_point":43180.76944444444},{"start":43180.76597222222,"player_1":"Antti","player_1_score":11,"player_2":"Aapo","player_2_score":2,"last_point":43180.76736111111},{"start":43180.763194444444,"player_1":"Aapo","player_1_score":11,"player_2":"Severi","player_2_score":8,"last_point":43180.76597222222},{"start":43180.76111111111,"player_1":"Aapo","player_1_score":11,"player_2":"Niklas","player_2_score":9,"last_point":43180.763194444444},{"start":43180.75833333333,"player_1":"Antti","player_1_score":11,"player_2":"Aapo","player_2_score":6,"last_point":43180.76111111111},{"start":43180.75625,"player_1":"Antti","player_1_score":11,"player_2":"Niklas","player_2_score":3,"last_point":43180.75833333333},{"start":43180.754166666666,"player_1":"Severi","player_1_score":8,"player_2":"Niklas","player_2_score":11,"last_point":43180.75625},{"start":43180.75277777778,"player_1":"Antti","player_1_score":11,"player_2":"Aapo","player_2_score":6,"last_point":43180.754166666666},{"start":43180.74930555555,"player_1":"Antti","player_1_score":12,"player_2":"Niklas","player_2_score":10,"last_point":43180.75277777778},{"start":43180.74722222222,"player_1":"Antti","player_1_score":11,"player_2":"Niklas","player_2_score":6,"last_point":43180.74930555555},{"start":43180.74513888889,"player_1":"Antti","player_1_score":11,"player_2":"Aapo","player_2_score":6,"last_point":43180.74722222222},{"start":43180.74375,"player_1":"Severi","player_1_score":4,"player_2":"Aapo","player_2_score":11,"last_point":43180.74513888889},{"start":43180.74166666667,"player_1":"Severi","player_1_score":11,"player_2":"Niklas","player_2_score":6,"last_point":43180.74375},{"start":43180.739583333336,"player_1":"Antti","player_1_score":11,"player_2":"Aapo","player_2_score":8,"last_point":43180.74166666667},{"start":43180.7375,"player_1":"Antti","player_1_score":11,"player_2":"Niklas","player_2_score":6,"last_point":43180.739583333336},{"start":43180.73541666667,"player_1":"Antti","player_1_score":11,"player_2":"Severi","player_2_score":4,"last_point":43180.7375},{"start":43180.73263888889,"player_1":"Antti","player_1_score":11,"player_2":"Aapo","player_2_score":7,"last_point":43180.73541666667},{"start":43180.73125,"player_1":"Aapo","player_1_score":11,"player_2":"Niklas","player_2_score":9,"last_point":43180.73263888889},{"start":43180.72708333333,"player_1":"Severi","player_1_score":12,"player_2":"Niklas","player_2_score":14,"last_point":43180.73125}]'
-      // ),
       resulthistory: [],
       counter: 0,
       stats: {},
       settings: {
         maxMatchesIncluded: 10,
         matchIcludedPeriod: 1000 * 60 * 60 * 24 * 30, // 1 kuukausi
-        useMultiplier: "true"
+        useMultiplier: "true",
+        percentageTakenFromLoser: 0.1
       },
       layout: {
         width: 800,
@@ -205,7 +209,7 @@ export default {
         initialValue[p.name] = {};
         initialValue[p.name].gamesPlayed = 0;
         initialValue[p.name].winlose = 0;
-        initialValue[p.name].score = 100;
+        initialValue[p.name].stealFromLoser = 100;
         initialValue[p.name].winCount = 0;
         initialValue[p.name].looseCount = 0;
         initialValue[p.name].winPercentage = 0;
@@ -213,50 +217,71 @@ export default {
         initialValue[p.name].pairResults = {};
         initialValue[p.name].pairSum = 0;
       });
-      res = this.matches.reduce((accumulator, curr, currentIndex, array) => {
-        var player_1_score = curr.players[0].points.length;
-        var player_2_score = curr.players[1].points.length;
-        if (player_1_score != player_2_score) {
-          var winner =
-            player_1_score > player_2_score
-              ? curr.players[0].person.name
-              : curr.players[1].person.name;
-          var loser =
-            player_1_score > player_2_score
-              ? curr.players[1].person.name
-              : curr.players[0].person.name;
-          //   console.log({ winner, loser });
-          if (accumulator[winner] && accumulator[loser]) {
-            accumulator.time = curr.startTime;
-            accumulator[winner].gamesPlayed += 1;
-            accumulator[loser].gamesPlayed += 1;
-            accumulator[winner].winlose += 1;
-            accumulator[loser].winlose -= 1;
-            accumulator[winner].winCount += 1;
-            accumulator[loser].looseCount -= 1;
-            accumulator[winner].winPercentage =
-              accumulator[winner].winCount / accumulator[winner].gamesPlayed;
-            accumulator[loser].loosePercentage =
-              accumulator[loser].looseCount / accumulator[loser].gamesPlayed;
-            var scoremoving = accumulator[loser].score * 0.1;
-            accumulator[winner].score += scoremoving;
-            accumulator[loser].score -= scoremoving;
+      var tmatches = this.matches.slice(0);
+      res = tmatches
+        .sort((a, b) => a.startTime - b.startTime)
+        .reduce((accumulator, curr, currentIndex, array) => {
+          var player_1_score = curr.players[0].points.length;
+          var player_2_score = curr.players[1].points.length;
+          if (player_1_score != player_2_score) {
+            var winner =
+              player_1_score > player_2_score
+                ? curr.players[0].person.name
+                : curr.players[1].person.name;
+            var loser =
+              player_1_score > player_2_score
+                ? curr.players[1].person.name
+                : curr.players[0].person.name;
+            //   console.log({ winner, loser });
+            if (accumulator[winner] && accumulator[loser]) {
+              accumulator.time = curr.startTime;
+              accumulator[winner].gamesPlayed += 1;
+              accumulator[loser].gamesPlayed += 1;
+              accumulator[winner].winlose += 1;
+              accumulator[loser].winlose -= 1;
+              accumulator[winner].winCount += 1;
+              accumulator[loser].looseCount += 1;
+              [winner, loser].forEach(player => {
+                accumulator[player].winPercentage =
+                  accumulator[player].winCount /
+                  accumulator[player].gamesPlayed;
+                accumulator[player].loosePercentage =
+                  accumulator[player].looseCount /
+                  accumulator[player].gamesPlayed;
+              });
+              var scoremoving =
+                accumulator[loser].stealFromLoser *
+                this.settings.percentageTakenFromLoser;
+              accumulator[winner].stealFromLoser += scoremoving;
+              accumulator[loser].stealFromLoser -= scoremoving;
 
-            accumulator = this.updatePair(accumulator, curr, winner, loser, 1);
-            accumulator = this.updatePair(accumulator, curr, loser, winner, -1);
-            accumulator[winner].pairSum = this.getpairSum(accumulator[winner]);
-            accumulator[loser].pairSum = this.getpairSum(accumulator[loser]);
-
-            var currSituation = JSON.parse(JSON.stringify(accumulator));
-            //console.log(currSituation);
-            this.addhistory(currSituation);
-            this.counter += 1;
-          } else {
-            console.error("person not found:" + winner + " or " + loser);
+              accumulator = this.updatePair(
+                accumulator,
+                curr,
+                winner,
+                loser,
+                1
+              );
+              accumulator = this.updatePair(
+                accumulator,
+                curr,
+                loser,
+                winner,
+                -1
+              );
+              accumulator[winner].pairSum = this.getpairSum(
+                accumulator[winner]
+              );
+              accumulator[loser].pairSum = this.getpairSum(accumulator[loser]);
+              var currSituation = JSON.parse(JSON.stringify(accumulator));
+              this.addhistory(currSituation);
+              this.counter += 1;
+            } else {
+              console.error("person not found:" + winner + " or " + loser);
+            }
           }
-        }
-        return accumulator;
-      }, initialValue);
+          return accumulator;
+        }, initialValue);
       this.stats = res;
       return res;
     }
