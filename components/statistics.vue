@@ -35,33 +35,42 @@
               :axes="axes"
               :xlinear="xlinear"
               :seriestypes="seriestypes" />
-          <!-- <ul class="legend">
-              <li v-for="person in people" :style="{color: person.color}" :key="person.id">{{person.name}}</li>
-          </ul> -->
           <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="matches"  :fields="fields(columns, 5)" @row-clicked="showStats">
-            <template slot="start_time" slot-scope="data">
-                {{data.item.startTime | moment}}
+            <template slot="start_time" slot-scope="row">
+                {{row.item.startTime | moment}}
+                <!-- <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
+                  {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
+                </b-button> -->
             </template>
-            <template slot="player_1" slot-scope="data">
-              <span :class="{'font-weight-bold': data.item.players[0].points.length > data.item.players[1].points.length}">
-                {{data.item.players[0].person.name}}
+            <template slot="player_1" slot-scope="row">
+              <span :class="{'font-weight-bold': row.item.players[0].points.length > row.item.players[1].points.length}">
+                {{row.item.players[0].person.name}}
               </span>
             </template>
-            <template slot="player_1_score" slot-scope="data">
-              <span :class="{'font-weight-bold': data.item.players[0].points.length > data.item.players[1].points.length}">
-                {{data.item.players[0].points.length}}
+            <template slot="player_1_score" slot-scope="row">
+              <span :class="{'font-weight-bold': row.item.players[0].points.length > row.item.players[1].points.length}">
+                {{row.item.players[0].points.length}}
               </span>
             </template>
-            <template slot="player_2" slot-scope="data">
-              <span :class="{'font-weight-bold': data.item.players[1].points.length > data.item.players[0].points.length}">
-                {{data.item.players[1].person.name}}
+            <template slot="player_2" slot-scope="row">
+              <span :class="{'font-weight-bold': row.item.players[1].points.length > row.item.players[0].points.length}">
+                {{row.item.players[1].person.name}}
               </span>
             </template>
-            <template slot="player_2_score" slot-scope="data">
-              <span :class="{'font-weight-bold': data.item.players[1].points.length > data.item.players[0].points.length}">
-                {{data.item.players[1].points.length}}
+            <template slot="player_2_score" slot-scope="row">
+              <span :class="{'font-weight-bold': row.item.players[1].points.length > row.item.players[0].points.length}">
+                {{row.item.players[1].points.length}}
               </span>
             </template>
+            <!-- <template slot="row-details" slot-scope="row">
+              <b-card>
+                <b-row class="mb-2">
+                  <b-col sm="3" class="text-sm-right"><b>Age:</b></b-col>
+                  <b-col>{{ JSON.stringify(row.item) }}</b-col>
+                </b-row>
+                <b-button size="sm" @click="row.toggleDetails">Hide Details</b-button>
+              </b-card>
+            </template> -->
           </b-table>
         </div>
     </div>  
