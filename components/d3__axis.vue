@@ -50,14 +50,14 @@ export default {
       var axisGenerator = {
         top: d3.axisTop(scale.x).tickFormat(xTickformat),
         right: d3
-          .axisRight(scale.y)
-          .tickValues(yscalenumbers)
-          .tickFormat(d3.format("d")),
+          .axisRight(scale.y),
+          // .tickValues(yscalenumbers)
+          // .tickFormat(d3.format("d")),
         bottom: d3.axisBottom(scale.x).tickFormat(xTickformat),
         left: d3
-          .axisLeft(scale.y)
-          .tickValues(yscalenumbers)
-          .tickFormat(d3.format("d"))
+          .axisLeft(scale.y),
+          // .tickValues(yscalenumbers)
+          // .tickFormat(d3.format("d"))
       };
       if (this.xlinear) {
         axisGenerator.top.tickValues(xscalenumbers);
