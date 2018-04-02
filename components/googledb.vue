@@ -205,6 +205,7 @@ export default {
         this.state.recordStates.push(false);
         this.getRecordsFromTab(this, this.googleTabs.matches, null, true).then(
           data => {
+            var currentMatch = this.$store.state.matches.list.slice(-1).pop() // listan viimeinen
             this.$store.commit("matches/clear");
             data.forEach(p => {
               if (p.data) {
@@ -228,6 +229,7 @@ export default {
                 this.$store.commit("matches/add", tMatch);
               }
             });
+            this.$store.commit("matches/add", currentMatch);
             this.$set(this.state.recordStates, 0, true);
           }
         );
