@@ -151,7 +151,10 @@ export default {
       accumulator[player1].pairResults[player2].array = array;
       var sum = array.reduce((prev, curr, i, array) => {
         var multiplier = 1;
-        if (this.settings.useMultiplier && this.settings.useMultiplier == "true") {
+        if (
+          this.settings.useMultiplier &&
+          this.settings.useMultiplier == "true"
+        ) {
           multiplier =
             (this.settings.maxMatchesIncluded - array.length + i + 1) /
             this.settings.maxMatchesIncluded;
@@ -255,17 +258,18 @@ export default {
             values: [{ x: 0, value: 0 }]
           }
         ];
-      for (let i = 0; i < this.resulthistory.length; i++) {
-        const round = this.resulthistory[i];
+      for (let roundIndex = 0; roundIndex < this.resulthistory.length; roundIndex++) {
+        const round = this.resulthistory[roundIndex];
         for (var personName in round) {
           if (round.hasOwnProperty(personName)) {
             var index = peopleresults.findIndex(x => x.name == personName);
             if (index >= 0) {
+              // löytyi henkilö
               // roundilla on muitakin propertyjä kuin henkilöt (esim. time)
               var person = peopleresults[index];
-              if (!person.results) person.results = [];
+              if (!person.results || roundIndex == 0) person.results = [];
               person.results.push({
-                x: this.xlinear ? i : round.time,
+                x: this.xlinear ? roundIndex : round.time,
                 value: round[personName][this.valueToChart]
               });
             }

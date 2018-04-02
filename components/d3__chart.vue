@@ -1,4 +1,5 @@
 <template>
+<div>
     <svg :view-box.camel="viewBox" preserveAspectRatio="xMidYMid meet">
     <g class="d3__stage" :style="stageStyle">
       <d3__axis
@@ -19,6 +20,7 @@
         ></d3__series>
     </g>
   </svg>
+</div>
 </template>
 <script>
 // FROM https://codepen.io/terrymun/pen/gmBdKq/?editors=0010
