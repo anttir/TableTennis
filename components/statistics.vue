@@ -2,6 +2,17 @@
     <div>
         <div v-if='recordsState === "loaded"' >
           <div>
+            <label>Value for score</label>
+            <select v-model="valueToChart">
+              <option value="gamesPlayed">gamesPlayed</option>
+              <option value="winlose">winlose</option>
+              <option value="score">score</option>
+              <option value="winCount">winCount</option>
+              <option value="looseCount">looseCount</option>
+              <option value="winPercentage">winPercentage</option>
+              <option value="loosePercentage">loosePercentage</option>
+              <option value="pairSum">pairSum</option>
+            </select>
             <label>Max matches included for scoring: </label>
             <select v-model="settings.maxMatchesIncluded">
                 <option v-for="i in 10" :key="'s' + i" >{{i}}</option>
@@ -258,7 +269,11 @@ export default {
             values: [{ x: 0, value: 0 }]
           }
         ];
-      for (let roundIndex = 0; roundIndex < this.resulthistory.length; roundIndex++) {
+      for (
+        let roundIndex = 0;
+        roundIndex < this.resulthistory.length;
+        roundIndex++
+      ) {
         const round = this.resulthistory[roundIndex];
         for (var personName in round) {
           if (round.hasOwnProperty(personName)) {
