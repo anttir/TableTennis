@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if='unknown'>
-            <button class="btn m-2 btn-primary" @click="initializeGoogleApi">Kirjaudu sisään</button>
+            <button class="btn m-2 btn-primary" @click="initializeGoogleApi">Log in</button>
             <!-- <h3>Checking authentication...</h3> -->
         </div>        
         <div v-if='apiLoaded'>
@@ -18,8 +18,11 @@
                     Refresh the page maybe?
                 </div>
             </div>
-            <button class="float-left btn m-2" @click="refreshRecords">Refresh</button>
-            <a class="float-right btn m-2" target="_blank" :href='editLink'>Edit</a>
+            <div>
+              <button class="float-left btn m-2" @click="refreshRecords">Refresh</button>
+              <a class="float-right btn m-2" target="_blank" :href='editLink'>Edit</a>
+            </div>
+            <br style="clear:both" />
             <div v-if='recordsState === "loading"'>
                 <h4>Loading records...</h4>
                 <div class='progress'>

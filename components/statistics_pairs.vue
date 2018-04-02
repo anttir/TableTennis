@@ -1,5 +1,5 @@
 <template>
-    <b-table :fields="fields()" :items="rows()" no-provider-sorting=true>
+    <b-table :fields="fields()" :items="rows()" :no-provider-sorting="true">
         <template v-for="person in people" :slot="'HEAD_' + person.name" slot-scope="data">
             <span :style="{color: person.color}" :key="'th-' + person.ID">{{person.name}}</span>
         </template>
@@ -11,7 +11,7 @@
 <script>
 export default {
   props: {
-    data: { type: Array, default: () => [] },
+    data: { type: Object, default: () => {} },
     people: { type: Array, default: () => [] }
   },
   computed: {},

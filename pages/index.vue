@@ -77,7 +77,6 @@
         <b-tab title="People" ><people /></b-tab>
         <b-tab title="Remotes" ><remotes /></b-tab>
         <b-tab title="History" >
-          recordsState: {{recordsState}}
           <googledb ref="history" v-on:ready="loggedInToGoogle = true" v-on:recordsStateChange="recordsStateChange" />
           <statistics :matches="matches" :recordsState="recordsState" />
         </b-tab>

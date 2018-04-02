@@ -1,54 +1,58 @@
 <template>
     <div>
-        <div v-if="people.length" >
-            <button @click="update()">stats</button> <br>
-            <statistics_pairs :data="stats" :people="people" />
-            <!-- {{people}}<br> -->
-            <!-- {{resulthistory}}, -->
-            <!-- {{chartData}} -->
-            <!-- {{counter}} -->
-            <d3__chart
-                :layout="layout"
-                :chartdata="chartData"
-                :axes="axes"
-                :xlinear="xlinear"
-                :seriestypes="seriestypes" />
+        <div v-if='recordsState === "loaded"' >
+          <div>
+            <label>Max matches included for scoring: </label>
             <select v-model="settings.maxMatchesIncluded">
                 <option v-for="i in 10" :key="'s' + i" >{{i}}</option>
-            </select>
+            </select>&nbsp;
+            <label>Old matches with lower weight: </label>
             <select v-model="settings.useMultiplier">
                 <option value="true">true</option>
                 <option value="false">false</option>
             </select>
-            <ul class="legend">
-                <li v-for="person in people" :style="{color: person.color}" :key="person.id">{{person.name}}</li>
-            </ul>
+            <!-- <button @click="updateStats()" class="m-2">Update</button> <br> -->
+          </div>
+          <statistics_pairs :data="stats" :people="people" />
+          <!-- {{people}}<br> -->
+          <!-- {{resulthistory}}, -->
+          <!-- {{chartData}} -->
+          <!-- {{counter}} -->
+          <d3__chart
+              :layout="layout"
+              :chartdata="chartData"
+              :axes="axes"
+              :xlinear="xlinear"
+              :seriestypes="seriestypes" />
+          <!-- <ul class="legend">
+              <li v-for="person in people" :style="{color: person.color}" :key="person.id">{{person.name}}</li>
+          </ul> -->
+          <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="matches"  :fields="fields(columns, 5)" @row-clicked="showStats">
+            <template slot="start_time" slot-scope="data">
+                {{data.item.startTime | moment}}
+            </template>
+            <template slot="player_1" slot-scope="data">
+              <span :class="{'font-weight-bold': data.item.players[0].points.length > data.item.players[1].points.length}">
+                {{data.item.players[0].person.name}}
+              </span>
+            </template>
+            <template slot="player_1_score" slot-scope="data">
+              <span :class="{'font-weight-bold': data.item.players[0].points.length > data.item.players[1].points.length}">
+                {{data.item.players[0].points.length}}
+              </span>
+            </template>
+            <template slot="player_2" slot-scope="data">
+              <span :class="{'font-weight-bold': data.item.players[1].points.length > data.item.players[0].points.length}">
+                {{data.item.players[1].person.name}}
+              </span>
+            </template>
+            <template slot="player_2_score" slot-scope="data">
+              <span :class="{'font-weight-bold': data.item.players[1].points.length > data.item.players[0].points.length}">
+                {{data.item.players[1].points.length}}
+              </span>
+            </template>
+          </b-table>
         </div>
-        <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="matches"  :fields="fields(columns, 5)" @row-clicked="showStats">
-          <template slot="start_time" slot-scope="data">
-              {{data.item.startTime | moment}}
-          </template>
-          <template slot="player_1" slot-scope="data">
-            <span :class="{'font-weight-bold': data.item.players[0].points.length > data.item.players[1].points.length}">
-              {{data.item.players[0].person.name}}
-            </span>
-          </template>
-          <template slot="player_1_score" slot-scope="data">
-            <span :class="{'font-weight-bold': data.item.players[0].points.length > data.item.players[1].points.length}">
-              {{data.item.players[0].points.length}}
-            </span>
-          </template>
-          <template slot="player_2" slot-scope="data">
-            <span :class="{'font-weight-bold': data.item.players[1].points.length > data.item.players[0].points.length}">
-              {{data.item.players[1].person.name}}
-            </span>
-          </template>
-          <template slot="player_2_score" slot-scope="data">
-            <span :class="{'font-weight-bold': data.item.players[1].points.length > data.item.players[0].points.length}">
-              {{data.item.players[1].points.length}}
-            </span>
-          </template>
-        </b-table>
     </div>  
 </template>
 <script>
@@ -119,7 +123,7 @@ export default {
       });
     },
     ...mapActions(["initClient"]),
-    update() {
+    updateStats() {
       this.resulthistory = []; //this.resulthistory.splice(0, this.resulthistory.length);
       this.getStats();
     },
@@ -146,16 +150,16 @@ export default {
       var multiplierTotal = 0;
       accumulator[player1].pairResults[player2].array = array;
       var sum = array.reduce((prev, curr, i, array) => {
-        var multiplier =
-          (this.settings.maxMatchesIncluded - array.length + i + 1) /
-          this.settings.maxMatchesIncluded;
+        var multiplier = 1;
+        if (this.settings.useMultiplier && this.settings.useMultiplier == "true") {
+          multiplier =
+            (this.settings.maxMatchesIncluded - array.length + i + 1) /
+            this.settings.maxMatchesIncluded;
+        }
         multiplierTotal = multiplierTotal + multiplier;
-        return (
-          prev + curr.winlose * (this.settings.useMultiplier ? multiplier : 1)
-        );
+        return prev + curr.winlose * multiplier;
       }, 0);
-      accumulator[player1].pairResults[player2].sum =
-        sum / (this.settings.useMultiplier ? multiplierTotal : 1);
+      accumulator[player1].pairResults[player2].sum = sum / multiplierTotal;
       return accumulator;
     },
     getpairSum(player) {
@@ -290,8 +294,17 @@ export default {
     }
   },
   watch: {
-    settings: () => {
-      this.update();
+    settings: {
+      handler: function(val, oldVal) {
+        this.updateStats();
+      },
+      deep: true
+    },
+    recordsState: {
+      handler: function(val, oldVal) {
+        if (val == "loaded") this.updateStats();
+      },
+      deep: true
     }
   },
   filters: {
