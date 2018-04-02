@@ -31,6 +31,7 @@
             <!-- <button @click="updateStats()" class="m-2">Update</button> <br> -->
           </div>
           <statistics_pairs :data="stats" :people="people" />
+          <!-- {{stats}} -->
           <!-- {{people}}<br> -->
           <!-- {{resulthistory}}, -->
           <!-- {{chartData}} -->
@@ -184,8 +185,31 @@ export default {
             this.settings.maxMatchesIncluded;
         }
         multiplierTotal = multiplierTotal + multiplier;
+        if (
+          (player1 == "Antti" || player2 == "Antti") &&
+          (player1 == "Aapo" || player2 == "Aapo")
+        ) {
+          console.log(
+            JSON.stringify({
+              i: i,
+              multiplier: multiplier,
+              multiplierTotal: multiplierTotal
+            })
+          );
+        }
         return prev + curr.winlose * multiplier;
       }, 0);
+      // if (
+      //   (player1 == "Antti" || player2 == "Antti") &&
+      //   (player1 == "Aapo" || player2 == "Aapo")
+      // ) {
+      //   console.log(
+      //     JSON.stringify({
+      //       sum: sum,
+      //       multiplierTotal: multiplierTotal
+      //     })
+      //   );
+      // }
       accumulator[player1].pairResults[player2].sum = sum / multiplierTotal;
       return accumulator;
     },
@@ -274,6 +298,24 @@ export default {
               );
               accumulator[loser].pairSum = this.getpairSum(accumulator[loser]);
               var currSituation = JSON.parse(JSON.stringify(accumulator));
+
+              // if (
+              //   (curr.players[0].person.name == "Antti" ||
+              //     curr.players[1].person.name == "Antti") &&
+              //   (curr.players[0].person.name == "Aapo" ||
+              //     curr.players[1].person.name == "Aapo")
+              // ) {
+              //   var joku = {
+              //     i: currentIndex,
+              //     gamesPlayed: currSituation.Antti.pairResults["Aapo"],
+              //     montako: currSituation.Antti.pairResults["Aapo"].array.length
+              //     // looseCount: currSituation.Antti.looseCount,
+              //     // loosePercentage: currSituation.Antti.loosePercentage,
+              //     // winCount: currSituation.Antti.winCount,
+              //     // winPercentage: currSituation.Antti.winPercentage
+              //   };
+              //   console.log(JSON.stringify(joku));
+              // }
               this.addhistory(currSituation);
               this.counter += 1;
             } else {

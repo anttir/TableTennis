@@ -61,6 +61,7 @@ export default {
       return cols.concat(cols2);
     },
     percentageFormatter(value) {
+      if(value == 0) return '-'
       return value ? Math.round(value * 100) + "%" : "";
     }
   },
