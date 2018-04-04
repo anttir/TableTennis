@@ -205,11 +205,13 @@ export default {
         this.state.recordStates.push(false);
         this.getRecordsFromTab(this, this.googleTabs.matches, null, true).then(
           data => {
-            var currentMatch = this.$store.state.matches.list.slice(-1).pop() // listan viimeinen
+            var currentMatch = this.$store.state.matches.list.slice(-1).pop(); // listan viimeinen
             this.$store.commit("matches/clear");
             data.forEach(p => {
               if (p.data) {
-                this.$store.commit("matches/add", JSON.parse(p.data));
+                var m = JSON.parse(p.data);
+                m.startTime = new Date(m.startTime);
+                this.$store.commit("matches/add", m);
               } else {
                 // vanhimmista peleistä ei ole kaikkea dataa
                 var tMatch = new Match(p.ID);
@@ -316,11 +318,13 @@ export default {
           // we've got our data!
           // this.state.recordsState = "loaded";
           var values = response.result.values || [];
-          maxRows = maxRows || 100;
           if (reverse) {
             values = values.reverse();
           }
-          values = values.slice(0, maxRows);
+          if (maxRows !== null) {
+            maxRows = maxRows || 100; // undefined => 100
+            values = values.slice(0, maxRows);
+          }
           values = values.map(r => {
             var obj = {};
             r.map((c, i) => {

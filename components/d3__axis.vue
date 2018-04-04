@@ -59,7 +59,7 @@ export default {
           // .tickValues(yscalenumbers)
           // .tickFormat(d3.format("d"))
       };
-      if (this.xlinear) {
+      if (this.xlinear && (scale.x.domain()[1] - scale.x.domain()[0] < 30)) {
         axisGenerator.top.tickValues(xscalenumbers);
         axisGenerator.bottom.tickValues(xscalenumbers);
       }

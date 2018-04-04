@@ -2,7 +2,7 @@
     <div>
         <div v-if='recordsState === "loaded"' >
           <div>
-            <label>Formula for score:</label>
+            <label>Formula/data for chart:</label>
             <select v-model="valueToChart">
               <option value="gamesPlayed">gamesPlayed</option>
               <option value="winlose">winlose</option>
@@ -12,6 +12,9 @@
               <option value="winPercentage">winPercentage</option>
               <option value="loosePercentage">loosePercentage</option>
               <option value="pairSum">pairSum</option>
+              <option value="pointsTotal">pointsTotal</option>
+              <option value="goldenSetsWon">goldenSetsWon</option>
+              <option value="goldenSetsLost">goldenSetsLost</option>
             </select>
             <span v-if="valueToChart == 'stealFromLoser'" class="m-2">
               <label>Part of points to steal: </label>
@@ -19,18 +22,19 @@
             </span>
             <span v-if="valueToChart == 'pairSum'"  class="m-2">
               <label>Max matches included for scoring: </label>
-              <select v-model="settings.maxMatchesIncluded">
-                  <option v-for="i in 10" :key="'s' + i" >{{i}}</option>
-              </select>
-              <label>Old matches with lower weight: </label>
+              <input type="number" v-model="settings.maxMatchesIncluded" size=2 min="1" max="100" step="1"  />
+                 <label>Old matches with lower weight: </label>
               <select v-model="settings.useMultiplier">
                   <option value="true">true</option>
                   <option value="false">false</option>
               </select>
             </span>
-            <!-- <button @click="updateStats()" class="m-2">Update</button> <br> -->
           </div>
-          <statistics_pairs :data="stats" :people="people" />
+          <div>
+            <label for="startDate">Start date: </label> <datepicker class="datePicker" v-model="settings.startDate"  :highlighted="{dates:[new Date()], disabled:{from: new Date()}}"  :calendar-button="false" calendar-button-icon="fa fa-calendar-alt" :monday-first="true" />
+            <label for="endDate">End date: </label> <datepicker class="datePicker" v-model="settings.endDate" :highlighted="{dates:[new Date()], disabled:{from: new Date()}}" :calendar-button="false" calendar-button-icon="fa fa-calendar-alt"  :monday-first="true"/>
+          </div>
+          <statistics_pairs :data="stats" :people="people" :scoreField="valueToChart" />
           <!-- {{stats}} -->
           <!-- {{people}}<br> -->
           <!-- {{resulthistory}}, -->
@@ -42,7 +46,7 @@
               :axes="axes"
               :xlinear="xlinear"
               :seriestypes="seriestypes" />
-          <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="matches"  :fields="fields(columns, 5)" @row-clicked="showStats">
+          <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="filteredMathces"  :fields="fields(columns, 5)" @row-clicked="showStats">
             <template slot="start_time" slot-scope="row">
                 {{row.item.startTime | moment}}
                 <!-- <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
@@ -88,12 +92,14 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import statistics_pairs from "~/components/statistics_pairs";
 import d3__chart from "~/components/d3__chart";
 import moment from "moment";
+import Datepicker from "vuejs-datepicker";
 moment.locale("fi");
 
 export default {
   components: {
     d3__chart,
-    statistics_pairs
+    statistics_pairs,
+    Datepicker
   },
   props: {
     matches: { type: Array, default: () => [] },
@@ -108,7 +114,13 @@ export default {
         maxMatchesIncluded: 10,
         matchIcludedPeriod: 1000 * 60 * 60 * 24 * 30, // 1 kuukausi
         useMultiplier: "true",
-        percentageTakenFromLoser: 0.1
+        percentageTakenFromLoser: 0.1,
+        startDate: moment()
+          .add("months", -1)
+          .toDate(),
+        endDate: moment()
+          .add("days", 1)
+          .toDate()
       },
       layout: {
         width: 800,
@@ -189,27 +201,9 @@ export default {
           (player1 == "Antti" || player2 == "Antti") &&
           (player1 == "Aapo" || player2 == "Aapo")
         ) {
-          console.log(
-            JSON.stringify({
-              i: i,
-              multiplier: multiplier,
-              multiplierTotal: multiplierTotal
-            })
-          );
         }
         return prev + curr.winlose * multiplier;
       }, 0);
-      // if (
-      //   (player1 == "Antti" || player2 == "Antti") &&
-      //   (player1 == "Aapo" || player2 == "Aapo")
-      // ) {
-      //   console.log(
-      //     JSON.stringify({
-      //       sum: sum,
-      //       multiplierTotal: multiplierTotal
-      //     })
-      //   );
-      // }
       accumulator[player1].pairResults[player2].sum = sum / multiplierTotal;
       return accumulator;
     },
@@ -240,8 +234,11 @@ export default {
         initialValue[p.name].loosePercentage = 0;
         initialValue[p.name].pairResults = {};
         initialValue[p.name].pairSum = 0;
+        initialValue[p.name].pointsTotal = 0;
+        initialValue[p.name].goldenSetsWon = 0;
+        initialValue[p.name].goldenSetsLost = 0;
       });
-      var tmatches = this.matches.slice(0);
+      var tmatches = this.filteredMathces.slice(0);
       res = tmatches
         .sort((a, b) => a.startTime - b.startTime)
         .reduce((accumulator, curr, currentIndex, array) => {
@@ -261,6 +258,14 @@ export default {
               accumulator.time = curr.startTime;
               accumulator[winner].gamesPlayed += 1;
               accumulator[loser].gamesPlayed += 1;
+              var winnerPoints = Math.max(player_1_score, player_2_score);
+              var loserPoints = Math.min(player_1_score, player_2_score);
+              accumulator[winner].pointsTotal += winnerPoints;
+              accumulator[loser].pointsTotal += loserPoints;
+              if (winnerPoints == 6 && loserPoints == 0) {
+                accumulator[winner].goldenSetsWon += 1;
+                accumulator[loser].goldenSetsLost += 1;
+              }
               accumulator[winner].winlose += 1;
               accumulator[loser].winlose -= 1;
               accumulator[winner].winCount += 1;
@@ -298,24 +303,6 @@ export default {
               );
               accumulator[loser].pairSum = this.getpairSum(accumulator[loser]);
               var currSituation = JSON.parse(JSON.stringify(accumulator));
-
-              // if (
-              //   (curr.players[0].person.name == "Antti" ||
-              //     curr.players[1].person.name == "Antti") &&
-              //   (curr.players[0].person.name == "Aapo" ||
-              //     curr.players[1].person.name == "Aapo")
-              // ) {
-              //   var joku = {
-              //     i: currentIndex,
-              //     gamesPlayed: currSituation.Antti.pairResults["Aapo"],
-              //     montako: currSituation.Antti.pairResults["Aapo"].array.length
-              //     // looseCount: currSituation.Antti.looseCount,
-              //     // loosePercentage: currSituation.Antti.loosePercentage,
-              //     // winCount: currSituation.Antti.winCount,
-              //     // winPercentage: currSituation.Antti.winPercentage
-              //   };
-              //   console.log(JSON.stringify(joku));
-              // }
               this.addhistory(currSituation);
               this.counter += 1;
             } else {
@@ -329,6 +316,17 @@ export default {
     }
   },
   computed: {
+    filteredMathces() {
+      return this.matches
+        .filter(a => a.startTime >= this.settings.startDate)
+        .filter(
+          a =>
+            a.startTime <
+            moment(this.settings.endDate)
+              .add("days", 1)
+              .toDate()
+        );
+    },
     people() {
       return this.$store.state.people.list;
     },
@@ -391,6 +389,7 @@ export default {
   watch: {
     settings: {
       handler: function(val, oldVal) {
+        console.log("Updating...");
         this.updateStats();
       },
       deep: true
@@ -418,4 +417,9 @@ export default {
   }
 };
 </script>
+<style scoped>
+.datePicker {
+  display: inline-block;
+}
+</style>
 
