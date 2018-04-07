@@ -209,12 +209,14 @@ export default {
     },
     getpairSum(player) {
       var sumTotal = 0;
+      var pairCount = 0;
       for (var pair in player.pairResults) {
         if (player.pairResults.hasOwnProperty(pair)) {
           sumTotal = sumTotal + player.pairResults[pair].sum;
+          pairCount += 1;
         }
       }
-      return sumTotal;
+      return pairCount ? sumTotal / pairCount : 0;
     },
     getStats() {
       if (!this.people.length) {

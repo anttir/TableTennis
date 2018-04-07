@@ -34,7 +34,10 @@ export default {
         {
           key: this.scoreField,
           label: this.scoreField,
-          formatter: x => Math.round(x * 100) / 100
+          formatter:
+            this.scoreField === "pairSum"
+              ? "percentageFormatter"
+              : x => Math.round(x * 100) / 100
         }
       ].map(c => {
         c.sortable = true;
@@ -80,10 +83,10 @@ export default {
 };
 </script>
 <style>
-  th.sorting_asc,
-  th.sorting_desc {
-    background-color: #eee;
-  }
+th.sorting_asc,
+th.sorting_desc {
+  background-color: #eee;
+}
 </style>
 
 
