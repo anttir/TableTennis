@@ -5,7 +5,8 @@
             <span :style="{color: person.color}" :key="'th-' + person.ID">{{person.name}}</span>
         </template>
         <template slot="name" slot-scope="data">
-            <span :style="{color: people.find(x => x.name == data.value).color}">{{data.value}}</span>
+          <input type="checkbox" style="display:none" v-model="excludedPeople" :value="data.value" :id="'p' + data.value" >
+          <label :for="'p' + data.value" style="cursor: pointer" :style="{color: people.find(x => x.name == data.value).color}">{{data.value}}</label>
         </template>
     </b-table>
 </div>
@@ -19,7 +20,8 @@ export default {
   },
   data() {
     return {
-      sortDesc: "Descending"
+      sortDesc: "Descending",
+      excludedPeople: []
     };
   },
   computed: {
@@ -59,6 +61,10 @@ export default {
     }
   },
   methods: {
+    includePerson(name) {
+      var index = this.excludedPeople.indexOf(name);
+      if (index !== -1) this.excludedPeople.splice(index, 1);
+    },
     filteredKeys() {
       return Object.keys(this.data).filter(
         x => x != "time" && this.data[x].gamesPlayed > 0
@@ -78,6 +84,11 @@ export default {
     percentageFormatter(value) {
       if (value == 0) return "-";
       return value ? Math.round(value * 100) + "%" : "";
+    }
+  },
+  watch: {
+    excludedPeople(val) {
+      this.$emit("excludedPeopleChanged", val);
     }
   }
 };

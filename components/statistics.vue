@@ -14,6 +14,7 @@
               <option value="pairSum">pairSum</option>
               <option value="pointsTotal">pointsTotal</option>
               <option value="pointsTotalAverage">pointsTotalAverage</option>
+              <option value="pointsDifference">pointsDifference</option>
               <option value="goldenSetsWon">goldenSetsWon</option>
               <option value="goldenSetsLost">goldenSetsLost</option>
             </select>
@@ -35,9 +36,16 @@
             <label for="startDate">Start date: </label> <datepicker class="datePicker" v-model="settings.startDate"  :highlighted="{dates:[new Date()], disabled:{from: new Date()}}"  :calendar-button="false" calendar-button-icon="fa fa-calendar-alt" :monday-first="true" />
             <label for="endDate">End date: </label> <datepicker class="datePicker" v-model="settings.endDate" :highlighted="{dates:[new Date()], disabled:{from: new Date()}}" :calendar-button="false" calendar-button-icon="fa fa-calendar-alt"  :monday-first="true"/>
           </div>
-          <statistics_pairs :data="stats" :people="people" :scoreField="valueToChart" />
+          <div v-if="excludedPeople.length">Exceluded people: 
+            <span v-for="(person, i) in excludedPeople" :key="person" @click="includePerson(person)" >
+              <span v-if="i > 0">, </span>
+              <span style="cursor: pointer" :style="{color: people.find(x => x.name == person).color}">{{person}}</span>
+            </span>
+          </div>
+          <statistics_pairs :data="stats" ref="stats" :people="people" :scoreField="valueToChart" v-on:excludedPeopleChanged="excludedPeopleChanged" />
           <!-- {{stats}} -->
           <!-- {{people}}<br> -->
+          <!-- {{excludedPeople}}<br> -->
           <!-- {{resulthistory}}, -->
           <!-- {{chartData}} -->
           <!-- {{counter}} -->
@@ -141,10 +149,17 @@ export default {
         "Player 1 Score",
         "Player 2",
         "Player 2 Score"
-      ]
+      ],
+      excludedPeople: []
     };
   },
   methods: {
+    includePerson(name) {
+      this.$refs.stats.includePerson(name);
+    },
+    excludedPeopleChanged(val) {
+      this.excludedPeople = val;
+    },
     showStats(row, index) {
       console.log(row);
     },
@@ -163,7 +178,7 @@ export default {
     ...mapActions(["initClient"]),
     updateStats() {
       this.resulthistory = []; //this.resulthistory.splice(0, this.resulthistory.length);
-      this.getStats();
+      this.getStats(this.excludedPeople);
     },
     addhistory(value) {
       this.resulthistory.push(value);
@@ -219,14 +234,14 @@ export default {
       }
       return pairCount ? sumTotal / pairCount : 0;
     },
-    getStats() {
+    getStats(excludedPeople) {
       if (!this.people.length) {
         console.log("not ready");
         return;
       }
       var res;
       var initialValue = {};
-      this.people.forEach(p => {
+      this.people.filter(p => !excludedPeople.includes(p.name)).forEach(p => {
         initialValue[p.name] = {};
         initialValue[p.name].gamesPlayed = 0;
         initialValue[p.name].winlose = 0;
@@ -238,6 +253,7 @@ export default {
         initialValue[p.name].pairResults = {};
         initialValue[p.name].pairSum = 0;
         initialValue[p.name].pointsTotal = 0;
+        initialValue[p.name].pointsDifference = 0;
         initialValue[p.name].pointsTotalAverage = 0;
         initialValue[p.name].goldenSetsWon = 0;
         initialValue[p.name].goldenSetsLost = 0;
@@ -248,7 +264,11 @@ export default {
         .reduce((accumulator, curr, currentIndex, array) => {
           var player_1_score = curr.players[0].points.length;
           var player_2_score = curr.players[1].points.length;
-          if (player_1_score != player_2_score) {
+          if (
+            !excludedPeople.includes(curr.players[0].person.name) &&
+            !excludedPeople.includes(curr.players[1].person.name) &&
+            player_1_score != player_2_score
+          ) {
             var winner =
               player_1_score > player_2_score
                 ? curr.players[0].person.name
@@ -266,6 +286,8 @@ export default {
               var loserPoints = Math.min(player_1_score, player_2_score);
               accumulator[winner].pointsTotal += winnerPoints;
               accumulator[loser].pointsTotal += loserPoints;
+              accumulator[winner].pointsDifference += winnerPoints - loserPoints;
+              accumulator[loser].pointsDifference += loserPoints - winnerPoints;
               if (winnerPoints == 6 && loserPoints == 0) {
                 accumulator[winner].goldenSetsWon += 1;
                 accumulator[loser].goldenSetsLost += 1;
@@ -372,29 +394,38 @@ export default {
           }
         }
       }
-      return peopleresults.map(person => {
-        return {
-          id: person ? person.name : "",
-          color: person ? person.color : null,
-          values: [
-            {
-              x: 0,
-              value: 0
-            }
-          ].concat(
-            person.results.map(r => {
-              return {
-                x: this.xlinear ? r.x : new Date(r.x),
-                value: r.value
-              };
-            })
-          )
-        };
-      });
+      return peopleresults
+        .filter(p => !this.excludedPeople.includes(p.name))
+        .map(person => {
+          return {
+            id: person ? person.name : "",
+            color: person ? person.color : null,
+            values: [
+              {
+                x: 0,
+                value: 0
+              }
+            ].concat(
+              person.results.map(r => {
+                return {
+                  x: this.xlinear ? r.x : new Date(r.x),
+                  value: r.value
+                };
+              })
+            )
+          };
+        });
     }
   },
   watch: {
     settings: {
+      handler: function(val, oldVal) {
+        console.log("Updating...");
+        this.updateStats();
+      },
+      deep: true
+    },
+    excludedPeople: {
       handler: function(val, oldVal) {
         console.log("Updating...");
         this.updateStats();
