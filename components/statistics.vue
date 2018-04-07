@@ -13,6 +13,7 @@
               <option value="loosePercentage">loosePercentage</option>
               <option value="pairSum">pairSum</option>
               <option value="pointsTotal">pointsTotal</option>
+              <option value="pointsTotalAverage">pointsTotalAverage</option>
               <option value="goldenSetsWon">goldenSetsWon</option>
               <option value="goldenSetsLost">goldenSetsLost</option>
             </select>
@@ -237,6 +238,7 @@ export default {
         initialValue[p.name].pairResults = {};
         initialValue[p.name].pairSum = 0;
         initialValue[p.name].pointsTotal = 0;
+        initialValue[p.name].pointsTotalAverage = 0;
         initialValue[p.name].goldenSetsWon = 0;
         initialValue[p.name].goldenSetsLost = 0;
       });
@@ -278,6 +280,9 @@ export default {
                   accumulator[player].gamesPlayed;
                 accumulator[player].loosePercentage =
                   accumulator[player].looseCount /
+                  accumulator[player].gamesPlayed;
+                accumulator[player].pointsTotalAverage =
+                  accumulator[player].pointsTotal /
                   accumulator[player].gamesPlayed;
               });
               var scoremoving =
@@ -413,7 +418,6 @@ export default {
         .format("L, LT");
     }
   },
-
   mounted() {
     this.initClient(false); // luo kantaan täytettä ja käynnistää MQTT:n
   }
