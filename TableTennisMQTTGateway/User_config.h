@@ -57,8 +57,8 @@ char mqtt_port[6] = "16275"; // alkuperäinen CuteMQTT oli "18577"
 /*-------------DEFINE YOUR NETWORK PARAMETERS BELOW----------------*/
 // Update these with values suitable for your network.
 #if defined(ESP32) || defined(ESPWifiManualSetup) // for nodemcu, weemos and esp8266
-  #define wifi_ssid "kotiverkko"
-  #define wifi_password "kotiverkonsalasana"
+  #define wifi_ssid "antinverkko"
+  #define wifi_password "antinsalasana"
 #else // for arduino + W5100
   const byte mac[] = {  0xDE, 0xED, 0xBA, 0xFE, 0x54, 0x95 }; //W5100 ethernet shield mac adress
 #endif
