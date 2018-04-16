@@ -125,10 +125,10 @@ export default {
         useMultiplier: "true",
         percentageTakenFromLoser: 0.1,
         startDate: moment()
-          .add("months", -1)
+          .add(-1, "months")
           .toDate(),
         endDate: moment()
-          .add("days", 1)
+          .add(1, "days")
           .toDate()
       },
       layout: {
