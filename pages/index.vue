@@ -36,7 +36,7 @@
                       </div>
                     </div>
                     <div v-on:click="toggleselectorvisible(i)" class="personName text-center" :style="{ color: player.person ? player.person.color : 'grey'}">{{ player.person ? player.person.name : "select"}}</div>
-                    <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div>
+                    <!-- <div class="remoteName" v-b-tooltip.hover title="Remote name">{{player.remote.name}}</div> -->
                   </div>
                   <div class="text-center points" v-if="player.person && currentMatch.enoughPlayers">
                     <span v-on:click="addPoint(player.remote.buttonIDs[1])"><i class="fas fa-minus pointsbutton " /></span>
@@ -62,7 +62,7 @@
                   <a v-on:click="xlinear=false" :style="{fontWeight: !xlinear ? 'bold' : 'normal', cursor: !xlinear ? 'default' : 'pointer'}">time</a> -->
               </div>
               <div class="text-center">
-                <button v-if="!loggedInToGoogle" class="btn btn-info mr-5" @click="tabIndex = 5">Log in to Google</button>
+                <button v-if="!loggedInToGoogle" class="btn btn-info mr-5" @click="tabIndex = 2">Log in to Google</button>
                 <input type="checkbox" id="keepThePlayers" v-model="keepThePlayers">
                 <label for="keepThePlayers"> keep the players</label>
                 <!-- <button v-if="loggedInToGoogle" class="btn btn-primary m-2" @click="saveScore()">Save score</button> -->
@@ -73,12 +73,12 @@
           </div>
           <div v-else>-- No matches -- </div>
         </b-tab>
-        <b-tab title="Matches" ><matches /></b-tab>
+        <!-- <b-tab title="Matches" ><matches /></b-tab>
         <b-tab title="People" ><people /></b-tab>
-        <b-tab title="Remotes" ><remotes /></b-tab>
+        <b-tab title="Remotes" ><remotes /></b-tab> -->
         <b-tab title="History" >
           <googledb ref="history" v-on:ready="loggedInToGoogle = true" v-on:recordsStateChange="recordsStateChange" />
-          <statistics :matches="matches" :recordsState="recordsState" />
+          <statistics :isCurrentTab="tabIndex == 2" :matches="matches" :recordsState="recordsState" />
         </b-tab>
         <!-- <b-tab title="Logger"><logger/></b-tab> -->
       </b-tabs>

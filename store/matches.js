@@ -156,5 +156,15 @@ export const mutations = {
     var tempremote = _currentMatch.players[0].remote;
     _currentMatch.players[0].remote = _currentMatch.players[1].remote;
     _currentMatch.players[1].remote = tempremote;
-  }
+  },
+  // toggleDetails(state, matchId){
+  //   var _currentMatch = state.list.filter(x => x.ID == matchId)[0];
+  //   if(_currentMatch) {
+  //     if(_currentMatch.hasOwnProperty("_showDetails")) {
+  //       _currentMatch._showDetails = !_currentMatch._showDetails;
+  //     } else {
+  //       _currentMatch._showDetails = true;
+  //     }
+  //   }
+  // }
 };

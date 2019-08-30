@@ -46,21 +46,26 @@
           <!-- {{stats}} -->
           <!-- {{people}}<br> -->
           <!-- {{excludedPeople}}<br> -->
-          <!-- {{resulthistory}}, -->
+          <!-- {{resulthistory}}<br> -->
           <!-- {{chartData}} -->
           <!-- {{counter}} -->
+          <!-- {{filteredMathces}} -->
+          <!-- {{isCurrentTab}} -->
           <d3__chart
               :layout="layout"
               :chartdata="chartData"
               :axes="axes"
               :xlinear="xlinear"
               :seriestypes="seriestypes" />
-          <b-table v-if='recordsState === "loaded"' striped hover outlined small :items="filteredMathces"  :fields="fields(columns, 5)" @row-clicked="showStats">
+          <input type="checkbox" id="showTable" v-model="showTable"> 
+          <label for="showTable">Show individual results</label>
+          <b-table v-if='recordsState === "loaded" && showTable === true' striped hover outlined small :items="filteredMathces"  :fields="fields(columns, 5)" @row-clicked="showStats">
             <template slot="start_time" slot-scope="row">
                 {{row.item.startTime | moment}}
-                <!-- <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
+                <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
                   {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
-                </b-button> -->
+                </b-button>
+                {{row.item._showDetails}}
             </template>
             <template slot="player_1" slot-scope="row">
               <span :class="{'font-weight-bold': row.item.players[0].points.length > row.item.players[1].points.length}">
@@ -82,15 +87,15 @@
                 {{row.item.players[1].points.length}}
               </span>
             </template>
-            <!-- <template slot="row-details" slot-scope="row">
+            <template slot="row-details" slot-scope="row">
               <b-card>
                 <b-row class="mb-2">
-                  <b-col sm="3" class="text-sm-right"><b>Age:</b></b-col>
+                  <b-col sm="3" class="text-sm-right"><b>Details:</b></b-col>
                   <b-col>{{ JSON.stringify(row.item) }}</b-col>
                 </b-row>
                 <b-button size="sm" @click="row.toggleDetails">Hide Details</b-button>
               </b-card>
-            </template> -->
+            </template>
           </b-table>
         </div>
     </div>  
@@ -112,7 +117,8 @@ export default {
   },
   props: {
     matches: { type: Array, default: () => [] },
-    recordsState: { type: String, default: "" }
+    recordsState: { type: String, default: "" },
+    isCurrentTab: { type: Boolean, default: false }
   },
   data() {
     return {
@@ -125,10 +131,10 @@ export default {
         useMultiplier: "true",
         percentageTakenFromLoser: 0.1,
         startDate: moment()
-          .add(-1, "months")
+          .add("months", -1)
           .toDate(),
         endDate: moment()
-          .add(1, "days")
+          .add("days",1)
           .toDate()
       },
       layout: {
@@ -150,10 +156,15 @@ export default {
         "Player 2",
         "Player 2 Score"
       ],
-      excludedPeople: []
+      excludedPeople: [],
+      showTable: false
     };
   },
   methods: {
+    ...mapActions(["initClient"]),
+    ...mapMutations({
+      toggleDetails: "matches/toggleDetails",
+    }),
     includePerson(name) {
       this.$refs.stats.includePerson(name);
     },
@@ -162,6 +173,7 @@ export default {
     },
     showStats(row, index) {
       console.log(row);
+      this.toggleDetails(row.ID);
     },
     fields(columns, count) {
       if (count) {
@@ -175,7 +187,6 @@ export default {
         };
       });
     },
-    ...mapActions(["initClient"]),
     updateStats() {
       this.resulthistory = []; //this.resulthistory.splice(0, this.resulthistory.length);
       this.getStats(this.excludedPeople);
@@ -213,11 +224,11 @@ export default {
             this.settings.maxMatchesIncluded;
         }
         multiplierTotal = multiplierTotal + multiplier;
-        if (
-          (player1 == "Antti" || player2 == "Antti") &&
-          (player1 == "Aapo" || player2 == "Aapo")
-        ) {
-        }
+        // if (
+        //   (player1 == "Antti" || player2 == "Antti") &&
+        //   (player1 == "Aapo" || player2 == "Aapo")
+        // ) {
+        // }
         return prev + curr.winlose * multiplier;
       }, 0);
       accumulator[player1].pairResults[player2].sum = sum / multiplierTotal;
@@ -286,7 +297,8 @@ export default {
               var loserPoints = Math.min(player_1_score, player_2_score);
               accumulator[winner].pointsTotal += winnerPoints;
               accumulator[loser].pointsTotal += loserPoints;
-              accumulator[winner].pointsDifference += winnerPoints - loserPoints;
+              accumulator[winner].pointsDifference +=
+                winnerPoints - loserPoints;
               accumulator[loser].pointsDifference += loserPoints - winnerPoints;
               if (winnerPoints == 6 && loserPoints == 0) {
                 accumulator[winner].goldenSetsWon += 1;
@@ -346,6 +358,9 @@ export default {
   },
   computed: {
     filteredMathces() {
+      if(!this.isCurrentTab) {
+        return [];
+      }
       return this.matches
         .filter(a => a.startTime >= this.settings.startDate)
         .filter(
@@ -354,7 +369,9 @@ export default {
             moment(this.settings.endDate)
               .add("days", 1)
               .toDate()
-        );
+        )
+        .map(x => {x._showDetails = true; return x;}) // näytetäänkö pelin statistiikka UI:ssa
+        .map(x => x) // että taulusta tulee kopio
     },
     people() {
       return this.$store.state.people.list;

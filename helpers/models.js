@@ -64,7 +64,6 @@ export class Match {
     }
     this.latestPoint = points.length ? points[points.length - 1] : null;
   }
-
   get playerScores() {
     return this.players.map(x => x.points.length);
   }
@@ -76,7 +75,7 @@ export class Match {
     return this.playerCount == 2;
   }
   get stats() {
-    if(!this.players.length) return;
+    if (!this.players.length) return;
     var points = this.players
       .map(p => p.points)
       .reduce((a, b) => a.concat(b), [])
@@ -104,10 +103,7 @@ export class Match {
       tie: tie,
       winner: pointWinner(points, this.players),
       medianPointLength: medianPointLength,
-      H1Winner: pointWinner(
-        points.slice(0, points.length * 0.5),
-        this.players
-      ),
+      H1Winner: pointWinner(points.slice(0, points.length * 0.5), this.players),
       H2Winner: pointWinner(
         points.slice(points.length * 0.5, points.length),
         this.players
@@ -124,10 +120,7 @@ export class Match {
         points.slice(points.length * 0.5, points.length * 0.75),
         this.players
       ),
-      Q4Winner: pointWinner(
-        points.slice(points.length * 0.75),
-        this.players
-      ),
+      Q4Winner: pointWinner(points.slice(points.length * 0.75), this.players),
       shortPointsWinner: pointWinner(
         points.filter(p => p.pointLength < medianPointLength),
         this.players

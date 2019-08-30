@@ -5,7 +5,8 @@ export const state = () => ({
   sheetsAPIReady: false,
   tabs: {
     matches: {
-      datarange: "'Matches'!A2:H",
+//      datarange: "'Matches'!A2:H",
+      datarange: "'Matches'!A800:H",
       columns: [
         "Start",
         "Player 1",
